@@ -113,7 +113,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         id_sql                    = id_sql         
         key_list                  = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')
         
-   
 def executing_program_json  (message_info,status_input,setting_bot):                                                                ###  Разбор команды оператор в json
     import iz_bot                                                                                                                   ###  Основные функции программы
     import json
@@ -151,7 +150,7 @@ def save_message_user   (message_info,status_input,setting_bot):
     pass
     
 def executing_status    (message_info,status_input,setting_bot):
-    if status_input.setdefault('Статус','') == 'Ввод города':                           ###  Пример работы статусного сообщения
+    if status_input.setdefault('Статус','') == 'Ввод города':                                                                       ###  Пример работы статусного сообщения
         pass
         
 def executing_message   (message_info,status_input,setting_bot):
@@ -160,13 +159,13 @@ def executing_message   (message_info,status_input,setting_bot):
         limit    = 10
         offset   = 0
         back     = ''
-        id_sql   = save_sql     (message_info,"Список товаров",sql,limit,offset,back)                                               ### Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
-        key_list = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')                                             ### id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки
+        id_sql   = save_sql     (message_info,"Список товаров",sql,limit,offset,back)                                               ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
+        key_list = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')                                             ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки
         
 def executing_program   (message_info,status_input,setting_bot):
-    if callback.find ('i_') != -1:                                                      ###  Кнопка которая передала в json информацию
+    if callback.find ('i_') != -1:                                                                                                  ###  Кнопка которая передала в json информацию
         executing_program_json (message_info,status_input,setting_bot)
-    if callback == 'save_message':                                                      ###  Пример работы команды кнопки
+    if callback == 'save_message':                                                                                                  ###  Пример работы команды кнопки
         pass
 
 def analis              (message_info,status_input,setting_bot):
