@@ -1,4 +1,22 @@
 
+
+def get_info_tovar (message_info,status_input,setting_bot,id_list):
+
+    import iz_bot
+    namebot     = message_info.setdefault('namebot','')
+    data_answer = {}    
+    db,cursor = iz_bot.connect (namebot)
+    sql = "select id,name,info from service where id = {} limit 1".format (id_list)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data: 
+        id,name,info = rec.values()        
+        data_answer = {'name':name,'info':info}    
+    return data_answer
+
+
+##################################################################################################################################################################################################    
+
 def save_sql                (message_info,name,sql,limit,offset,back):
     import iz_bot
     namebot    = message_info.setdefault('namebot','')
