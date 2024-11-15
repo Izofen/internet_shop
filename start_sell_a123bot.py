@@ -1,18 +1,25 @@
 
 
-def get_info_tovar (message_info,status_input,setting_bot,id_list):
-
+def get_info_tovar (message_info,status_input,setting_bot,id_list):                                                                 ### Получаем информацию по товару
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
-    data_answer = {}    
+    answer = {}    
     db,cursor = iz_bot.connect (namebot)
-    sql = "select id,name,info from service where id = {} limit 1".format (id_list)
+    sql = "select id,name,about,catalog,comment,currency,picture,pocket,price,quantity from service where id = {} limit 1".format (id_list)
     cursor.execute(sql)
     data = cursor.fetchall()
     for rec in data: 
-        id,name,info = rec.values()        
-        data_answer = {'name':name,'info':info}    
-    return data_answer
+        id,name,about,catalog,comment,currency,picture,pocket,price,quantity = rec.values()        
+        answer['name']          = name 
+        answer['about']         = about
+        answer['catalog']       = catalog
+        answer['comment']       = comment
+        answer['currency']      = currency
+        answer['picture']       = picture
+        answer['pocket']        = pocket
+        answer['price']         = price
+        answer['quantity']      = quantity
+    return answer
 
 
 ##################################################################################################################################################################################################    
@@ -97,9 +104,19 @@ def get_message             (message_info,name):
     return data_message 
   
 def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_tovar):                                             ###  Формируем карточку товара    
-    message = get_message (message_info,"Шаблон товара")
-    key     = {}
-    return message,key
+    message         = get_message (message_info,"Шаблон товара")                                                                    ###  Список значений исходящего сообщения
+    message_text    = message['Текст']
+    message_text    = message_text.replace('##name##'    ,str(name)) 
+    message_text    = message_text.replace('##about##'   ,str(about)) 
+    message_text    = message_text.replace('##catalog##' ,str(catalog)) 
+    message_text    = message_text.replace('##comment##' ,str(comment)) 
+    message_text    = message_text.replace('##currency##',str(currency)) 
+    message_text    = message_text.replace('##picture##' ,str(picture)) 
+    message_text    = message_text.replace('##pocket##'  ,str(pocket)) 
+    message_text    = message_text.replace('##price##'   ,str(price))
+    message_text    = message_text.replace('##quantity##',str(quantity)) 
+    key             = {}
+    return message_text,key
    
 ##################################################################################################################################################################################################    
    
