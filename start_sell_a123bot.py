@@ -1,6 +1,6 @@
 
 
-def get_info_tovar (message_info,status_input,setting_bot,id_list):                                                                 ### Получаем информацию по товару
+def get_info_tovar          (message_info,status_input,setting_bot,id_list):                                                                 ### Получаем информацию по товару
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
     answer = {}    
@@ -35,7 +35,7 @@ def save_sql                (message_info,name,sql,limit,offset,back):
     lastid = cursor.lastrowid
     return lastid
 
-def get_sql                 (message_info,id_sql):
+def get_sql                 (message_info,setting_bot,id_sql):
     import iz_bot
     namebot    = message_info.setdefault('namebot','')
     db,cursor = iz_bot.connect (namebot)
@@ -46,21 +46,262 @@ def get_sql                 (message_info,id_sql):
         id,sql,ask,limit,offset,back = rec.values() 
     return sql,ask,limit,offset,back  
 
-def send_message            (user_id,message_out):
+def save_message            (message_info,setting_bot,user_id,message_out):
+    namebot      = message_info.setdefault('namebot','')
+    db,cursor    = iz_bot.connect (namebot)
+    id = 0
+    sql = "select id,name from message where name = 'Имя' and info = '{}' ;".format(message_out)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data:
+        id,name = rec.values()     
+    if id != 0:
+        sql = "INSERT INTO message (data_id,info,name,status) VALUES ({},'{}','{}','')".format (0,message_out,'Имя')
+        cursor.execute(sql)
+        db.commit()
+        lastid = cursor.lastrowid
+        sql = "UPDATE message SET data_id = '{}' WHERE id = {}".format(lastid,lastid)
+        cursor.execute(sql)
+        db.commit()
+        sql = "INSERT INTO message (data_id,info,name,status) VALUES ({},'{}','{}','')".format (lastid,message_out,'Текст')
+        cursor.execute(sql)
+        db.commit()    
+    return ""    
+        
+def gets_message            (message_info,setting_bot,user_id,message_out):        
+    namebot      = message_info.setdefault('namebot','')
+    db,cursor    = iz_bot.connect (namebot)
+    message      = {}
+    sql = "select id,name,info,data_id from message where name = 'Имя' and info = '{}' ;".format(message_out)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data:
+        id,name,info,data_id = rec.values() 
+    sql  = "select id,name,info,data_id from message where data_id = {};".format(data_id)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data:
+        id,name,info,data_id = rec.values()
+        message[name] = info
+    if message.setdefault('Текст','') == '': 
+        message['Текст'] = message_out 
+    if message.setdefault('Меню','') == '': 
+        message['Меню'] = ''        
+    return message
+    
+    
+def user_save_data          (message_info,status_input,save_data): 
+    import iz_bot
+    namebot     = message_info['namebot']
+    user_id     = message_info['user_id']
+    db,cursor   = iz_bot.connect (namebot)
+    sql         = "select id,name,info,data_id from users where name = 'user_id' and info = '{}' limit 1;".format (user_id)
+    cursor.execute(sql)
+    results = cursor.fetchall()   
+    for row in results:
+        id,name,info,data_id = row.values() 
+        for line in save_data:
+            name    = line[0]
+            info    = line[1]
+            sql     = "select id,name,info from users where data_id = {} and name = '{}';".format (data_id,name)
+            cursor.execute(sql)
+            results = cursor.fetchall()  
+            id = 0
+            for row in results:
+                id,name,info = row.values() 
+            if id != 0:
+                sql         = "UPDATE users SET info = %s WHERE `name` = %s and data_id = %s "
+                sql_save    = (info,name,data_id)
+                cursor.execute(sql,sql_save)
+                db.commit()    
+            else:    
+                sql         = "INSERT INTO users (data_id,info,name,status) VALUES (%s,%s,%s,'')".format ()
+                sql_save    = (info,name,data_id)
+                cursor.execute(sql)
+                db.commit() 
+            status_input[name] = info
+    return status_input 
+    
+    
+def key_type_message (key):
+    line = []
+    for number in range(30):
+        line1  = []
+        key11  = {}
+        key11['text']          = key.setdefault('Кнопка ' +str(number+1)+'1','')
+        key11['callback_data'] = key.setdefault('Команда '+str(number+1)+'1','')
+        key12  = {}
+        key12['text']          = key.setdefault('Кнопка ' +str(number+1)+'2','')
+        key12['callback_data'] = key.setdefault('Команда '+str(number+1)+'2','')
+        key13  = {}
+        key13['text']          = key.setdefault('Кнопка ' +str(number+1)+'3','')
+        key13['callback_data'] = key.setdefault('Команда '+str(number+1)+'3','')
+        key14  = {}
+        key14['text']          = key.setdefault('Кнопка ' +str(number+1)+'4','')
+        key14['callback_data'] = key.setdefault('Команда '+str(number+1)+'4','')
+        if key.setdefault('Кнопка ' +str(number+1)+'1','') != '':        
+            line1.append(key11)
+        if key.setdefault('Кнопка ' +str(number+1)+'2','') != '':
+             line1.append(key12)
+        if key.setdefault('Кнопка ' +str(number+1)+'3','') != '':        
+            line1.append(key13)
+        if key.setdefault('Кнопка ' +str(number+1)+'4','') != '':        
+            line1.append(key14)
+        line.append(line1)    
+    array = {"inline_keyboard":line}  
+    markup = json.dumps(array) 
+    return markup     
+       
+def key_type_keybord (key):
+    array  = {}        
+    line   = []
+    for number in range(10):
+        line1   = []
+        key11   = {}
+        key11['text']       = key.setdefault('Кнопка '+str(number)+'1','')  
+        if key.setdefault('Замена '+str(number)+'1','') != '':
+            key11['text']   = key.setdefault('Замена '+str(number)+'1','')
+        line1.append(key12)
+        key12   = {}
+        key12['text']       = key.setdefault('Кнопка '+str(number)+'2','')
+        if key.setdefault('Замена '+str(number)+'2','') != '':
+            key12['text']   = key.setdefault('Замена '+str(number)+'2','')
+        line1.append(key12)    
+        key13   = {}
+        key13['text']       = key.setdefault('Кнопка '+str(number)+'3','')
+        if key.setdefault('Замена '+str(number)+'3','') != '':
+            key13['text']   = key.setdefault('Замена '+str(number)+'3','')
+        line1.append(key13)
+        line.append(line1)
+    array       = {"keyboard":line,"resize_keyboard":True}  
+    markup      = json.dumps(array)
+    return markup    
+ 
+def gets_key (message_info,setting_bot,user_id,menu):
+    sql     = "select id,name,info,data_id from menu where name = 'Имя' and info = '{}' ;".format (menu)
+    cursor.execute(sql)
+    results = cursor.fetchall()    
+    markup     = {}
+    for row in results:
+        id,name,info,data_id = row.values() 
+        sql = "select id,name,info from menu where data_id = '{}' and status <> 'delete' ;".format (data_id)
+        cursor.execute(sql)
+        results = cursor.fetchall()    
+        for row in results:
+            id,name,info = row.values() 
+            key[name] = info
+    if key.setdefault('Тип кнопки','') == 'Сообщение':
+        markup = key_type_message (key)
+    if key.setdefault('Тип кнопки','') == 'Клавиатура':    
+        markup = key_type_keybord (key)
+    return markup
+    
+def send_message            (message_info,setting_bot,user_id,message_out,markup):
     import requests
-    params = {}
-    params['chat_id']    = user_id                  
-    params['text']       = message_out
-    params['parse_mode'] = 'HTML'
-    token = '6442674165:AAFdJo3xAcxSvCknaeqmixgSsWUbO6Szk7s'
-    url   = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'sendMessage')
-    print ('[+] url',url)
-    resp = requests.post(url, params) 
-    answer = resp.json()
+    token                   = setting.setdefault ('Токен','')
+    params                  = {}
+    params['chat_id']       = user_id
+    params['text']          = message_out
+    params['parse_mode']    = 'HTML'
+    if markup != {}:
+        params['reply_markup'] = markup                
+    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'sendMessage')
+    resp                    = requests.post(url, params) 
+    answer                  = resp.json()
     print ('[+]👧------------------------------------------------------------ [Ответ sendMessage] -------------------------------------------------------👧[+]')
     print ( answer)
     print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
     print ('') 
+    return answer 
+       
+def send_sendPhoto          (message_info,setting_bot,user_id,message_out,picture,markup):
+    import requests
+    token                   = setting.setdefault ('Токен','')
+    params                  = {}
+    params['chat_id']       = user_id
+    params['text']          = message_out
+    params['parse_mode']    = 'HTML'
+    try:   
+        file_path   = picture
+        file_opened = open(file_path, 'rb')
+    except:    
+        file_path   = "/home/izofen/Main/Server/picture/file_2.jpg"
+        file_opened = open(file_path, 'rb')
+    files = {'photo': file_opened}    
+    if markup != {}:
+        params['reply_markup'] = markup                
+    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'sendPhoto')
+    resp                    = requests.post(url, params,files=files) 
+    answer                  = resp.json()
+    print ('[+]👧------------------------------------------------------------ [Ответ sendPhoto] -------------------------------------------------------👧[+]')
+    print ( answer)
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
+    print ('') 
+    return answer     
+    
+def editMessageText         (message_info,setting_bot,user_id,message_out,message_id,markup):
+    import requests
+    token                   = setting.setdefault ('Токен','')
+    params                  = {}
+    params['chat_id']       = user_id
+    params['text']          = message_out
+    params['message_id']    = message_id
+    params['parse_mode']    = 'HTML'
+    if markup != {}:
+        params['reply_markup'] = markup                
+    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageText')
+    resp                    = requests.post(url, params) 
+    answer                  = resp.json()
+    print ('[+]👧------------------------------------------------------------ [Ответ editMessageText] -------------------------------------------------------👧[+]')
+    print ( answer)
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
+    print ('') 
+    return answer    
+    
+def editMessageCaption      (message_info,setting_bot,user_id,message_out,message_id,marku):
+    import requests
+    token                   = setting.setdefault ('Токен','')
+    params                  = {}
+    params['chat_id']       = user_id
+    params['text']          = message_out
+    params['message_id']    = message_id
+    params['parse_mode']    = 'HTML'
+    if markup != {}:
+        params['reply_markup'] = markup                
+    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageCaption')
+    resp                    = requests.post(url, params) 
+    answer                  = resp.json()
+    print ('[+]👧------------------------------------------------------------ [Ответ token, 'editMessageCaption'] -------------------------------------------------------👧[+]')
+    print ( answer)
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
+    print ('') 
+    return answer     
+    
+def editMessageMedia        (message_info,setting_bot,user_id,message_out,message_id,picture,markup):
+    import requests
+    token                   = setting.setdefault ('Токен','')
+    params                  = {}
+    params['chat_id']       = user_id
+    params['text']          = message_out
+    params['message_id']    = message_id
+    params['parse_mode']    = 'HTML'
+    try:   
+        file_path   = picture
+        file_opened = open(file_path, 'rb')
+    except:    
+        file_path   = "/home/izofen/Main/Server/picture/file_2.jpg"
+        file_opened = open(file_path, 'rb')
+    files = {'photo': file_opened}    
+    if markup != {}:
+        params['reply_markup'] = markup                
+    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageMedia')
+    resp                    = requests.post(url, params,files=files) 
+    answer                  = resp.json()
+    print ('[+]👧------------------------------------------------------------ [Ответ editMessageMedia] -------------------------------------------------------👧[+]')
+    print ( answer)
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
+    print ('') 
+    return answer    
       
 def complite_key            (message_info,id_sql,sql,ask,limit,offset,back,metka):                                                  ###  Формируем список из кнопок по переданным нам параметрам
     import iz_bot
@@ -164,16 +405,76 @@ def executing_program_json  (message_info,status_input,setting_bot):            
 ##################################################################################################################################################################################################   
    
 def print_status            (message_info,status_input,setting_bot):
-    pass
+    print ('[+] Начальные настройки по текущиму пользователю.')
+    for line in status_input:
+        print ('        [+]',line,'-',status_input[line])
+    status     = status_input.setdefault('status','')
     
 def executing_admin         (message_info,status_input,setting_bot):
-    pass
+    if status_input.setdefault('Админ','') == 'Да':
+        if message_in   == '/admin':
+            user_id     = message_info.setdefault('user_id','') 
+            message     = setting_bot .setdefault ("Сообщение администратору","Вы администратор бота")
+            answer      = save_message (message_info,setting_bot,user_id,message)
+            message_out = gets_message (message_info,setting_bot,user_id,message)
+            markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
+            answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
     
 def testing_double          (message_info,status_input,setting_bot):
-    pass
+    message_in      =  message_info['message_in']
+    if message_in   == setting_bot ['message_in']:
+        user_id     = message_info.setdefault('user_id','') 
+        message     = setting_bot .setdefault ("Сообщение повторное нажатие клавиши","Повторное нажатие клавиши")
+        answer      = save_message (message_info,setting_bot,user_id,message)
+        message_out = gets_message (message_info,setting_bot,user_id,message)
+        markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
+        answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
+    save_data   = [['message_in',message_in]] 
+    status_input = user_save_data (message_info,status_input,save_data)
     
 def testing_blocking        (message_info,status_input,setting_bot):
-    pass
+    status      = user_save_data.setdefault('Статус','') 
+    db,cursor   = iz_bot.connect (namebot)
+    sql  = "select id,name,answer from ask where name = '{}' ".format(status)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    id   = 0 
+    for rec in data:
+        id,name,message_answer = rec.values()
+    if id != 0:
+        user_id         = message_info.setdefault('user_id','') 
+        message         = setting_bot .setdefault (message_answer,message_answer)
+        answer          = save_message   (message_info,setting_bot,user_id,message)
+        message_out     = gets_message   (message_info,setting_bot,user_id,message)
+        markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
+        answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
+        status_input    = user_save_data (message_info,status_input,[["Статус",""]])
+    
+
+
+    db,cursor = iz_bot.connect (namebot)
+    sql = "select id,name from ask where 1=1 ".format()
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data:
+        id,name = rec.values()
+        if status_input.setdefault (name,'') == '': 
+            break
+        name    = ''
+    if name != '':      
+        user_id         = message_info.setdefault('user_id','') 
+        message         = setting_bot .setdefault (name,name)
+        answer          = save_message   (message_info,setting_bot,user_id,message)
+        message_out     = gets_message   (message_info,setting_bot,user_id,message)
+        markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
+        answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
+        status_input    = user_save_data (message_info,status_input,[["Статус",name]])
+    return answer
+        
+        
+        
+    
+    
     
 def save_info_refer         (message_info,status_input,setting_bot):
     pass
@@ -218,7 +519,8 @@ def start_prog (message_info):                                                  
     print_status            (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
     executing_admin         (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
     testing_double          (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
-    testing_blocking        (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
+    testing_blocking        (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
+    testing_time            (message_info,status_input,setting_bot)                                                                 ###  Проверка работы в определенное время суток
     save_info_refer         (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
     save_info_user          (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
     save_message_user       (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
