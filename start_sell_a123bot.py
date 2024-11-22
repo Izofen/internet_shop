@@ -432,8 +432,8 @@ def testing_double          (message_info,status_input,setting_bot):
     save_data   = [['message_in',message_in]] 
     status_input = user_save_data (message_info,status_input,save_data)
     
-def testing_blocking        (message_info,status_input,setting_bot):
-    status      = user_save_data.setdefault('Статус','') 
+def testing_blocking        (message_info,status_input,setting_bot):                                        ### Проверяем ввод оснавных параметров пользователя
+    status      = user_save_data.setdefault('Статус','')                                                    ### Проверяем статус - возможно пользователь ввел значение
     db,cursor   = iz_bot.connect (namebot)
     sql  = "select id,name,answer from ask where name = '{}' ".format(status)
     cursor.execute(sql)
@@ -449,10 +449,7 @@ def testing_blocking        (message_info,status_input,setting_bot):
         markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
         answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
         status_input    = user_save_data (message_info,status_input,[["Статус",""]])
-    
-
-
-    db,cursor = iz_bot.connect (namebot)
+    db,cursor = iz_bot.connect (namebot)                                                                    ### Задаем вопрос из списка вопросов. 
     sql = "select id,name from ask where 1=1 ".format()
     cursor.execute(sql)
     data = cursor.fetchall()
@@ -471,10 +468,7 @@ def testing_blocking        (message_info,status_input,setting_bot):
         status_input    = user_save_data (message_info,status_input,[["Статус",name]])
     return answer
         
-        
-        
-    
-    
+       
     
 def save_info_refer         (message_info,status_input,setting_bot):
     pass
