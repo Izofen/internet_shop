@@ -1,6 +1,6 @@
 
 
-def get_info_tovar          (message_info,status_input,setting_bot,id_list):                                                                 ### Получаем информацию по товару
+def get_info_tovar          (message_info,status_input,setting_bot,id_list):                                                          ### Получаем информацию по товару
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
     answer = {}    
@@ -88,8 +88,7 @@ def gets_message            (message_info,setting_bot,user_id,message_out):
     if message.setdefault('Меню','') == '': 
         message['Меню'] = ''        
     return message
-    
-    
+       
 def user_save_data          (message_info,status_input,save_data): 
     import iz_bot
     namebot     = message_info['namebot']
@@ -121,9 +120,8 @@ def user_save_data          (message_info,status_input,save_data):
                 db.commit() 
             status_input[name] = info
     return status_input 
-    
-    
-def key_type_message (key):
+        
+def key_type_message        (key):
     line = []
     for number in range(30):
         line1  = []
@@ -152,7 +150,7 @@ def key_type_message (key):
     markup = json.dumps(array) 
     return markup     
        
-def key_type_keybord (key):
+def key_type_keybord        (key):
     array  = {}        
     line   = []
     for number in range(10):
@@ -177,7 +175,7 @@ def key_type_keybord (key):
     markup      = json.dumps(array)
     return markup    
  
-def gets_key (message_info,setting_bot,user_id,menu):
+def gets_key                (message_info,setting_bot,user_id,menu):
     sql     = "select id,name,info,data_id from menu where name = 'Имя' and info = '{}' ;".format (menu)
     cursor.execute(sql)
     results = cursor.fetchall()    
@@ -432,7 +430,7 @@ def testing_double          (message_info,status_input,setting_bot):
     save_data   = [['message_in',message_in]] 
     status_input = user_save_data (message_info,status_input,save_data)
     
-def testing_blocking        (message_info,status_input,setting_bot):                                        ### Проверяем ввод оснавных параметров пользователя
+def testing_blocking        (message_info,status_input,setting_bot):                                                                ### Проверяем ввод оснавных параметров пользователя
     status      = user_save_data.setdefault('Статус','')                                                    ### Проверяем статус - возможно пользователь ввел значение
     db,cursor   = iz_bot.connect (namebot)
     sql  = "select id,name,answer from ask where name = '{}' ".format(status)
@@ -471,7 +469,26 @@ def testing_blocking        (message_info,status_input,setting_bot):            
        
     
 def save_info_refer         (message_info,status_input,setting_bot):
-    pass
+    if message.find ("/start") != -1:
+        if status_input.setdefault ('referal','') == '':
+            referal = message.replace ("/start")
+            status_input    = user_save_data (message_info,status_input,[["Реферал",referal]])
+            user_id         = referal
+            message         = setting_bot .setdefault ("Сообщение о новом реферале","У Вас новый реферал")
+            answer          = save_message   (message_info,setting_bot,user_id,message)
+            message_out     = gets_message   (message_info,setting_bot,user_id,message)
+            markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
+            answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)    ### Информируем что пришел Ваш реферал.
+            user_id         = referal
+            message         = setting_bot .setdefault ("Сообщение о новом реферале","У Вас новый реферал")     ### Информируем что клиент стал чем то рефералом 
+            answer          = save_message   (message_info,setting_bot,user_id,message)
+            message_out     = gets_message   (message_info,setting_bot,user_id,message)
+            markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
+            answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
+            
+
+
+    
     
 def save_info_user          (message_info,status_input,setting_bot):
     pass
