@@ -314,14 +314,11 @@ def complite_key            (message_info,id_sql,sql,ask,limit,offset,back,metka
         id,info = rec.values()  
         command =  iz_bot.build_jsom ({'o':metka,'i':id,'s':id_sql})
         key_array.append ([[info,command],['',''],['','']])  
-    #command      =  iz_bot.build_jsom ({'o':'next','s':id_code})
-    #name_key     = set_name_key (message_info,'Кнопка далее')        
-    #key_array.append ([[name_key,command],['',''],['','']]) 
     if back != '':                                                                                                                  ### Если нам передали информацию как вернутся назад заносим ее
         name_key = set_name_key (message_info,'Кнопка назад') 
         command  = iz_bot.build_jsom ({'o':'back','s':id_sql,'b':back})
         key_array.append ([[name_key,command],['',''],['','']]) 
-    return key_array   
+    return complite_key                                                          
   
 def get_message             (message_info,name):
     namebot     = message_info.setdefault ('namebot')
@@ -466,9 +463,7 @@ def testing_blocking        (message_info,status_input,setting_bot):            
         answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
         status_input    = user_save_data (message_info,status_input,[["Статус",name]])
     return answer
-        
-       
-    
+            
 def save_info_refer         (message_info,status_input,setting_bot):
     if message.find ("/start") != -1:
         if status_input.setdefault ('referal','') == '':
@@ -487,10 +482,6 @@ def save_info_refer         (message_info,status_input,setting_bot):
             markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
             answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
             
-
-
-    
-    
 def save_info_user          (message_info,status_input,setting_bot):                                                                ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
     pass
     
@@ -509,13 +500,30 @@ def executing_status        (message_info,status_input,setting_bot):
         pass
         
 def executing_message       (message_info,status_input,setting_bot):
-    if message_in   == 'Каталог':                                                                                                   ###  Пример работы тестового сообщения 
-        sql      = "select id,`info` from `service` where %s limit %s offset %s"
-        limit    = 10
-        offset   = 0
-        back     = ''
-        id_sql   = save_sql     (message_info,"Список товаров",sql,limit,offset,back)                                               ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
-        key_list = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')                                             ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки
+    if message_in   == 'Каталог':                                                                                                   ###  Пример работы тестового Входящего сообщения 
+        sql             = "select id,`info` from `service` where %s limit %s offset %s"
+        limit           = 10
+        offset          = 0
+        back            = ''
+        id_sql          = save_sql     (message_info,"Список товаров",sql,limit,offset,back)                                        ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
+        markup_list     = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки
+        message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                   ###  Выводим полученный список
+        answer          = save_message   (message_info,setting_bot,user_id,message)
+        message_out     = gets_message   (message_info,setting_bot,user_id,message)          
+        answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)
+        
+        
+def get_service       (message_info,status_input,setting_bot,data_id):        
+        sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
+        answer         = []
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        for rec in data:
+            id,name,info = rec.values() 
+            answer[name] = info
+        return answer  
+        
+        
         
 def executing_program       (message_info,status_input,setting_bot):
     if callback.find ('i_') != -1:                                                                                                  ###  Кнопка которая передала в json информацию
@@ -523,8 +531,19 @@ def executing_program       (message_info,status_input,setting_bot):
     if callback == 'save_message':                                                                                                  ###  Пример работы команды кнопки
         pass
 
-def analis                  (message_info,status_input,setting_bot):
-    pass
+def analis                  (message_info,status_input,setting_bot,answer):
+    status  = answer.setdefault('status','')
+    message = answer.setdefault('message','')
+    program = answer.setdefault('program','')
+    if message == '':
+        message         = setting_bot .setdefault ("Сообщение о новом реферале","У Вас новый реферал")                              ### Информируем что клиент стал чем то рефералом 
+        answer          = save_message   (message_info,setting_bot,user_id,message)
+        message_out     = gets_message   (message_info,setting_bot,user_id,message)
+        markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
+        answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
+    
+    
+    
 
 def save_out_message        (message_info,status_input,setting_bot):
     pass
@@ -543,10 +562,10 @@ def start_prog (message_info):                                                  
     save_info_refer                 (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
     save_info_user                  (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
     lastid_log = save_message_user  (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
-    executing_status                (message_info,status_input,setting_bot)                                                                 ###  Выполняем на действие статуса бота. Например ввод данных
-    executing_message               (message_info,status_input,setting_bot)                                                                 ###  Выполняем код прописанный в базе данных
-    executing_program               (message_info,status_input,setting_bot)                                                                 ###  Выполняем код прописанный в этом файле
-    analis                          (message_info,status_input,setting_bot)                                                                 ###  Выполнение кода если нет действия на сообщения
+    answer     = executing_status   (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
+    answer     = executing_message  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
+    answer     = executing_program  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
+    analis                          (message_info,status_input,setting_bot,answer)                                                          ###  Выполнение кода если нет действия на сообщения
     save_out_message                (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
 
 
