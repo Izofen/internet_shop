@@ -20,7 +20,32 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):    
         answer['price']         = price
         answer['quantity']      = quantity
     return answer
-
+       
+def get_service             (message_info,status_input,setting_bot,data_id):        
+        sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
+        answer         = []
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        for rec in data:
+            id,name,info = rec.values() 
+            answer[name] = info
+        return answer  
+        
+def get_time_set            (message_info,status_input,setting_bot,name): 
+    import time
+    unixtime = int(time.time ())
+    status_input    = user_save_data (message_info,status_input,[[name,unixtime]])
+    return status_input
+        
+def get_time_up             (message_info,status_input,setting_bot,name): 
+    import time
+    import iz_bot
+    unixtime        = int(time.time ())
+    status_input    = iz_bot.user_get_data    (message_info,{}) 
+    limit           = int(status_input.setdefault (name),0)
+    answer = unixtime - limit;
+    return answer 
+   
 
 ##################################################################################################################################################################################################    
 
@@ -511,40 +536,7 @@ def executing_message       (message_info,status_input,setting_bot):
         answer          = save_message   (message_info,setting_bot,user_id,message)
         message_out     = gets_message   (message_info,setting_bot,user_id,message)          
         answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)
-        
-        
-def get_service       (message_info,status_input,setting_bot,data_id):        
-        sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
-        answer         = []
-        cursor.execute(sql)
-        data = cursor.fetchall()
-        for rec in data:
-            id,name,info = rec.values() 
-            answer[name] = info
-        return answer  
-        
-def get_time_set      (message_info,status_input,setting_bot,name): 
-    import time
-    unixtime = int(time.time ())
-    status_input    = user_save_data (message_info,status_input,[[name,unixtime]])
-    return status_input
-        
-def get_time_up       (message_info,status_input,setting_bot,name): 
-    import time
-    import iz_bot
-    unixtime        = int(time.time ())
-    status_input    = iz_bot.user_get_data    (message_info,{}) 
-    limit           = int(status_input.setdefault (name),0)
-    answer = unixtime - limit;
-    return answer 
-    
-    
-
-
-
-        
-        
-        
+         
 def executing_program       (message_info,status_input,setting_bot):
     if callback.find ('i_') != -1:                                                                                                  ###  Кнопка которая передала в json информацию
         executing_program_json (message_info,status_input,setting_bot)
