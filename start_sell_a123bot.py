@@ -431,7 +431,8 @@ def testing_double          (message_info,status_input,setting_bot):
     status_input = user_save_data (message_info,status_input,save_data)
     
 def testing_blocking        (message_info,status_input,setting_bot):                                                                ### Проверяем ввод оснавных параметров пользователя
-    status      = user_save_data.setdefault('Статус','')                                                    ### Проверяем статус - возможно пользователь ввел значение
+    namebot     = message_info.setdefault  ('namebot','') 
+    status      = user_save_data.setdefault('Статус','')                                                                            ### Проверяем статус - возможно пользователь ввел значение
     db,cursor   = iz_bot.connect (namebot)
     sql  = "select id,name,answer from ask where name = '{}' ".format(status)
     cursor.execute(sql)
@@ -490,11 +491,18 @@ def save_info_refer         (message_info,status_input,setting_bot):
 
     
     
-def save_info_user          (message_info,status_input,setting_bot):
+def save_info_user          (message_info,status_input,setting_bot):                                                                ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
     pass
     
 def save_message_user       (message_info,status_input,setting_bot):
-    pass
+    namebot     = message_info.setdefault  ('namebot','') 
+    db,cursor = iz_bot.connect (namebot)
+    sql = "INSERT INTO log (user_id,user_name,surname,name,message_in,command,full_message,messsage_out_1,messsage_out_2,messsage_out_3,answert) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,)".format ()
+    sql_save = ("","","","","","","","","","")
+    result = cursor.execute(sql,sql_save)
+    db.commit() 
+    lastid = cursor.lastrowid
+    return lastid 
     
 def executing_status        (message_info,status_input,setting_bot):
     if status_input.setdefault('Статус','') == 'Ввод города':                                                                       ###  Пример работы статусного сообщения
@@ -523,23 +531,23 @@ def save_out_message        (message_info,status_input,setting_bot):
    
 ##################################################################################################################################################################################################
    
-def start_prog (message_info):                                                                                                      ###  Получение сигнала от бота. Расшифровка команды и сообщения
-    status_input = iz_bot.user_get_data    (message_info,get_data)                                                                  ###  Получение из базы информацию по пользователю. Настройки и статусы. 
-    setting_bot  = iz_bot.get_setting      (message_info)                                                                           ###  Получение из базы информации по боту. Параметры и данные.
-    status       = status_input.setdefault ('status','')                                                                            ###  Получаем основной статус пользователя например о том что он вводит данные и какие
-    print_status            (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
-    executing_admin         (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
-    testing_double          (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
-    testing_blocking        (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
-    testing_time            (message_info,status_input,setting_bot)                                                                 ###  Проверка работы в определенное время суток
-    save_info_refer         (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
-    save_info_user          (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
-    save_message_user       (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
-    executing_status        (message_info,status_input,setting_bot)                                                                 ###  Выполняем на действие статуса бота. Например ввод данных
-    executing_message       (message_info,status_input,setting_bot)                                                                 ###  Выполняем код прописанный в базе данных
-    executing_program       (message_info,status_input,setting_bot)                                                                 ###  Выполняем код прописанный в этом файле
-    analis                  (message_info,status_input,setting_bot)                                                                 ###  Выполнение кода если нет действия на сообщения
-    save_out_message        (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
+def start_prog (message_info):                                                                                                              ###  Получение сигнала от бота. Расшифровка команды и сообщения
+    status_input = iz_bot.user_get_data    (message_info,get_data)                                                                          ###  Получение из базы информацию по пользователю. Настройки и статусы. 
+    setting_bot  = iz_bot.get_setting      (message_info)                                                                                   ###  Получение из базы информации по боту. Параметры и данные.
+    status       = status_input.setdefault ('status','')                                                                                    ###  Получаем основной статус пользователя например о том что он вводит данные и какие
+    print_status                    (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
+    executing_admin                 (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
+    testing_double                  (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
+    testing_blocking                (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
+    testing_time                    (message_info,status_input,setting_bot)                                                                 ###  Проверка работы в определенное время суток
+    save_info_refer                 (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
+    save_info_user                  (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
+    lastid_log = save_message_user  (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
+    executing_status                (message_info,status_input,setting_bot)                                                                 ###  Выполняем на действие статуса бота. Например ввод данных
+    executing_message               (message_info,status_input,setting_bot)                                                                 ###  Выполняем код прописанный в базе данных
+    executing_program               (message_info,status_input,setting_bot)                                                                 ###  Выполняем код прописанный в этом файле
+    analis                          (message_info,status_input,setting_bot)                                                                 ###  Выполнение кода если нет действия на сообщения
+    save_out_message                (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
 
 
 
