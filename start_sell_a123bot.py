@@ -523,6 +523,26 @@ def get_service       (message_info,status_input,setting_bot,data_id):
             answer[name] = info
         return answer  
         
+def get_time_set      (message_info,status_input,setting_bot,name): 
+    import time
+    unixtime = int(time.time ())
+    status_input    = user_save_data (message_info,status_input,[[name,unixtime]])
+    return status_input
+        
+def get_time_up       (message_info,status_input,setting_bot,name): 
+    import time
+    import iz_bot
+    unixtime        = int(time.time ())
+    status_input    = iz_bot.user_get_data    (message_info,{}) 
+    limit           = int(status_input.setdefault (name),0)
+    answer = unixtime - limit;
+    return answer 
+    
+    
+
+
+
+        
         
         
 def executing_program       (message_info,status_input,setting_bot):
@@ -551,7 +571,7 @@ def save_out_message        (message_info,status_input,setting_bot):
 ##################################################################################################################################################################################################
    
 def start_prog (message_info):                                                                                                              ###  Получение сигнала от бота. Расшифровка команды и сообщения
-    status_input = iz_bot.user_get_data    (message_info,get_data)                                                                          ###  Получение из базы информацию по пользователю. Настройки и статусы. 
+    status_input = iz_bot.user_get_data    (message_info,{})                                                                          ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     setting_bot  = iz_bot.get_setting      (message_info)                                                                                   ###  Получение из базы информации по боту. Параметры и данные.
     status       = status_input.setdefault ('status','')                                                                                    ###  Получаем основной статус пользователя например о том что он вводит данные и какие
     print_status                    (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
