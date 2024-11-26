@@ -1,16 +1,9 @@
+### Узко специализированные программы ###
 ##################################################################################################################################################################################################
-
-def send_message_user 
-
-
-
-
-##################################################################################################################################################################################################
-
-def get_info_tovar          (message_info,status_input,setting_bot,id_list):                                                          ### Получаем информацию по товару
+def get_info_product  (message_info,status_input,setting_bot,id_list):                                                          ###  Получаем информацию по товару
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
-    answer = {}    
+    answer  = {}    
     db,cursor = iz_bot.connect (namebot)
     sql = "select id,name,about,catalog,comment,currency,picture,pocket,price,quantity from service where id = {} limit 1".format (id_list)
     cursor.execute(sql)
@@ -27,8 +20,66 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):    
         answer['price']         = price
         answer['quantity']      = quantity
     return answer
+    
+    
+def get_info_product_time  (message_info,status_input,setting_bot,date_time):                                                          ###  Получаем информацию по товару в указанное время
+    import iz_bot
+    namebot     = message_info.setdefault('namebot','')
+    answer  = {}    
+    db,cursor = iz_bot.connect (namebot)
+    sql = "select id,name,about,catalog,comment,currency,picture,pocket,price,quantity from service where date_time > {} limit 1".format (date_time)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data: 
+        id,name,about,catalog,comment,currency,picture,pocket,price,quantity = rec.values()        
+        answer['name']          = name 
+        answer['about']         = about
+        answer['catalog']       = catalog
+        answer['comment']       = comment
+        answer['currency']      = currency
+        answer['picture']       = picture
+        answer['pocket']        = pocket
+        answer['price']         = price
+        answer['quantity']      = quantity
+    return answer    
+
+
+
+##################################################################################################################################################################################################
+
+def send_message_user (message_info,status_input,setting_bot,user_id_list,message_id,wait):                                            ###  Отправка сообщения пользователям
+
+    message_send         = get_message_send (message_info,status_input,setting_bot,user_id_list,message_id)
+    message_01           = message_send['message_01']
+    markup01             = message_send['markup01']
+    picture01            = message_send['picture01']
+    message_02           = message_send['message_02']
+    markup02             = message_send['markup02']
+    picture02            = message_send['picture02']
+    
+    for line in user_id_list:    
+        if test_send_message(message_info,status_input,setting_bot,user_id,message_id,'Номер 1') == True:
+            if picture01 != '':
+                answer = send_sendPhoto (message_info,setting_bot,user_id,message_01,picture01,markup01)
+                save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 1',answer) 
+            else:
+                if message_01 != '':
+                    answer = send_message   (message_info,setting_bot,user_id,message_01,markup01)
+                    save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 1',answer)
+        if test_send_message(message_info,status_input,setting_bot,user_id,message_id,'Номер 2') == True:        
+            if picture01 2= '':
+                answer = send_sendPhoto (message_info,setting_bot,user_id,message_02,picture02,markup02)
+                save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer) 
+            else:
+                if message_01 != '':
+                    answer = send_message   (message_info,setting_bot,user_id,message_02,markup02)
+                    save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer)
+
+##################################################################################################################################################################################################
+
+
        
-def get_service             (message_info,status_input,setting_bot,data_id):                                                          ### Получение информации о услугах  
+def get_service             (message_info,status_input,setting_bot,data_id):                                                          ###  Получение информации о услугах  
         sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
         answer         = []
         cursor.execute(sql)
@@ -38,13 +89,13 @@ def get_service             (message_info,status_input,setting_bot,data_id):    
             answer[name] = info
         return answer  
         
-def get_time_set            (message_info,status_input,setting_bot,name):                                                             ### Процедура для замера времени
+def get_time_set            (message_info,status_input,setting_bot,name):                                                             ###  Процедура для замера времени
     import time
     unixtime = int(time.time ())
     status_input    = user_save_data (message_info,status_input,[[name,unixtime]])
     return status_input
         
-def get_time_up             (message_info,status_input,setting_bot,name):                                                             ###  Проверка уто время прошло достаточно  
+def get_time_up             (message_info,status_input,setting_bot,name):                                                             ###  Проверка что время прошло достаточно  
     import time
     import iz_bot
     unixtime        = int(time.time ())
@@ -52,7 +103,66 @@ def get_time_up             (message_info,status_input,setting_bot,name):       
     limit           = int(status_input.setdefault (name),0)
     answer = unixtime - limit;
     return answer 
-   
+      
+def get_message_send        (message_info,status_input,setting_bot,user_id_list,message_id):                                          ###  Получаем сообщения для рассылки  
+    import iz_bot
+    namebot    = message_info.setdefault('namebot','')
+    db,cursor = iz_bot.connect (namebot)
+    sql = "select id,message_01,message_02,markup01,markup02,picture01,picture02 from send_message where id = {}".format(message_id)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data:
+        id,message_01,message_02,markup01,markup02,picture01,picture02 = rec.values() 
+    answer = {}    
+    answer['message_01']    = message_01
+    answer['message_02']    = message_02
+    answer['markup01']      = markup01
+    answer['markup02']      = markup02
+    answer['picture01']     = picture01
+    answer['picture02']     = picture02
+    return answer
+
+def save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer):
+    import time
+    unixtime = int(time.time())
+    sql = "INSERT INTO `log_message` (`unixtime`,`user_id`,message_id,label,answer) VALUES (%s,%s,%s,%s,%s)".format ()
+    sql_save = (unixtime,user_id,message_id,'Номер 2',answer)
+    cursor.execute(sql,sql_save)
+    lastid = cursor.lastrowid 
+    db.commit() 
+
+def test_send_message       (message_info,status_input,setting_bot,user_id,message_id,label):
+    import iz_bot
+    namebot    = message_info.setdefault('namebot','')
+    db,cursor = iz_bot.connect (namebot)
+    sql = "select id from `log_message` where name = '{}' and label = '{}' ".format(message_id,label)
+    cursor.execute(sql)
+    results = cursor.fetchall()   
+    answer = True
+    change = name
+    for rec in results:
+        id = rec['id']
+        answer = False
+    return answer    
+
+def change_back             (message_info,status_input,setting_bot,name):                                                               ### Замена символа в предложении
+    import iz_bot
+    namebot     = message_info.setdefault('namebot','')
+    db,cursor   = iz_bot.connect (namebot)
+    sql         = "select id,`change` from `key` where name = '{}' ".format(name)
+    cursor.execute(sql)
+    results     = cursor.fetchall()   
+    id = 0
+    change = name
+    for rec in results:
+        id,change = rec.values() 
+    if id == 0:
+        sql = "INSERT INTO `key` (`name`,`change`,`status`) VALUES ('{}','{}','{}')".format (name,name,'')
+        sql_save = ()
+        cursor.execute(sql,sql_save)
+        lastid = cursor.lastrowid 
+        db.commit()  
+    return change 
 
 ##################################################################################################################################################################################################    
 
@@ -255,7 +365,7 @@ def send_sendPhoto          (message_info,setting_bot,user_id,message_out,pictur
         file_path   = picture
         file_opened = open(file_path, 'rb')
     except:    
-        file_path   = "/home/izofen/Main/Server/picture/file_2.jpg"
+        file_path   = setting_bot.setdefault ('Картинка как нет основной','')
         file_opened = open(file_path, 'rb')
     files = {'photo': file_opened}    
     if markup != {}:
@@ -440,13 +550,44 @@ def print_status            (message_info,status_input,setting_bot):
 def executing_admin         (message_info,status_input,setting_bot):
     if status_input.setdefault('Админ','') == 'Да':
         if message_in   == '/admin':
-            user_id     = message_info.setdefault('user_id','') 
+            user_id     = message_info.setdefault ('user_id','') 
             message     = setting_bot .setdefault ("Сообщение администратору","Вы администратор бота")
             answer      = save_message (message_info,setting_bot,user_id,message)
             message_out = gets_message (message_info,setting_bot,user_id,message)
             markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
             answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
-    
+        if message_in   == '/send':                                                                                                         ### Рассылка сообщений телеграмм боты
+           pass
+        if  message_in   == '/key':                                                                                                         ### Выводим команды администратора
+            user_id     = message_info.setdefault ('user_id','') 
+            message     = setting_bot .setdefault ("Сообщение команды администратора","Команды администратора")                             ### Команды администратора
+            answer      = save_message (message_info,setting_bot,user_id,message)
+            message_out = gets_message (message_info,setting_bot,user_id,message)
+            markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
+            answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
+
+        if  message_in   == '/new':             ### Создаем новое питание
+            pass
+            
+        if  message_in   == '/input_01':        ### Исправляем часть питание
+            pass
+            
+        if  message_in   == '/task':            ### Получаем список заданий
+            pass
+            
+        if  message_in   == '/message':         ### Исправляем исходящие сообщения    
+            pass
+
+        if  message_in   == '/menu':            ### Исправляем исходящие список меню
+            pass
+            
+        if  message_in   == '/setting':         ### Исправляем настроки бота
+            pass    
+            
+
+
+            
+               
 def testing_double          (message_info,status_input,setting_bot):
     message_in      =  message_info['message_in']
     if message_in   == setting_bot ['message_in']:
@@ -506,9 +647,9 @@ def save_info_refer         (message_info,status_input,setting_bot):
             answer          = save_message   (message_info,setting_bot,user_id,message)
             message_out     = gets_message   (message_info,setting_bot,user_id,message)
             markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
-            answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)    ### Информируем что пришел Ваш реферал.
+            answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)                                 ### Информируем что пришел Ваш реферал.
             user_id         = referal
-            message         = setting_bot .setdefault ("Сообщение о новом реферале","У Вас новый реферал")     ### Информируем что клиент стал чем то рефералом 
+            message         = setting_bot .setdefault ("Сообщение о новом реферале","У Вас новый реферал")                                  ### Информируем что клиент стал чем то рефералом 
             answer          = save_message   (message_info,setting_bot,user_id,message)
             message_out     = gets_message   (message_info,setting_bot,user_id,message)
             markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
@@ -530,8 +671,12 @@ def save_message_user       (message_info,status_input,setting_bot):
 def executing_status        (message_info,status_input,setting_bot):
     if status_input.setdefault('Статус','') == 'Ввод города':                                                                       ###  Пример работы статусного сообщения
         pass
-        
+     
+def executing_run           (message_info,status_input,setting_bot):
+    pass
+
 def executing_message       (message_info,status_input,setting_bot):
+    message_in      = message_info.setdefault ("message_in","")
     if message_in   == 'Каталог':                                                                                                   ###  Пример работы тестового Входящего сообщения 
         sql             = "select id,`info` from `service` where %s limit %s offset %s"
         limit           = 10
@@ -549,7 +694,21 @@ def executing_program       (message_info,status_input,setting_bot):
         executing_program_json (message_info,status_input,setting_bot)
     if callback == 'save_message':                                                                                                  ###  Пример работы команды кнопки
         pass
+    if callback == 'Вызов меню':                                                                                                    ###  Пример работы команды кнопки
+        pass    
+        
 
+def executing_command       (message_info,status_input,setting_bot):                                                                ### Выполнение общих команд бота /start
+    message_in  = message_info.setdefault ("message_in","")
+    if message_in.find ('/start') != -1:
+        user_id         = message_info.setdefault ('user_id','') 
+        message         = setting_bot .setdefault ("Сообщение при старте программы","Старт программы")
+        answer          = save_message (message_info,setting_bot,user_id,message)
+        message_out     = gets_message (message_info,setting_bot,user_id,message)
+        markup          = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
+        answer          = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
+        status_input    = user_save_data (message_info,status_input,[["Статус",""]])        
+        
 def analis                  (message_info,status_input,setting_bot,answer):
     status  = answer.setdefault('status','')
     message = answer.setdefault('message','')
@@ -560,10 +719,7 @@ def analis                  (message_info,status_input,setting_bot,answer):
         message_out     = gets_message   (message_info,setting_bot,user_id,message)
         markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
         answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
-    
-    
-    
-
+   
 def save_out_message        (message_info,status_input,setting_bot):
     pass
    
@@ -576,11 +732,13 @@ def start_prog (message_info):                                                  
     print_status                    (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
     executing_admin                 (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
     testing_double                  (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
+    answer     = executing_run      (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды из базы данных
     testing_blocking                (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
     testing_time                    (message_info,status_input,setting_bot)                                                                 ###  Проверка работы в определенное время суток
     save_info_refer                 (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
     save_info_user                  (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
     lastid_log = save_message_user  (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
+    answer     = executing_command  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
     answer     = executing_status   (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
     answer     = executing_message  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
     answer     = executing_program  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
