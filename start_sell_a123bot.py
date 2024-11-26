@@ -1,4 +1,11 @@
+##################################################################################################################################################################################################
 
+def send_message_user 
+
+
+
+
+##################################################################################################################################################################################################
 
 def get_info_tovar          (message_info,status_input,setting_bot,id_list):                                                          ### Получаем информацию по товару
     import iz_bot
@@ -21,7 +28,7 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):    
         answer['quantity']      = quantity
     return answer
        
-def get_service             (message_info,status_input,setting_bot,data_id):        
+def get_service             (message_info,status_input,setting_bot,data_id):                                                          ### Получение информации о услугах  
         sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
         answer         = []
         cursor.execute(sql)
@@ -31,13 +38,13 @@ def get_service             (message_info,status_input,setting_bot,data_id):
             answer[name] = info
         return answer  
         
-def get_time_set            (message_info,status_input,setting_bot,name): 
+def get_time_set            (message_info,status_input,setting_bot,name):                                                             ### Процедура для замера времени
     import time
     unixtime = int(time.time ())
     status_input    = user_save_data (message_info,status_input,[[name,unixtime]])
     return status_input
         
-def get_time_up             (message_info,status_input,setting_bot,name): 
+def get_time_up             (message_info,status_input,setting_bot,name):                                                             ###  Проверка уто время прошло достаточно  
     import time
     import iz_bot
     unixtime        = int(time.time ())
@@ -452,7 +459,7 @@ def testing_double          (message_info,status_input,setting_bot):
     save_data   = [['message_in',message_in]] 
     status_input = user_save_data (message_info,status_input,save_data)
     
-def testing_blocking        (message_info,status_input,setting_bot):                                                                ### Проверяем ввод оснавных параметров пользователя
+def testing_blocking        (message_info,status_input,setting_bot):                                                                        ### Проверяем ввод оснавных параметров пользователя
     namebot     = message_info.setdefault  ('namebot','') 
     status      = user_save_data.setdefault('Статус','')                                                                            ### Проверяем статус - возможно пользователь ввел значение
     db,cursor   = iz_bot.connect (namebot)
@@ -507,7 +514,7 @@ def save_info_refer         (message_info,status_input,setting_bot):
             markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
             answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
             
-def save_info_user          (message_info,status_input,setting_bot):                                                                ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
+def save_info_user          (message_info,status_input,setting_bot):                                                                        ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
     pass
     
 def save_message_user       (message_info,status_input,setting_bot):
@@ -563,7 +570,7 @@ def save_out_message        (message_info,status_input,setting_bot):
 ##################################################################################################################################################################################################
    
 def start_prog (message_info):                                                                                                              ###  Получение сигнала от бота. Расшифровка команды и сообщения
-    status_input = iz_bot.user_get_data    (message_info,{})                                                                          ###  Получение из базы информацию по пользователю. Настройки и статусы. 
+    status_input = iz_bot.user_get_data    (message_info,{})                                                                                ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     setting_bot  = iz_bot.get_setting      (message_info)                                                                                   ###  Получение из базы информации по боту. Параметры и данные.
     status       = status_input.setdefault ('status','')                                                                                    ###  Получаем основной статус пользователя например о том что он вводит данные и какие
     print_status                    (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
