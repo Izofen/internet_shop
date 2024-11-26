@@ -44,30 +44,133 @@ def get_info_product_time  (message_info,status_input,setting_bot,date_time):   
     return answer    
 
 
-def get_list_product (message_info,status):                                                                                            ###  Выводим отчет списком по наименованию      
-    import datetime
-    import iz_bot
-    namebot    = message_info.setdefault('namebot','')
-    db,cursor = iz_bot.connect (namebot)
-    sql = "select id,menu01,menu02,menu11,menu12,menu21,menu22 from food where status = '{}'  ORDER BY id desc limit 1".format(status)
-    cursor.execute(sql)
-    data = cursor.fetchall()
-    element = {}
-    for rec in data: 
-        id,menu01,menu02,menu11,menu12,menu21,menu22 = rec.values()
-        element['Mmenu01'] = menu01
-        element['Mmenu02'] = menu02
-        element['Mmenu11'] = menu11
-        element['Mmenu12'] = menu12
-        element['Mmenu21'] = menu21
-        element['Mmenu22'] = menu22
-    return element
-
 
 
 ##################################################################################################################################################################################################
 
-def send_message_user (message_info,status_input,setting_bot,user_id_list,message_id,wait):                                            ###  Отправка сообщения пользователям
+
+def get_list_product (message_info,status_input,setting_bot,):                                                                        ### Формируем список продуктов
+    user_id        = message_info['user_id']
+    message        = setting_bot .setdefault ("Шапка отчета","Шапка отчета")
+    answer         = save_message (message_info,setting_bot,user_id,message)
+    message_hat    = gets_message (message_info,setting_bot,user_id,message)
+
+    message        = setting_bot .setdefault ("Строка отчета","Строка отчета")
+    answer         = save_message (message_info,setting_bot,user_id,message)
+    message_line   = gets_message (message_info,setting_bot,user_id,message)
+
+    message        = setting_bot .setdefault ("Подвал отчета","Подвал отчета")
+    answer         = save_message (message_info,setting_bot,user_id,message)
+    message_result = gets_message (message_info,setting_bot,user_id,message)
+    
+    list_operation = get_list_operation (message_info,status_input,setting_bot,[])
+    #    import iz_bot
+    #    namebot     = message_info.setdefault('namebot','')
+    #    db,cursor   = iz_bot.connect (namebot)
+    #    sql = "select id,user_id,menu01,menu02,menu03 from `order` where id > {} and status <> 'delete' ".format(setting_bot.setdefault('Последний ID',0))
+    #    cursor.execute(sql)
+    #    data = cursor.fetchall()
+    #    st_line1 = ""
+    #    st_line2 = ""
+    #    str_koll = 0
+    #    for rec in data: 
+    #        id,user_id_p,menu01,menu02,menu03 = rec.values()
+    #        str_koll = str_koll + 1
+    #        get_data    = {'user_id':user_id_p}
+    
+    list_operation = get_user_operation (message_info,status_input,setting_bot,list_operation)
+    #        status_user = iz_bot.user_get_data (message_info,get_data)
+    #        st_one = str(str_koll) + ") " + str(status_user.setdefault('Имя cотрудника',str(user_id))) +'('+ str(user_id_p) + "), <code>" + str(menu01) + ", " +str(menu02) + ", " + str(menu03) + " </code>\n"
+    #        if str_koll < 30:
+    #            st_line1 = st_line1 + st_one   
+    #        else:
+    #            st_line2 = st_line2 + st_one               
+
+    #    if st_line1 != '':
+    #        send_data = {'Text':'Список заказав','Замена':[['#Список#',st_line1]]} 
+    #        iz_bot.send_message (message_info,send_data)
+    #    if st_line2 != '':
+    #        send_data = {'Text':'Список заказав','Замена':[['#Список#',st_line2]]} 
+    #        iz_bot.send_message (message_info,send_data)
+    list_line      = get_user_operation (message_info,status_input,setting_bot,list_operation)
+  
+    #    import iz_bot
+    #    db,cursor = iz_bot.connect (namebot)
+    #    sql = "select id,user_id,menu01,menu02,menu03 from `order` where id > {} and status <> 'delete'".format(setting_bot.setdefault('Последний ID',0))
+    #    cursor.execute(sql)
+    #    data = cursor.fetchall()
+    #    st_line = ""
+    #        
+    #    menu01_a = 0
+    #    menu01_b = 0
+    #    menu02_a = 0
+    #    menu02_b = 0
+    #    menu03_a = 0
+    #    menu03_b = 0
+    #    element = get_list_product (message_info,"main")   
+    #    
+    #    for rec in data: 
+    #        id,user_id_p,menu01,menu02,menu03 = rec.values()
+    #        if element['Mmenu01'] == menu01:
+    #            menu01_a = menu01_a + 1
+    #        if element['Mmenu02'] == menu01:
+    #            menu01_b = menu01_b + 1
+    #            
+    #        if element['Mmenu11'] == menu02:
+    #            menu02_a = menu02_a + 1    
+    #        if element['Mmenu12'] == menu02:
+    #            menu02_b = menu02_b + 1  
+    #
+    #        if element['Mmenu21'] == menu03:
+    #            menu03_a = menu03_a + 1    
+    #        if element['Mmenu22'] == menu03:
+    #            menu03_b = menu03_b + 1   
+    #            
+    #            
+    #    
+    #    s01_a = ['#Menu01#',str(menu01_a)]    
+    #    n01_a = ['#name01#',str(element['Mmenu01'])]
+    #    s02_a = ['#Menu02#',str(menu01_b)]    
+    #    n02_a = ['#name02#',str(element['Mmenu02'])]
+    #
+    #
+    #    s03_a = ['#Menu03#',str(menu02_a)]    
+    #    n03_a = ['#name03#',str(element['Mmenu11'])]
+    #    s04_a = ['#Menu04#',str(menu02_b)]    
+    #    n04_a = ['#name04#',str(element['Mmenu12'])]
+    # 
+    #
+    #    s05_a = ['#Menu05#',str(menu03_a)]    
+    #    n05_a = ['#name05#',str(element['Mmenu21'])]
+    #    s06_a = ['#Menu06#',str(menu03_b)]    
+    #    n06_a = ['#name06#',str(element['Mmenu22'])]
+    #
+    # 
+    #    st_long = ''
+    #    if element['Mmenu01'] != '': 
+    #        st_long = st_long + ' ' + element['Mmenu01'] + ' ' + str(menu01_a)+'\n'
+    #    if element['Mmenu02'] != '':         
+    #        st_long = st_long + ' ' + element['Mmenu02'] + ' ' + str(menu01_b)+'\n' 
+    #    if element['Mmenu11'] != '':     
+    #        st_long = st_long + ' ' + element['Mmenu11'] + ' ' + str(menu02_a)+'\n' 
+    #    if element['Mmenu12'] != '':     
+    #        st_long = st_long + ' ' + element['Mmenu12'] + ' ' + str(menu02_b)+'\n' 
+    #    if element['Mmenu21'] != '':     
+    #        st_long = st_long + ' ' + element['Mmenu21'] + ' ' + str(menu03_a)+'\n' 
+    #    if element['Mmenu22'] != '':     
+    #        st_long = st_long + ' ' + element['Mmenu22'] + ' ' + str(menu03_b)+'\n' 
+    #    send_data = {'Text':'Статистика заказов','Замена':[['#Статистика#',st_long]]} 
+    #    iz_bot.send_message (message_info,send_data)
+    list_message  = get_user_operation (message_info,status_input,setting_bot,list_line)
+    answer = send_message   (message_info,setting_bot,user_id,message_hat,markup)
+    for message_out in list_message:
+        answer = send_message   (message_info,setting_bot,user_id,message_out,markup)
+    answer = send_message   (message_info,setting_bot,user_id,message_result,markup)    
+
+
+
+
+def send_message_user (message_info,status_input,setting_bot,user_id_list,message_id,wait,,change):                                    ###  Отправка сообщения пользователям (Уникальное)
     message_send         = get_message_send (message_info,status_input,setting_bot,user_id_list,message_id)
     message_01           = message_send['message_01']
     markup01             = message_send['markup01']
@@ -93,12 +196,12 @@ def send_message_user (message_info,status_input,setting_bot,user_id_list,messag
                     answer = send_message   (message_info,setting_bot,user_id,message_02,markup02)
                     save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer)
     ### Рассылка всем администраторам отчета по отправке                
-                    
+
+def send_message_admin (message_info,status_input,setting_bot,user_id_list,message_id,wait,change): 
+    pass
 
 def delete_send_message_user (message_info,status_input,setting_bot,user_id,answer,wait):                                            ###  Удаление сообшения через определенное время
     pass
-
-
 
 ##################################################################################################################################################################################################
 
@@ -113,7 +216,7 @@ def get_list_change         (message_info,status_input,setting_bot,message):    
         body            = name_body[nomer_finishe+2:]
     return list
 
-def change_message         (message_info,status_input,setting_bot,message,list_change,element):                                       ###  Меняем в сообшение значение на параметры             
+def change_message          (message_info,status_input,setting_bot,message,list_change,element):                                      ###  Меняем в сообшение значение на параметры             
     for line in list_change:
         message = message.replace (line,element.setdefault(line,''))    
     return message
@@ -585,8 +688,6 @@ def testing_time (message_info,status_input,setting_bot,hour_start,minute_start,
     now_time    = datetime.datetime.now().time()
     now_date    = datetime.datetime.now()
     current_date_string = now.strftime('%d.%m.%y %H:%M:%S')
-    
-    
     
 ##################################################################################################################################################################################################   
    
