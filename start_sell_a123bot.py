@@ -1,6 +1,6 @@
 ### Узко специализированные программы ###
 ##################################################################################################################################################################################################
-def get_info_product  (message_info,status_input,setting_bot,id_list):                                                          ###  Получаем информацию по товару
+def get_info_product  (message_info,status_input,setting_bot,id_list):                                                                 ###  Получаем информацию по товару
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
     answer  = {}    
@@ -44,11 +44,30 @@ def get_info_product_time  (message_info,status_input,setting_bot,date_time):   
     return answer    
 
 
+def get_list_product (message_info,status):                                                                                            ###  Выводим отчет списком по наименованию      
+    import datetime
+    import iz_bot
+    namebot    = message_info.setdefault('namebot','')
+    db,cursor = iz_bot.connect (namebot)
+    sql = "select id,menu01,menu02,menu11,menu12,menu21,menu22 from food where status = '{}'  ORDER BY id desc limit 1".format(status)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    element = {}
+    for rec in data: 
+        id,menu01,menu02,menu11,menu12,menu21,menu22 = rec.values()
+        element['Mmenu01'] = menu01
+        element['Mmenu02'] = menu02
+        element['Mmenu11'] = menu11
+        element['Mmenu12'] = menu12
+        element['Mmenu21'] = menu21
+        element['Mmenu22'] = menu22
+    return element
+
+
 
 ##################################################################################################################################################################################################
 
 def send_message_user (message_info,status_input,setting_bot,user_id_list,message_id,wait):                                            ###  Отправка сообщения пользователям
-
     message_send         = get_message_send (message_info,status_input,setting_bot,user_id_list,message_id)
     message_01           = message_send['message_01']
     markup01             = message_send['markup01']
@@ -56,7 +75,6 @@ def send_message_user (message_info,status_input,setting_bot,user_id_list,messag
     message_02           = message_send['message_02']
     markup02             = message_send['markup02']
     picture02            = message_send['picture02']
-    
     for line in user_id_list:    
         if test_send_message(message_info,status_input,setting_bot,user_id,message_id,'Номер 1') == True:
             if picture01 != '':
@@ -74,10 +92,31 @@ def send_message_user (message_info,status_input,setting_bot,user_id_list,messag
                 if message_01 != '':
                     answer = send_message   (message_info,setting_bot,user_id,message_02,markup02)
                     save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer)
+    ### Рассылка всем администраторам отчета по отправке                
+                    
+
+def delete_send_message_user (message_info,status_input,setting_bot,user_id,answer,wait):                                            ###  Удаление сообшения через определенное время
+    pass
+
+
 
 ##################################################################################################################################################################################################
 
+def get_list_change         (message_info,status_input,setting_bot,message):                                                          ###  Получение всех меток замены             
+    list = []
+    body  = message
+    while body.find ('##') != -1:
+        nomer_begin     = message.find ("##")
+        name_body       = message[nomer_begin:]       
+        nomer_finishe   = message.find ("##")
+        name            = name_body[:nomer_finishe]
+        body            = name_body[nomer_finishe+2:]
+    return list
 
+def change_message         (message_info,status_input,setting_bot,message,list_change,element):                                       ###  Меняем в сообшение значение на параметры             
+    for line in list_change:
+        message = message.replace (line,element.setdefault(line,''))    
+    return message
        
 def get_service             (message_info,status_input,setting_bot,data_id):                                                          ###  Получение информации о услугах  
         sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
@@ -145,7 +184,7 @@ def test_send_message       (message_info,status_input,setting_bot,user_id,messa
         answer = False
     return answer    
 
-def change_back             (message_info,status_input,setting_bot,name):                                                               ### Замена символа в предложении
+def change_back             (message_info,status_input,setting_bot,name):                                                             ### Замена символа в предложении
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
     db,cursor   = iz_bot.connect (namebot)
@@ -538,6 +577,16 @@ def executing_program_json  (message_info,status_input,setting_bot):            
     id_back         = data_json.setdefault      ('b','')                                                                            ###  Параметр id_back переданной  в json
     print_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Печатаем команды полученные  в json
     executing_operator  (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Выполняем команды полученные в json
+
+def testing_time (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                       ###  Проверка поподания в определенный дэопазон времени    
+    import datetime
+    import iz_bot
+    namebot     = message_info.setdefault('namebot','')
+    now_time    = datetime.datetime.now().time()
+    now_date    = datetime.datetime.now()
+    current_date_string = now.strftime('%d.%m.%y %H:%M:%S')
+    
+    
     
 ##################################################################################################################################################################################################   
    
@@ -583,11 +632,7 @@ def executing_admin         (message_info,status_input,setting_bot):
             
         if  message_in   == '/setting':         ### Исправляем настроки бота
             pass    
-            
-
-
-            
-               
+                      
 def testing_double          (message_info,status_input,setting_bot):
     message_in      =  message_info['message_in']
     if message_in   == setting_bot ['message_in']:
@@ -697,8 +742,7 @@ def executing_program       (message_info,status_input,setting_bot):
     if callback == 'Вызов меню':                                                                                                    ###  Пример работы команды кнопки
         pass    
         
-
-def executing_command       (message_info,status_input,setting_bot):                                                                ### Выполнение общих команд бота /start
+def executing_command       (message_info,status_input,setting_bot):                                                                         ### Выполнение общих команд бота /start
     message_in  = message_info.setdefault ("message_in","")
     if message_in.find ('/start') != -1:
         user_id         = message_info.setdefault ('user_id','') 
@@ -725,25 +769,59 @@ def save_out_message        (message_info,status_input,setting_bot):
    
 ##################################################################################################################################################################################################
    
-def start_prog (message_info):                                                                                                              ###  Получение сигнала от бота. Расшифровка команды и сообщения
-    status_input = iz_bot.user_get_data    (message_info,{})                                                                                ###  Получение из базы информацию по пользователю. Настройки и статусы. 
-    setting_bot  = iz_bot.get_setting      (message_info)                                                                                   ###  Получение из базы информации по боту. Параметры и данные.
-    status       = status_input.setdefault ('status','')                                                                                    ###  Получаем основной статус пользователя например о том что он вводит данные и какие
-    print_status                    (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
-    executing_admin                 (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
-    testing_double                  (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
-    answer     = executing_run      (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды из базы данных
-    testing_blocking                (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
-    testing_time                    (message_info,status_input,setting_bot)                                                                 ###  Проверка работы в определенное время суток
-    save_info_refer                 (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
-    save_info_user                  (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
-    lastid_log = save_message_user  (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
-    answer     = executing_command  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
-    answer     = executing_status   (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
-    answer     = executing_message  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
-    answer     = executing_program  (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
-    analis                          (message_info,status_input,setting_bot,answer)                                                          ###  Выполнение кода если нет действия на сообщения
-    save_out_message                (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
+def start_prog (message_info):                                                                                                                      ###  Получение сигнала от бота. Расшифровка команды и сообщения
+    status_input = iz_bot.user_get_data     (message_info,{})                                                                                       ###  Получение из базы информацию по пользователю. Настройки и статусы. 
+    setting_bot  = iz_bot.get_setting       (message_info)                                                                                          ###  Получение из базы информации по боту. Параметры и данные.
+    status       = status_input.setdefault  ('status','')                                                                                           ###  Получаем основной статус пользователя например о том что он вводит данные и какие
+    answer       = testing_time             (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe)             ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
+    print_status                            (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
+    executing_admin                         (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
+    testing_double                          (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
+    answer      = executing_run             (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды из базы данных
+    testing_blocking                        (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
+    save_info_refer                         (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
+    save_info_user                          (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
+    lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
+    answer      = executing_command         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
+    answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
+    answer      = executing_message         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
+    answer      = executing_program         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
+    analis                                  (message_info,status_input,setting_bot,answer)                                                          ###  Выполнение кода если нет действия на сообщения
+    save_out_message                        (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
+
+
+
+##################################################################################################################################################################################################
+
+
+#                                                                  <Главное меню>                                       /start
+#                                                                 [Заказать меню]
+#                                                                         |
+#                                                                         |    
+#                                                               <Основное текст меню>                                   / Удаление сообщение в 10-00 /Ввод только после 14-00
+#                                                              [Основное]  [Правильное]
+#                                                                [Назад]      [Далее]
+#                                                                    |          |
+#                                                                    |          |
+#                                                                <Основное текст меню>
+#                                                                 [Гарнир]  [Гарнир]
+#                                                                 [Назад]      [Далее]
+#                                                                    |          |
+#                                                                    |          |
+#                                                                <Основное текст меню>
+#                                                                 [Блюдо]    [Блюдо]
+#                                                                 [Назад]      [Далее]
+#                                                                    |          |
+#                                                                    |          |
+#                                                                <Основное текст меню>
+#                                                              [Подтвердить] / [Отменить]
+
+
+
+
+
+
+
 
 
 
