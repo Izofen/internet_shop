@@ -170,7 +170,7 @@ def get_list_product (message_info,status_input,setting_bot,):                  
 
 
 
-def send_message_user (message_info,status_input,setting_bot,user_id_list,message_id,wait,,change):                                    ###  Отправка сообщения пользователям (Уникальное)
+def send_message_user (message_info,status_input,setting_bot,user_id_list,message_id,wait,change):                                    ###  Отправка сообщения пользователям (Уникальное)
     message_send         = get_message_send (message_info,status_input,setting_bot,user_id_list,message_id)
     message_01           = message_send['message_01']
     markup01             = message_send['markup01']
@@ -188,11 +188,11 @@ def send_message_user (message_info,status_input,setting_bot,user_id_list,messag
                     answer = send_message   (message_info,setting_bot,user_id,message_01,markup01)
                     save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 1',answer)
         if test_send_message(message_info,status_input,setting_bot,user_id,message_id,'Номер 2') == True:        
-            if picture01 2= '':
+            if picture02 != '':
                 answer = send_sendPhoto (message_info,setting_bot,user_id,message_02,picture02,markup02)
                 save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer) 
             else:
-                if message_01 != '':
+                if message_02 != '':
                     answer = send_message   (message_info,setting_bot,user_id,message_02,markup02)
                     save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer)
     ### Рассылка всем администраторам отчета по отправке                
@@ -264,11 +264,11 @@ def get_message_send        (message_info,status_input,setting_bot,user_id_list,
     answer['picture02']     = picture02
     return answer
 
-def save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer):
+def save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,status,answer):
     import time
     unixtime = int(time.time())
     sql = "INSERT INTO `log_message` (`unixtime`,`user_id`,message_id,label,answer) VALUES (%s,%s,%s,%s,%s)".format ()
-    sql_save = (unixtime,user_id,message_id,'Номер 2',answer)
+    sql_save = (unixtime,user_id,message_id,status,answer)
     cursor.execute(sql,sql_save)
     lastid = cursor.lastrowid 
     db.commit() 
@@ -553,7 +553,7 @@ def editMessageCaption      (message_info,setting_bot,user_id,message_out,messag
     url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageCaption')
     resp                    = requests.post(url, params) 
     answer                  = resp.json()
-    print ('[+]👧------------------------------------------------------------ [Ответ token, 'editMessageCaption'] -------------------------------------------------------👧[+]')
+    print ('[+]👧------------------------------------------------------------ [Ответ editMessageCaption] -------------------------------------------------------👧[+]')
     print ( answer)
     print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
     print ('') 
@@ -871,6 +871,7 @@ def save_out_message        (message_info,status_input,setting_bot):
 ##################################################################################################################################################################################################
    
 def start_prog (message_info):                                                                                                                      ###  Получение сигнала от бота. Расшифровка команды и сообщения
+    import iz_bot
     status_input = iz_bot.user_get_data     (message_info,{})                                                                                       ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     setting_bot  = iz_bot.get_setting       (message_info)                                                                                          ###  Получение из базы информации по боту. Параметры и данные.
     status       = status_input.setdefault  ('status','')                                                                                           ###  Получаем основной статус пользователя например о том что он вводит данные и какие
