@@ -423,8 +423,9 @@ def user_save_data          (message_info,status_input,save_data):
     return status_input 
         
 def key_type_message        (key):
+    import json
     line = []
-    for number in range(30):
+    for number in range(5):
         line1  = []
         key11  = {}
         key11['text']          = key.setdefault('Кнопка ' +str(number+1)+'1','')
@@ -508,7 +509,7 @@ def send_message            (message_info,setting_bot,user_id,message_out,markup
     params['parse_mode']    = 'HTML'
     if markup != {}:
         params['reply_markup'] = markup                
-        
+        print ('reply_markup',markup) 
     print ('[+] Данные для отправки')
     print ('[+]',params['chat_id'])
     print ('[+]',params['text'])
@@ -614,7 +615,7 @@ def editMessageMedia        (message_info,setting_bot,user_id,message_out,messag
     print ('') 
     return answer    
       
-def complite_key            (message_info,id_sql,sql,ask,limit,offset,back,metka):                                                  ###  Формируем список из кнопок по переданным нам параметрам
+def complite_key            (message_info,id_sql,sql,ask,limit,offset,back,metka):                                                                  ###  Формируем список из кнопок по переданным нам параметрам
     import iz_bot
     import json
     namebot             = message_info.setdefault('namebot','')
@@ -652,7 +653,7 @@ def get_message             (message_info,name):
                 data_message[name] = info  
     return data_message 
   
-def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_tovar):                                             ###  Формируем карточку товара    
+def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_tovar):                                                             ###  Формируем карточку товара    
     message         = get_message (message_info,"Шаблон товара")                                                                    ###  Список значений исходящего сообщения
     message_text    = message['Текст']
     message_text    = message_text.replace('##name##'    ,str(name)) 
@@ -669,10 +670,10 @@ def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_
    
 ##################################################################################################################################################################################################    
    
-def print_operator          (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                               ###  Печать команды оператор в json
+def print_operator          (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                               ###  Печать команды оператор в json
     pass
    
-def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                               ###  Выполнение команды оператор в json
+def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                               ###  Выполнение команды оператор в json
     
     if operation == 'catat':                                                                                                        ###  Нажата кнопка в списке
         ### id_list - id товара в списке
@@ -697,7 +698,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         id_sql                    = id_sql         
         key_list                  = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')
         
-def executing_program_json  (message_info,status_input,setting_bot):                                                                ###  Разбор команды оператор в json
+def executing_program_json  (message_info,status_input,setting_bot):                                                                                ###  Разбор команды оператор в json
     import iz_bot                                                                                                                   ###  Основные функции программы
     import json
     callback        = message_info.setdefault   ('callback','')                                                                     ###  Имя нажатой кнопки 
@@ -710,7 +711,7 @@ def executing_program_json  (message_info,status_input,setting_bot):            
     print_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Печатаем команды полученные  в json
     executing_operator  (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Выполняем команды полученные в json
 
-def testing_time (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                       ###  Проверка поподания в определенный дэопазон времени    
+def testing_time (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                                       ###  Проверка поподания в определенный дэопазон времени    
     import datetime
     import iz_bot
     now         = datetime.datetime.now()
@@ -776,7 +777,7 @@ def testing_double          (message_info,status_input,setting_bot):
     save_data   = [['message_in',message_in]] 
     status_input = user_save_data (message_info,status_input,save_data)
     
-def testing_blocking        (message_info,status_input,setting_bot):                                                                        ### Проверяем ввод оснавных параметров пользователя
+def testing_blocking        (message_info,status_input,setting_bot):                                                                                ### Проверяем ввод оснавных параметров пользователя
     import iz_bot
     answer      = ''
     namebot     = message_info.setdefault  ('namebot','') 
@@ -840,7 +841,7 @@ def save_info_refer         (message_info,status_input,setting_bot):
             markup          = gets_key       (message_info,setting_bot,user_id,message_out.setdefault('Меню',''))
             answer          = send_message   (message_info,setting_bot,user_id,message_out.setdefault('Текст',''),markup)
             
-def save_info_user          (message_info,status_input,setting_bot):                                                                        ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
+def save_info_user          (message_info,status_input,setting_bot):                                                                                ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
     pass
     
 def save_message_user       (message_info,status_input,setting_bot):
@@ -904,19 +905,31 @@ def executing_command       (message_info,status_input,setting_bot,answer):     
         answer = {}
     return answer        
  
-
 def executing_start         (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
     if message_in.find ('/start') != -1:
         #### Модуль подготовки сообшения
-        user_id         = message_info.setdefault ('user_id','') 
-        message         = setting_bot .setdefault ("Сообщение при старте программы","Старт программы")
-        answer          = save_message (message_info,setting_bot,user_id,message)
-        message_out     = gets_message (message_info,setting_bot,user_id,message)
-        markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
-        answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
+        user_id          = message_info.setdefault ('user_id','') 
+        message          = setting_bot .setdefault ("Сообщение при старте программы","Старт программы")
+        answer           = save_message (message_info,setting_bot,user_id,message)
+        message_out      = gets_message (message_info,setting_bot,user_id,message)
+        #markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
+        answer           = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),{})
+
+        user_id          = message_info.setdefault ('user_id','') 
+        message          = setting_bot .setdefault ("Информирование о вводе данных","Информирование о вводе данных")
+        answer           = save_message (message_info,setting_bot,user_id,message)
+        message_out      = gets_message (message_info,setting_bot,user_id,message)
+        #markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
+        key              = {}
+        key['Кнопка 11']  = 'Ввести данные' 
+        key['Команда 11'] = 'Ввести данные' 
+        markup           = key_type_message (key)
+        answer           = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
+
+        
         #### Модуль обнуления данных
-        status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
+        status_input     = user_save_data (message_info,status_input,[["Статус",""]]) 
  
 def analis                  (message_info,status_input,setting_bot,answer):
     status  = answer.setdefault('status','')
@@ -935,16 +948,16 @@ def save_out_message        (message_info,status_input,setting_bot):
    
 ##################################################################################################################################################################################################
    
-def start_prog (message_info):                                                                                                                      ###  Получение сигнала от бота. Расшифровка команды и сообщения
+def start_prog (message_info):                                                                                                                       ###  Получение сигнала от бота. Расшифровка команды и сообщения
     import iz_bot
-    status_input = iz_bot.user_get_data     (message_info,{})                                                                                       ###  Получение из базы информацию по пользователю. Настройки и статусы. 
-    setting_bot  = iz_bot.get_setting       (message_info)                                                                                          ###  Получение из базы информации по боту. Параметры и данные.    
+    status_input = iz_bot.user_get_data      (message_info,{})                                                                                       ###  Получение из базы информацию по пользователю. Настройки и статусы. 
+    setting_bot  = iz_bot.get_setting        (message_info)                                                                                          ###  Получение из базы информации по боту. Параметры и данные.    
     #answer       = testing_time             (message_info,status_input,setting_bot,14,15,9,15)                                                      ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     #print_status                            (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
     #executing_admin                         (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
     #testing_double                          (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
     #answer      = executing_run             (message_info,status_input,setting_bot,{})                                                              ###  Выполнение команды из базы данных
-    answer      = executing_start             (message_info,status_input,setting_bot,{})                                                              ###  Выполнение команды /start
+    answer      = executing_start            (message_info,status_input,setting_bot,{})                                                              ###  Выполнение команды /start
     #testing_blocking                        (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
     #save_info_refer                         (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
     #save_info_user                          (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
