@@ -822,8 +822,9 @@ def testing_blocking        (message_info,status_input,setting_bot):            
         ask = get_ask_nomer (message_info,status_input,setting_bot)        
         if ask != 0:
             namebot   = message_info.setdefault ('namebot','') 
-            db,cursor = iz_bot.connect (namebot)                                                                                                              ### Задаем вопрос из списка вопросов. 
-            sql       = "select id,name from ask where id = {} ".format()                                                                                     ### Получаем данные для вопроса
+            from iz_bot import connect as connect 
+            db,cursor = connect (namebot)                                                                                                              ### Задаем вопрос из списка вопросов. 
+            sql       = "select id,name from ask where id = {} ".format(ask)                                                                                     ### Получаем данные для вопроса
             data        = cursor.fetchall()
             for rec in data:
                 if str(type(rec)) == "<class 'tuple'>":
@@ -900,27 +901,37 @@ def executing_message       (message_info,status_input,setting_bot,answer):
          
 def executing_program       (message_info,status_input,setting_bot,answer):
     callback =   message_info.setdefault ("callback","")
+    print ('[callback]',callback)
     if callback.find ('i_') != -1:                                                                                                  ###  Кнопка которая передала в json информацию
         executing_program_json (message_info,status_input,setting_bot)
     if callback == 'save_message':                                                                                                  ###  Пример работы команды кнопки
         pass
     if callback == 'Вызов меню':                                                                                                    ###  Пример работы команды кнопки
-        pass    
-    answer = {}    
-    return answer      
-    
-def executing_command       (message_info,status_input,setting_bot,answer):                                                                         ### Выполнение общих команд бота /start
-    message_in  = message_info.setdefault ("message_in","")
-    if message_in.find ('/start') != -1:
+        pass  
+    answer = {}
+    print ('[callback]',callback)
+    if callback == "Ввести данные":
         user_id         = message_info.setdefault ('user_id','') 
-        message         = setting_bot .setdefault ("Сообщение при старте программы","Старт программы")
+        message         = setting_bot .setdefault ("Сообщение ввести данные","Ввести данные")
         answer          = save_message (message_info,setting_bot,user_id,message)
         message_out     = gets_message (message_info,setting_bot,user_id,message)
         markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
         answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
-        status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
-        answer = {}
-    return answer        
+        #status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
+    return answer      
+    
+def executing_command       (message_info,status_input,setting_bot,answer):                                                                         ### Выполнение общих команд бота /start
+    message_in  = message_info.setdefault ("message_in","")
+    #if message_in.find ('/start') != -1:
+    #    user_id         = message_info.setdefault ('user_id','') 
+    #    message         = setting_bot .setdefault ("Сообщение при старте программы","Старт программы")
+    #    answer          = save_message (message_info,setting_bot,user_id,message)
+    #    message_out     = gets_message (message_info,setting_bot,user_id,message)
+    #    markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
+    #    answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
+    #    status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
+    #    answer = {}
+    #return answer        
  
 def executing_start         (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
@@ -934,15 +945,15 @@ def executing_start         (message_info,status_input,setting_bot,answer):
         answer           = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),{})
         ask = get_ask_nomer (message_info,status_input,setting_bot)
         if ask != 0:
-            user_id          = message_info.setdefault ('user_id','') 
-            message          = setting_bot .setdefault ("Информирование о вводе данных","Информирование о вводе данных")
-            answer           = save_message (message_info,setting_bot,user_id,message)
-            message_out      = gets_message (message_info,setting_bot,user_id,message)
-            key              = {}
+            user_id           = message_info.setdefault ('user_id','') 
+            message           = setting_bot .setdefault ("Информирование о вводе данных","Информирование о вводе данных")
+            answer            = save_message (message_info,setting_bot,user_id,message)
+            message_out       = gets_message (message_info,setting_bot,user_id,message)
+            key               = {}
             key['Кнопка 11']  = 'Ввести данные' 
             key['Команда 11'] = 'Ввести данные' 
-            markup           = key_type_message (key)
-            answer           = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
+            markup            = key_type_message (key)
+            answer            = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
         
         #### Модуль обнуления данных
         status_input     = user_save_data (message_info,status_input,[["Статус",""]]) 
@@ -978,10 +989,10 @@ def start_prog (message_info):                                                  
     #save_info_refer                         (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
     #save_info_user                          (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
     #lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
-    #answer      = executing_command         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
+    answer      = executing_command         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
     #answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
     #answer      = executing_message         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
-    #answer      = executing_program         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
+    answer      = executing_program         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
     #analis                                  (message_info,status_input,setting_bot,answer)                                                          ###  Выполнение кода если нет действия на сообщения
     #save_out_message                        (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
 
