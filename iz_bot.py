@@ -8,10 +8,15 @@ def connect_postgres ():
     return db,cursor 
 
 def connect (namebot):
-    import pymysql 
-    base = namebot.replace("@","")
-    db = pymysql.connect(host='localhost',user='root',password='podkjf4',database=base,charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)  
-    cursor = db.cursor()
+    #import pymysql 
+    #base = namebot.replace("@","")
+    #db = pymysql.connect(host='localhost',user='root',password='podkjf4',database=base,charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)  
+    #cursor = db.cursor()
+    
+    import sqlite3
+    db      = sqlite3.connect('orenklip_bot.db')
+    cursor  = db.cursor()
+    
     return db,cursor
         
 def change (word):
@@ -413,7 +418,10 @@ def get_setting (message_info):
     cursor.execute(sql)
     results = cursor.fetchall()    
     for row in results:
-        id,name,info = row.values() 
+        if str(type(row)) == "<class 'tuple'>":
+            id,name,info = row
+        else:    
+            id,name,info = row.values() 
         data_answer[name] = info
     return data_answer 
       

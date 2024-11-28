@@ -341,13 +341,13 @@ def save_message            (message_info,setting_bot,user_id,message_out):
     cursor.execute(sql)
     data = cursor.fetchall()
     for rec in data:
-        id,name = rec.values() 
-
-    print ('[id] : ',id)
+        if str(type(rec)) == "<class 'tuple'>":
+            id,name = rec
+        else:
+            id,name = rec.values() 
         
     if id == 0:
         sql = "INSERT INTO message (data_id,info,name,status) VALUES ({},'{}','{}','')".format (0,message_out,'Имя')
-        print ('[sql 3]',sql)
         cursor.execute(sql)
         db.commit()
         lastid = cursor.lastrowid
@@ -365,12 +365,14 @@ def gets_message            (message_info,setting_bot,user_id,message_out):
     db,cursor    = iz_bot.connect (namebot)
     message      = {}
     sql = "select id,name,info,data_id from message where name = 'Имя' and info = '{}' ;".format(message_out)
-    print ('[sql] : ',sql)
     cursor.execute(sql)
     data = cursor.fetchall()
     data_id = 0
     for rec in data:
-        id,name,info,data_id = rec.values() 
+        if str(type(rec)) == "<class 'tuple'>":
+            id,name,info,data_id = rec
+        else:
+            id,name,info,data_id = rec.values() 
     if data_id == 0:
         message = {}
     else:        
@@ -378,7 +380,10 @@ def gets_message            (message_info,setting_bot,user_id,message_out):
         cursor.execute(sql)
         data = cursor.fetchall()
         for rec in data:
-            id,name,info,data_id = rec.values()
+            if str(type(rec)) == "<class 'tuple'>":
+                id,name,info,data_id = rec
+            else:    
+                id,name,info,data_id = rec.values()
             message[name] = info
         if message.setdefault('Текст','') == '': 
             message['Текст'] = message_out 
@@ -774,9 +779,9 @@ def testing_double          (message_info,status_input,setting_bot):
     
 def testing_blocking        (message_info,status_input,setting_bot):                                                                        ### Проверяем ввод оснавных параметров пользователя
     import iz_bot
+    answer = ''
     namebot     = message_info.setdefault  ('namebot','') 
     status      = status_input.setdefault('Статус','')                                                                                      ### Проверяем статус - возможно пользователь ввел значение
-    
     if status != '':    
         db,cursor   = iz_bot.connect (namebot)
         sql  = "select id,name,answer from ask where name = '{}' ".format(status)
@@ -795,11 +800,15 @@ def testing_blocking        (message_info,status_input,setting_bot):            
             answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
             status_input    = user_save_data (message_info,status_input,[["Статус",""]])
     db,cursor = iz_bot.connect (namebot)                                                                                                    ### Задаем вопрос из списка вопросов. 
-    sql = "select id,name from ask where 1=1 ".format()                                                                                     ###  Проверяем что параметр заполнен если нет отправляем сообщение и меняем статус
+    sql         = "select id,name from ask where 1=1 ".format()                                                                                     ###  Проверяем что параметр заполнен если нет отправляем сообщение и меняем статус
     cursor.execute(sql)
-    data = cursor.fetchall()
+    data        = cursor.fetchall()
+    name        = ''
     for rec in data:
-        id,name = rec.values()
+        if str(type(rec)) == "<class 'tuple'>":
+            id,name = rec
+        else:
+            id,name = rec.values()
         if status_input.setdefault (name,'') == '': 
             break
         name    = ''
