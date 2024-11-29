@@ -43,11 +43,7 @@ def get_info_product_time  (message_info,status_input,setting_bot,date_time):   
         answer['quantity']      = quantity
     return answer    
 
-
-
-
 ##################################################################################################################################################################################################
-
 
 def get_list_product (message_info,status_input,setting_bot,):                                                                        ### Формируем список продуктов
     user_id        = message_info['user_id']
@@ -306,7 +302,6 @@ def change_back             (message_info,status_input,setting_bot,name):       
         db.commit()  
     return change 
 
-
 def get_ask_nomer           (message_info,status_input,setting_bot):
     import iz_bot
     user_id  = message_info.setdefault ('user_id','')
@@ -326,18 +321,21 @@ def get_ask_nomer           (message_info,status_input,setting_bot):
             ask = id
     return ask 
 
-
 ##################################################################################################################################################################################################    
 
-def save_sql                (message_info,name,sql,limit,offset,back):
-    import iz_bot
-    namebot    = message_info.setdefault('namebot','')
-    db,cursor = iz_bot.connect (namebot)
-    sql = "INSERT INTO data_sql (name,data) VALUES (%s,%s)".format ()
-    sql_save = (name,sql,limit,offset,back)
-    result = cursor.execute(sql,sql_save)
-    db.commit()    
-    lastid = cursor.lastrowid
+def save_sql                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
+    if setting_bot['connect'] == 'sql lite':
+        pass
+        lastid = 0
+    if setting_bot['connect'] == 'MySQL':    
+        import iz_bot
+        namebot    = message_info.setdefault('namebot','')
+        db,cursor = iz_bot.connect (namebot)
+        sql = "INSERT INTO data_sql (name,data) VALUES (%s,%s)".format ()
+        sql_save = (name,sql,limit,offset,back)
+        result = cursor.execute(sql,sql_save)
+        db.commit()    
+        lastid = cursor.lastrowid
     return lastid
 
 def get_sql                 (message_info,setting_bot,id_sql):
@@ -634,17 +632,24 @@ def editMessageMedia        (message_info,setting_bot,user_id,message_out,messag
     print ('') 
     return answer    
       
-def complite_key            (message_info,id_sql,sql,ask,limit,offset,back,metka):                                                                  ###  Формируем список из кнопок по переданным нам параметрам
-    import iz_bot
+def complite_key            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka):                                                                  ###  Формируем список из кнопок по переданным нам параметрам
+    from iz_bot import connect as connect
     import json
     namebot             = message_info.setdefault('namebot','')
-    db,cursor           = iz_bot.connect (namebot)
-    sql_save            = (limit,offset,ask)
-    cursor.execute(sql,sql_save)
+    db,cursor           = connect (namebot)    
+    #sql_save            = (limit,offset,ask)
+    sql = sql.replace("##s1##",str(limit))
+    sql = sql.replace("##s2##",str(offset))
+    sql = sql.replace("##s3##",str(ask))
+    print ('[sql]',sql)
+    cursor.execute(sql)
     data = cursor.fetchall()
     key_array = []
     for rec in data: 
-        id,info = rec.values()  
+        if setting_bot['connect'] == 'sql lite':
+            id,info = rec
+        else:    
+            id,info = rec.values()  
         command =  iz_bot.build_jsom ({'o':metka,'i':id,'s':id_sql})
         key_array.append ([[info,command],['',''],['','']])  
     if back != '':                                                                                                                  ### Если нам передали информацию как вернутся назад заносим ее
@@ -707,15 +712,15 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             limit    = 10
             offset   = 0            
             back     = id_sql                                                                                                       ###  Передаем номер сообщения для возврата из каталога
-            id_sql   = save_sql     (message_info,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения            
-            key_list = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')
+            id_sql   = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения            
+            key_list = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')
         if info_tovar['catalog'] == 0:                                                                                              ###  Это товар выводим информацию о товаре
             message,key = get_message_tovar (message_info,status_input,setting_bot,id_list,info_tovar)
             
     if operation == 'back':                                                                                                         ###  Нажата кнопка вернутся назад 
         sql,ask,limit,offset,back = get_sql (message_info,id_sql)
         id_sql                    = id_sql         
-        key_list                  = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')
+        key_list                  = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')
         
 def executing_program_json  (message_info,status_input,setting_bot):                                                                                ###  Разбор команды оператор в json
     import iz_bot                                                                                                                   ###  Основные функции программы
@@ -807,7 +812,7 @@ def testing_blocking        (message_info,status_input,setting_bot):            
             sql  = "select id,name,answer from ask where name = '{}' ".format(status)
             cursor.execute(sql)
             data = cursor.fetchall()
-            id   = 0 
+            id   = 0
             for rec in data:
                 id,name,message_answer = rec.values()
             if id != 0:
@@ -839,7 +844,6 @@ def testing_blocking        (message_info,status_input,setting_bot):            
                 answer          = send_message   (message_info,setting_bot,user_id,message_out.setdefault('Текст',''),markup)
                 status_input    = user_save_data (message_info,status_input,[["Статус",name]])
    
-            
 def save_info_refer         (message_info,status_input,setting_bot):
     message = message_info.setdefault ('message_in','')
     if message.find ("/start") != -1:
@@ -886,12 +890,13 @@ def executing_run           (message_info,status_input,setting_bot,answer):
 def executing_message       (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
     if message_in   == 'Каталог':                                                                                                   ###  Пример работы тестового Входящего сообщения 
-        sql             = "select id,`info` from `service` where %s limit %s offset %s"
+        sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
         offset          = 0
         back            = ''
-        id_sql          = save_sql     (message_info,"Список товаров",sql,limit,offset,back)                                        ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
-        markup_list     = complite_key (message_info,id_sql,sql,ask,limit,offset,back,'catat')                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки
+        ask             = '1=1'
+        id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                        ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
+        markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
         message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                   ###  Выводим полученный список
         answer          = save_message   (message_info,setting_bot,user_id,message)
         message_out     = gets_message   (message_info,setting_bot,user_id,message)          
@@ -901,7 +906,6 @@ def executing_message       (message_info,status_input,setting_bot,answer):
          
 def executing_program       (message_info,status_input,setting_bot,answer):
     callback =   message_info.setdefault ("callback","")
-    print ('[callback]',callback)
     if callback.find ('i_') != -1:                                                                                                  ###  Кнопка которая передала в json информацию
         executing_program_json (message_info,status_input,setting_bot)
     if callback == 'save_message':                                                                                                  ###  Пример работы команды кнопки
@@ -922,16 +926,7 @@ def executing_program       (message_info,status_input,setting_bot,answer):
     
 def executing_command       (message_info,status_input,setting_bot,answer):                                                                         ### Выполнение общих команд бота /start
     message_in  = message_info.setdefault ("message_in","")
-    #if message_in.find ('/start') != -1:
-    #    user_id         = message_info.setdefault ('user_id','') 
-    #    message         = setting_bot .setdefault ("Сообщение при старте программы","Старт программы")
-    #    answer          = save_message (message_info,setting_bot,user_id,message)
-    #    message_out     = gets_message (message_info,setting_bot,user_id,message)
-    #    markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
-    #    answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
-    #    status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
-    #    answer = {}
-    #return answer        
+    
  
 def executing_start         (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
@@ -979,24 +974,25 @@ def start_prog (message_info):                                                  
     import iz_bot
     status_input = iz_bot.user_get_data      (message_info,{})                                                                                       ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     setting_bot  = iz_bot.get_setting        (message_info)                                                                                          ###  Получение из базы информации по боту. Параметры и данные.    
+    setting_bot['connect']                   = 'sql lite'
     #answer       = testing_time             (message_info,status_input,setting_bot,14,15,9,15)                                                      ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     #print_status                            (message_info,status_input,setting_bot)                                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
     #executing_admin                         (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
     #testing_double                          (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
     #answer      = executing_run             (message_info,status_input,setting_bot,{})                                                              ###  Выполнение команды из базы данных
     answer      = executing_start            (message_info,status_input,setting_bot,{})                                                              ###  Выполнение команды /start
-    testing_blocking                        (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
+    testing_blocking                         (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
     #save_info_refer                         (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
     #save_info_user                          (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
     #lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
-    answer      = executing_command         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
+    answer      = executing_command          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
     #answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
-    #answer      = executing_message         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
-    answer      = executing_program         (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
+    answer      = executing_message          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
+    answer      = executing_program          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
     #analis                                  (message_info,status_input,setting_bot,answer)                                                          ###  Выполнение кода если нет действия на сообщения
     #save_out_message                        (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
-
-
+    #statictic                               (message_info,status_input,setting_bot)
+    #backUp                                  (message_info,status_input,setting_bot)   
 
 ##################################################################################################################################################################################################
 
