@@ -1,10 +1,10 @@
 ### Узко специализированные программы ###
 ##################################################################################################################################################################################################
-def get_info_product  (message_info,status_input,setting_bot,id_list):                                                                 ###  Получаем информацию по товару
-    import iz_bot
+def get_info_product        (message_info,status_input,setting_bot,id_list):                                                                                    ###  Получаем информацию по товару
+    from iz_bot import connect as connect
     namebot     = message_info.setdefault('namebot','')
     answer  = {}    
-    db,cursor = iz_bot.connect (namebot)
+    db,cursor = connect (namebot)
     sql = "select id,name,about,catalog,comment,currency,picture,pocket,price,quantity from service where id = {} limit 1".format (id_list)
     cursor.execute(sql)
     data = cursor.fetchall()
@@ -20,9 +20,8 @@ def get_info_product  (message_info,status_input,setting_bot,id_list):          
         answer['price']         = price
         answer['quantity']      = quantity
     return answer
-    
-    
-def get_info_product_time  (message_info,status_input,setting_bot,date_time):                                                          ###  Получаем информацию по товару в указанное время
+       
+def get_info_product_time   (message_info,status_input,setting_bot,date_time):                                                                                  ###  Получаем информацию по товару в указанное время
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
     answer  = {}    
@@ -43,18 +42,22 @@ def get_info_product_time  (message_info,status_input,setting_bot,date_time):   
         answer['quantity']      = quantity
     return answer    
 
+def get_info_tovar (message_info,status_input,setting_bot,id_list):
+    info_tovar = {'Имя':'Пробный товар'}
+    info_tovar['catalog'] = 0
+    return info_tovar
+
+
 ##################################################################################################################################################################################################
 
-def get_list_product (message_info,status_input,setting_bot,):                                                                        ### Формируем список продуктов
+def get_list_product        (message_info,status_input,setting_bot,message):                                                                                    ###  Формируем список продуктов, длинный список
     user_id        = message_info['user_id']
     message        = setting_bot .setdefault ("Шапка отчета","Шапка отчета")
     answer         = save_message (message_info,setting_bot,user_id,message)
     message_hat    = gets_message (message_info,setting_bot,user_id,message)
-
     message        = setting_bot .setdefault ("Строка отчета","Строка отчета")
     answer         = save_message (message_info,setting_bot,user_id,message)
     message_line   = gets_message (message_info,setting_bot,user_id,message)
-
     message        = setting_bot .setdefault ("Подвал отчета","Подвал отчета")
     answer         = save_message (message_info,setting_bot,user_id,message)
     message_result = gets_message (message_info,setting_bot,user_id,message)
@@ -163,10 +166,7 @@ def get_list_product (message_info,status_input,setting_bot,):                  
         answer = send_message   (message_info,setting_bot,user_id,message_out,markup)
     answer = send_message   (message_info,setting_bot,user_id,message_result,markup)    
 
-
-
-
-def send_message_user (message_info,status_input,setting_bot,user_id_list,message_id,wait,change):                                    ###  Отправка сообщения пользователям (Уникальное)
+def send_message_user       (message_info,status_input,setting_bot,user_id_list,message_id,wait,change):                                                        ###  Отправка сообщения пользователям (Уникальное)
     message_send         = get_message_send (message_info,status_input,setting_bot,user_id_list,message_id)
     message_01           = message_send['message_01']
     markup01             = message_send['markup01']
@@ -193,15 +193,15 @@ def send_message_user (message_info,status_input,setting_bot,user_id_list,messag
                     save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer)
     ### Рассылка всем администраторам отчета по отправке                
 
-def send_message_admin (message_info,status_input,setting_bot,user_id_list,message_id,wait,change): 
+def send_message_admin      (message_info,status_input,setting_bot,user_id_list,message_id,wait,change): 
     pass
 
-def delete_send_message_user (message_info,status_input,setting_bot,user_id,answer,wait):                                            ###  Удаление сообшения через определенное время
+def delete_send_message_user(message_info,status_input,setting_bot,user_id,answer,wait):                                                                        ###  Удаление сообшения через определенное время
     pass
 
 ##################################################################################################################################################################################################
 
-def get_list_change         (message_info,status_input,setting_bot,message):                                                          ###  Получение всех меток замены             
+def get_list_change         (message_info,status_input,setting_bot,message):                                                                                    ###  Получение всех меток замены             
     list = []
     body  = message
     while body.find ('##') != -1:
@@ -212,12 +212,12 @@ def get_list_change         (message_info,status_input,setting_bot,message):    
         body            = name_body[nomer_finishe+2:]
     return list
 
-def change_message          (message_info,status_input,setting_bot,message,list_change,element):                                      ###  Меняем в сообшение значение на параметры             
+def change_message          (message_info,status_input,setting_bot,message,list_change,element):                                                                ###  Меняем в сообшение значение на параметры             
     for line in list_change:
         message = message.replace (line,element.setdefault(line,''))    
     return message
        
-def get_service             (message_info,status_input,setting_bot,data_id):                                                          ###  Получение информации о услугах  
+def get_service             (message_info,status_input,setting_bot,data_id):                                                                                    ###  Получение информации о услугах  
         sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
         answer         = []
         cursor.execute(sql)
@@ -227,13 +227,13 @@ def get_service             (message_info,status_input,setting_bot,data_id):    
             answer[name] = info
         return answer  
         
-def get_time_set            (message_info,status_input,setting_bot,name):                                                             ###  Процедура для замера времени
+def get_time_set            (message_info,status_input,setting_bot,name):                                                                                       ###  Процедура для замера времени
     import time
     unixtime = int(time.time ())
     status_input    = user_save_data (message_info,status_input,[[name,unixtime]])
     return status_input
         
-def get_time_up             (message_info,status_input,setting_bot,name):                                                             ###  Проверка что время прошло достаточно  
+def get_time_up             (message_info,status_input,setting_bot,name):                                                                                       ###  Проверка что время прошло достаточно  
     import time
     import iz_bot
     unixtime        = int(time.time ())
@@ -242,7 +242,7 @@ def get_time_up             (message_info,status_input,setting_bot,name):       
     answer = unixtime - limit;
     return answer 
       
-def get_message_send        (message_info,status_input,setting_bot,user_id_list,message_id):                                          ###  Получаем сообщения для рассылки  
+def get_message_send        (message_info,status_input,setting_bot,user_id_list,message_id):                                                                    ###  Получаем сообщения для рассылки  
     import iz_bot
     namebot    = message_info.setdefault('namebot','')
     db,cursor = iz_bot.connect (namebot)
@@ -283,7 +283,7 @@ def test_send_message       (message_info,status_input,setting_bot,user_id,messa
         answer = False
     return answer    
 
-def change_back             (message_info,status_input,setting_bot,name):                                                             ### Замена символа в предложении
+def change_back             (message_info,status_input,setting_bot,name):                                                                                       ###  Замена символа в предложении
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
     db,cursor   = iz_bot.connect (namebot)
@@ -441,10 +441,12 @@ def user_save_data          (message_info,status_input,save_data):
             status_input[name] = info
     return status_input 
         
-def key_type_message        (key):
+def key_type_message        (key):                                                          #                                                                   ## Процедура формирует кнопку из Соответствия
+    #print (key) 
     import json
     line = []
     for number in range(5):
+        #print ('[111]','Кнопка ' +str(number+1)+'1') 
         line1  = []
         key11  = {}
         key11['text']          = key.setdefault('Кнопка ' +str(number+1)+'1','')
@@ -471,7 +473,7 @@ def key_type_message        (key):
     markup = json.dumps(array) 
     return markup     
        
-def key_type_keybord        (key):
+def key_type_keybord        (key):                                                                                                                              ## Процедура формирует кнопку из Соответствия
     array  = {}        
     line   = []
     for number in range(10):
@@ -504,7 +506,7 @@ def gets_key                (message_info,setting_bot,user_id,menu):
     cursor.execute(sql)
     results = cursor.fetchall()    
     markup     = {}
-    key        = {}   
+    #key        = {}   
     for row in results:
         id,name,info,data_id = row.values() 
         sql = "select id,name,info from menu where data_id = '{}' and status <> 'delete' ;".format (data_id)
@@ -513,9 +515,9 @@ def gets_key                (message_info,setting_bot,user_id,menu):
         for row in results:
             id,name,info = row.values() 
             key[name] = info
-    if key.setdefault('Тип кнопки','') == 'Сообщение':
+    if menu.setdefault('Тип кнопки','') == 'Сообщение':
         markup = key_type_message (key)
-    if key.setdefault('Тип кнопки','') == 'Клавиатура':    
+    if menu.setdefault('Тип кнопки','') == 'Клавиатура':    
         markup = key_type_keybord (key)
     return markup
     
@@ -541,6 +543,7 @@ def send_message            (message_info,setting_bot,user_id,message_out,markup
     print ( answer)
     print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
     print ('') 
+    #print ('[markup]',markup)
     return answer 
        
 def send_sendPhoto          (message_info,setting_bot,user_id,message_out,picture,markup):
@@ -632,36 +635,41 @@ def editMessageMedia        (message_info,setting_bot,user_id,message_out,messag
     print ('') 
     return answer    
       
-def complite_key            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka):                                                                  ###  Формируем список из кнопок по переданным нам параметрам
+def complite_key            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka):                                                                  ###  Формируем кнопокe из списока  по переданным нам параметрам
     from iz_bot import connect as connect
+    from iz_bot import build_jsom as build_jsom
     import json
     namebot             = message_info.setdefault('namebot','')
-    db,cursor           = connect (namebot)    
-    #sql_save            = (limit,offset,ask)
-    sql = sql.replace("##s1##",str(limit))
-    sql = sql.replace("##s2##",str(offset))
-    sql = sql.replace("##s3##",str(ask))
-    print ('[sql]',sql)
+    db,cursor           = connect (namebot) 
+    sql = sql.replace("##s1##",str(ask))
+    sql = sql.replace("##s2##",str(limit))
+    sql = sql.replace("##s3##",str(offset))
     cursor.execute(sql)
     data = cursor.fetchall()
-    key_array = []
+    key_array = {}
+    nomer = 0 
     for rec in data: 
         if setting_bot['connect'] == 'sql lite':
             id,info = rec
         else:    
             id,info = rec.values()  
-        command =  iz_bot.build_jsom ({'o':metka,'i':id,'s':id_sql})
-        key_array.append ([[info,command],['',''],['','']])  
-    if back != '':                                                                                                                  ### Если нам передали информацию как вернутся назад заносим ее
+        command =  build_jsom ({'o':metka,'i':id,'s':id_sql})
+        nomer = nomer + 1
+        key_array['Кнопка '+str(nomer)  + "1"] = info
+        key_array['Команда '+str(nomer) + "1"] = command
+    if back != '':                                                                                                                                              ### Если нам передали информацию как вернутся назад заносим ее
         name_key = set_name_key (message_info,'Кнопка назад') 
         command  = iz_bot.build_jsom ({'o':'back','s':id_sql,'b':back})
         key_array.append ([[name_key,command],['',''],['','']]) 
-    return complite_key                                                          
+    #print ('[key_array]',key_array)
+    markup   = key_type_message (key_array)
+    return markup                                                          
   
 def get_message             (message_info,name):
     namebot     = message_info.setdefault ('namebot')
+    from iz_bot import connect as connect
     db,cursor   = connect (namebot) 
-    data_message = {}
+    data_message = {'Текст':'Текст'}
     sql = "select id,name,info from message where name = 'Имя' and info = '{}' ;".format (name)
     cursor.execute(sql)
     results = cursor.fetchall()    
@@ -677,52 +685,60 @@ def get_message             (message_info,name):
                 data_message[name] = info  
     return data_message 
   
-def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_tovar):                                                             ###  Формируем карточку товара    
-    message         = get_message (message_info,"Шаблон товара")                                                                    ###  Список значений исходящего сообщения
-    message_text    = message['Текст']
-    message_text    = message_text.replace('##name##'    ,str(name)) 
-    message_text    = message_text.replace('##about##'   ,str(about)) 
-    message_text    = message_text.replace('##catalog##' ,str(catalog)) 
-    message_text    = message_text.replace('##comment##' ,str(comment)) 
-    message_text    = message_text.replace('##currency##',str(currency)) 
-    message_text    = message_text.replace('##picture##' ,str(picture)) 
-    message_text    = message_text.replace('##pocket##'  ,str(pocket)) 
-    message_text    = message_text.replace('##price##'   ,str(price))
-    message_text    = message_text.replace('##quantity##',str(quantity)) 
+def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_tovar):                                                                         ###  Формируем карточку товара    
+    message         = get_message (message_info,"Шаблон товара") 
+    message_text    = message
+    list            = get_list_change  (message_info,status_input,setting_bot,message.setdefault('Текст',''))                                                                      ###  Список значений исходящего сообщения
+    for line in list:
+        message_text    = message_text.replace(line,str(info_tovar.setdefault (name,''))) 
+    #message_text    = message['Текст']
+    #
+    #message_text    = message_text.replace('##about##'   ,str(about)) 
+    #message_text    = message_text.replace('##catalog##' ,str(catalog)) 
+    #message_text    = message_text.replace('##comment##' ,str(comment)) 
+    #message_text    = message_text.replace('##currency##',str(currency)) 
+    #message_text    = message_text.replace('##picture##' ,str(picture)) 
+    #message_text    = message_text.replace('##pocket##'  ,str(pocket)) 
+    #message_text    = message_text.replace('##price##'   ,str(price))
+    #message_text    = message_text.replace('##quantity##',str(quantity)) 
     key             = {}
     return message_text,key
    
 ##################################################################################################################################################################################################    
    
-def print_operator          (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                               ###  Печать команды оператор в json
+def print_operator          (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Печать команды оператор в json
     pass
    
-def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                               ###  Выполнение команды оператор в json
+def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Выполнение команды оператор в json
     
-    if operation == 'catat':                                                                                                        ###  Нажата кнопка в списке
+    if operation == 'catat':                                                                                                                                    ###  Нажата кнопка в списке
         ### id_list - id товара в списке
         ### id_sql  - id sql запроса
         ### Мы получили код товара и код запроса sql. Теперь нам нужно собрать информацию о товаре. 
         ### Шаг назад это возврашение в список, а именно id_sql.
         
-        info_tovar = get_info_tovar (message_info,status_input,setting_bot,id_list)                                                 ###  Получаем библиотеку информации о товаре. Информация может собиратся из нескольких баз и таблиц.
-        if info_tovar['catalog'] == 1:                                                                                              ###  Это каталог выводим. Выводим список всех товаров в который указан данный каталог 
+        info_tovar = get_info_tovar (message_info,status_input,setting_bot,id_list)                                                                             ###  Получаем библиотеку информации о товаре. Информация может собиратся из нескольких баз и таблиц.
+        
+        if info_tovar['catalog'] == 1:                                                                                                                          ###  Это каталог выводим. Выводим список всех товаров в который указан данный каталог 
             sql      = "select id,`info` from `service` where %s limit %s offset %s"
             ask      = "name_catalog = {} ".format (info_tovar['name_catalog'])
             limit    = 10
             offset   = 0            
-            back     = id_sql                                                                                                       ###  Передаем номер сообщения для возврата из каталога
-            id_sql   = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения            
+            back     = id_sql                                                                                                                                   ###  Передаем номер сообщения для возврата из каталога
+            id_sql   = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                              ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения            
             key_list = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')
-        if info_tovar['catalog'] == 0:                                                                                              ###  Это товар выводим информацию о товаре
-            message,key = get_message_tovar (message_info,status_input,setting_bot,id_list,info_tovar)
             
-    if operation == 'back':                                                                                                         ###  Нажата кнопка вернутся назад 
+        if info_tovar['catalog'] == 0:                                                                                                                          ###  Это товар выводим информацию о товаре
+            user_id        = message_info['user_id']
+            message_out,markup = get_message_tovar (message_info,status_input,setting_bot,id_list,info_tovar)
+            answer         = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
+            
+    if operation == 'back':                                                                                                                                     ###  Нажата кнопка вернутся назад 
         sql,ask,limit,offset,back = get_sql (message_info,id_sql)
         id_sql                    = id_sql         
         key_list                  = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')
         
-def executing_program_json  (message_info,status_input,setting_bot):                                                                                ###  Разбор команды оператор в json
+def executing_program_json  (message_info,status_input,setting_bot):                                                                                            ###  Разбор команды оператор в json
     import iz_bot                                                                                                                   ###  Основные функции программы
     import json
     callback        = message_info.setdefault   ('callback','')                                                                     ###  Имя нажатой кнопки 
@@ -735,7 +751,7 @@ def executing_program_json  (message_info,status_input,setting_bot):            
     print_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Печатаем команды полученные  в json
     executing_operator  (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Выполняем команды полученные в json
 
-def testing_time (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                                       ###  Проверка поподания в определенный дэопазон времени    
+def testing_time (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                                                   ###  Проверка поподания в определенный дэопазон времени    
     import datetime
     import iz_bot
     now         = datetime.datetime.now()
@@ -801,7 +817,7 @@ def testing_double          (message_info,status_input,setting_bot):
     save_data   = [['message_in',message_in]] 
     status_input = user_save_data (message_info,status_input,save_data)
     
-def testing_blocking        (message_info,status_input,setting_bot):                                                                                ### Проверяем ввод оснавных параметров пользователя
+def testing_blocking        (message_info,status_input,setting_bot):                                                                                            ### Проверяем ввод оснавных параметров пользователя
     message_in  = message_info.setdefault ('message_in','')                                                                                                                                                  ### Проверяем статус - возможно пользователь ввел значение
     if message_in.find ('/start') == -1:
         status      = status_input.setdefault ('Статус','')  
@@ -863,13 +879,13 @@ def save_info_refer         (message_info,status_input,setting_bot):
             markup          = gets_key       (message_info,setting_bot,user_id,message_out.setdefault('Меню',''))
             answer          = send_message   (message_info,setting_bot,user_id,message_out.setdefault('Текст',''),markup)
             
-def save_info_user          (message_info,status_input,setting_bot):                                                                                ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
+def save_info_user          (message_info,status_input,setting_bot):                                                                                            ### Информация о пользователе постоянно меняется. Записываем ее в специальный справочник
     pass
     
 def save_message_user       (message_info,status_input,setting_bot):
-    import iz_bot
+    from iz_bot import connect as connect
     namebot     = message_info.setdefault  ('namebot','') 
-    db,cursor = iz_bot.connect (namebot)
+    db,cursor = connect (namebot)
     sql = "INSERT INTO log (user_id,user_name,surname,name,message_in,command,full_message,messsage_out_1,messsage_out_2,messsage_out_3,answert) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)".format ()
     sql_save = ("","","","","","","","","","","")
     result = cursor.execute(sql,sql_save)
@@ -889,15 +905,16 @@ def executing_run           (message_info,status_input,setting_bot,answer):
 
 def executing_message       (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
-    if message_in   == 'Каталог':                                                                                                   ###  Пример работы тестового Входящего сообщения 
+    if message_in   == 'Каталог':                                                                                                                               ###  Пример работы тестового Входящего сообщения 
+        user_id         = message_info['user_id']
         sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
         offset          = 0
         back            = ''
         ask             = '1=1'
-        id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                        ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
-        markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
-        message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                   ###  Выводим полученный список
+        id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
+        markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
+        message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                                               ###  Выводим полученный список
         answer          = save_message   (message_info,setting_bot,user_id,message)
         message_out     = gets_message   (message_info,setting_bot,user_id,message)          
         answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)
@@ -913,7 +930,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
     if callback == 'Вызов меню':                                                                                                    ###  Пример работы команды кнопки
         pass  
     answer = {}
-    print ('[callback]',callback)
     if callback == "Ввести данные":
         user_id         = message_info.setdefault ('user_id','') 
         message         = setting_bot .setdefault ("Сообщение ввести данные","Ввести данные")
@@ -924,10 +940,9 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         #status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
     return answer      
     
-def executing_command       (message_info,status_input,setting_bot,answer):                                                                         ### Выполнение общих команд бота /start
+def executing_command       (message_info,status_input,setting_bot,answer):                                                                                     ### Выполнение общих команд бота /start
     message_in  = message_info.setdefault ("message_in","")
     
- 
 def executing_start         (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
     if message_in.find ('/start') != -1:
@@ -970,7 +985,7 @@ def save_out_message        (message_info,status_input,setting_bot):
    
 ##################################################################################################################################################################################################
    
-def start_prog (message_info):                                                                                                                       ###  Получение сигнала от бота. Расшифровка команды и сообщения
+def start_prog (message_info):                                                                                                                                  ###  Получение сигнала от бота. Расшифровка команды и сообщения
     import iz_bot
     status_input = iz_bot.user_get_data      (message_info,{})                                                                                       ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     setting_bot  = iz_bot.get_setting        (message_info)                                                                                          ###  Получение из базы информации по боту. Параметры и данные.    
@@ -989,8 +1004,8 @@ def start_prog (message_info):                                                  
     #answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
     answer      = executing_message          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
     answer      = executing_program          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
-    #analis                                  (message_info,status_input,setting_bot,answer)                                                          ###  Выполнение кода если нет действия на сообщения
-    #save_out_message                        (message_info,status_input,setting_bot)                                                                 ###  Протоколирование исходящего сообщения
+    #analis                                  (message_info,status_input,setting_bot,answer)                                                                     ###  Выполнение кода если нет действия на сообщения
+    #save_out_message                        (message_info,status_input,setting_bot)                                                                            ###  Протоколирование исходящего сообщения
     #statictic                               (message_info,status_input,setting_bot)
     #backUp                                  (message_info,status_input,setting_bot)   
 

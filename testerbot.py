@@ -43,6 +43,13 @@ if 1==1:
     message_info['message_in']    = 'Каталог'
     start_sell_a123bot.start_prog (message_info)
     
+    message_info = {}
+    message_info['namebot']     = 'orenklip_bot'
+    message_info['user_id']     = '7474072878'
+    message_info['callback']    = 'i_{#o#:#catat#,#i#:1,#s#:0}'
+    start_sell_a123bot.start_prog (message_info)
+    
+    
     
     
     
