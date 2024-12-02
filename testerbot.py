@@ -25,29 +25,32 @@ if 1==1:
     ### Программа для тестирования телеграмм ботов
     import start_sell_a123bot
 
+    #print ('                                                                          [+] /start [+]')
     #message_info = {}
     #message_info['namebot']     = 'orenklip_bot'
     #message_info['user_id']     = '7474072878'
     #message_info['message_in']  = '/start'
     #start_sell_a123bot.start_prog (message_info)
 
-    #message_info = {}
-    #message_info['namebot']     = 'orenklip_bot'
-    #message_info['user_id']     = '7474072878'
-    #message_info['callback']    = 'Ввести данные'
-    #start_sell_a123bot.start_prog (message_info)
+    print ('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[+] Ввод данных [+]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    message_info = {}
+    message_info['namebot']     = 'orenklip_bot'
+    message_info['user_id']     = '7474072878'
+    message_info['callback']    = 'Ввод данных'
+    start_sell_a123bot.start_prog (message_info)
     
+    print ('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [+] Каталог [+]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     message_info = {}
     message_info['namebot']     = 'orenklip_bot'
     message_info['user_id']     = '7474072878'
     message_info['message_in']    = 'Каталог'
     start_sell_a123bot.start_prog (message_info)
     
-    message_info = {}
-    message_info['namebot']     = 'orenklip_bot'
-    message_info['user_id']     = '7474072878'
-    message_info['callback']    = 'i_{#o#:#catat#,#i#:1,#s#:0}'
-    start_sell_a123bot.start_prog (message_info)
+    #message_info = {}
+    #message_info['namebot']     = 'orenklip_bot'
+    #message_info['user_id']     = '7474072878'
+    #message_info['callback']    = 'i_{#o#:#catat#,#i#:1,#s#:0}'
+    #start_sell_a123bot.start_prog (message_info)
     
     
     
