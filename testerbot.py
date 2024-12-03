@@ -1,5 +1,5 @@
 
-
+###from iz_bot import connect as connect
 
 if 1==2:
     import sqlite3
@@ -39,12 +39,22 @@ if 1==1:
     message_info['callback']    = 'Ввод данных'
     start_sell_a123bot.start_prog (message_info)
     
-    print ('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [+] Каталог [+]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    message_info = {}
-    message_info['namebot']     = 'orenklip_bot'
-    message_info['user_id']     = '7474072878'
-    message_info['message_in']    = 'Каталог'
-    start_sell_a123bot.start_prog (message_info)
+    #print ('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [+] Каталог [+]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    #message_info = {}
+    #message_info['namebot']     = 'orenklip_bot'
+    #message_info['user_id']     = '7474072878'
+    #message_info['message_in']    = 'Каталог'
+    #start_sell_a123bot.start_prog (message_info)
+    
+    
+    #print ('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [+] Ввод данных [+]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    #message_info = {}
+    #message_info['namebot']     = 'orenklip_bot'
+    #message_info['user_id']     = '7474072878'
+    #message_info['message_in']    = 'Ввод данных'
+    #start_sell_a123bot.start_prog (message_info)
+
+    
     
     #message_info = {}
     #message_info['namebot']     = 'orenklip_bot'
