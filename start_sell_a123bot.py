@@ -75,16 +75,17 @@ def get_ask_nober           (message_info,status_input,setting_bot,ask):
         answer['name']  = name        
     return answer    
                                        
-def send_message_ask        (message_info,status_input,setting_bot,ask):
-    ask_name = get_ask_nober (message_info,status_input,setting_bot,ask) 
+def send_message_ask        (message_info,status_input,setting_bot,ask):                                                            ### Процедура которая задает вопрос по номеру
+    ask_name        = get_ask_nober (message_info,status_input,setting_bot,ask) 
     user_id         = message_info.setdefault('user_id','') 
     message         = setting_bot .setdefault (ask_name['name'],ask_name['name'])
     answer          = save_message   (message_info,setting_bot,user_id,message)
     message_out     = gets_message   (message_info,setting_bot,user_id,message)
     markup          = gets_key       (message_info,setting_bot,user_id,message_out.setdefault('Меню',''))
     answer          = send_message   (message_info,setting_bot,user_id,message_out.setdefault('Текст',''),markup)
+    print ('[+] Меняе статус сообшения на ввод данный.',ask_name['name'])
     status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",ask_name['name']]])
-    return answer 
+    return answer,status_input 
 
 def get_list_product        (message_info,status_input,setting_bot,message):                                                                                    ###  Формируем список продуктов, длинный список
     user_id        = message_info['user_id']
@@ -499,9 +500,9 @@ def user_save_data          (message_info,status_input,setting_bot,save_data):
         else:    
             id,name,info,data_id = row.values() 
         for line in save_data:
-            name    = line[0]
-            info    = line[1]
-            sql     = "select id,name,info from users where data_id = {} and name = '{}';".format (data_id,name)
+            name_status    = line[0]
+            info_status    = line[1]
+            sql     = "select id,name,info from users where data_id = {} and name = '{}';".format (data_id,name_status)
             cursor.execute(sql)
             results = cursor.fetchall()  
             id = 0
@@ -512,23 +513,22 @@ def user_save_data          (message_info,status_input,setting_bot,save_data):
                     id,name,info = rec.values() 
             if id != 0:
                 if setting_bot['connect'] == 'sql lite':
-                    sql         = "UPDATE users SET info = '{}' WHERE `name` = '{}' and data_id = {} ".format (info,name,data_id)
+                    sql         = "UPDATE users SET info = '{}' WHERE `name` = '{}' and data_id = {} ".format (info_status,name_status,data_id)
                     cursor.execute(sql)
                     db.commit()                    
                 else:
                     sql         = "UPDATE users SET info = %s WHERE `name` = %s and data_id = %s "
-                    sql_save    = (info,name,data_id)
+                    sql_save    = (info_status,name_status,data_id)
                     cursor.execute(sql,sql_save)
                     db.commit()    
             else:   
                 if setting_bot['connect'] == 'sql lite':
-                    sql         = "INSERT INTO users (data_id,info,name,status) VALUES ('{}','{}','{}','')".format (data_id,info,name)
-                    #sql_save    = ()
+                    sql         = "INSERT INTO users (data_id,info,name,status) VALUES ('{}','{}','{}','')".format (data_id,info_status,name_status)
                     cursor.execute(sql)
                     db.commit()                 
                 else:
                     sql         = "INSERT INTO users (data_id,info,name,status) VALUES (%s,%s,%s,'')".format ()
-                    sql_save    = (data_id,info,name)
+                    sql_save    = (data_id,info_status,name_status)
                     cursor.execute(sql,sql_save)
                     db.commit() 
             status_input[name] = info
@@ -613,9 +613,10 @@ def gets_key                (message_info,setting_bot,user_id,menu):
             else:
                 id,name,info = rec.values() 
             key[name] = info
-    if key.setdefault('Тип кнопки','') == 'Сообщение':
+    type_key = key.setdefault('Тип кнопки','')
+    if type_key == 'Сообщение':
         markup = key_type_message (key)
-    if key.setdefault('Тип кнопки','') == 'Клавиатура':    
+    if type_key == 'Клавиатура' or type_key == '':    
         markup = key_type_keybord (key)
     return markup
     
@@ -920,13 +921,13 @@ def testing_blocking        (message_info,status_input,setting_bot):            
         ask = get_ask_nomer (message_info,status_input,setting_bot) 
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
-    if message_in.find ('/start') == -1:
+    if message_in.find ('/start') == -1:                                                                                            #### Проверяем любое входящие сообщение
         status     = status_input.setdefault ('Статус','')  
-        if status != '':    
+        if status != '':                                                                                                            #### Проверяем что это не ответ на поставленный вопрос    
             namebot     = message_info.setdefault ('namebot','') 
             from iz_bot import connect as connect  
             db,cursor   = connect (namebot)
-            sql  = "select id,name,answer from ask where name = '{}' ".format(status)
+            sql  = "select id,name,answer from ask where name = '{}' ".format(status)                       
             cursor.execute(sql)
             data = cursor.fetchall()
             id   = 0
@@ -943,8 +944,9 @@ def testing_blocking        (message_info,status_input,setting_bot):            
                 message_out     = gets_message   (message_info,setting_bot,user_id,message)
                 markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
                 answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
+                print ('Меняем статус')
                 status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",""],[name,message_in]])
-        ask = get_ask_nomer (message_info,status_input,setting_bot)        
+        ask = get_ask_nomer (message_info,status_input,setting_bot)                                                                     #### Проверяем если не заданные вопросы если есть задаем    
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
     return ask            
@@ -1046,11 +1048,16 @@ def executing_start         (message_info,status_input,setting_bot,answer):
         message          = setting_bot .setdefault ("Сообщение при старте программы","Старт программы")
         answer           = save_message (message_info,setting_bot,user_id,message)
         message_out      = gets_message (message_info,setting_bot,user_id,message)
-        ask = get_ask_nomer (message_info,status_input,setting_bot)
+        ask              = get_ask_nomer (message_info,status_input,setting_bot)
         if ask == 0:
-            markup              = gets_key     (message_info,setting_bot,user_id,'Главное меню')
+            #markup              = gets_key     (message_info,setting_bot,user_id,'Главное меню')
+            markup               = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
+            print ('[message_out]',message_out)
+            print (message_out.setdefault ('Меню',''))
+            print ('markup 0 ',markup)
         else:
             markup              = gets_key     (message_info,setting_bot,user_id,'Ввод данных')
+        print ('markup 1',markup)    
         answer                  = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
         if ask != 0:
             user_id             = message_info.setdefault ('user_id','') 
@@ -1059,8 +1066,9 @@ def executing_start         (message_info,status_input,setting_bot,answer):
             message_out         = gets_message          (message_info,setting_bot,user_id,message)
             key                 = complite_key_for_name ("Ввести данные")
             markup              = key_type_message  (key)
+            #markup              = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
             answer              = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
-        status_input            = user_save_data (message_info,status_input,[["Статус",""]])                                                                          #### Модуль обнуления данных                                      
+        status_input            = user_save_data (message_info,status_input,setting_bot,[["Статус",""]])                                                                          #### Модуль обнуления данных                                      
  
 def analis                  (message_info,status_input,setting_bot,answer):
     status  = answer.setdefault('status','')
@@ -1080,7 +1088,7 @@ def save_out_message        (message_info,status_input,setting_bot):
 ##################################################################################################################################################################################################
    
 def start_prog (message_info):                                                                                                                                 ###  Получение сигнала от бота. Расшифровка команды и сообщения
-    setting_bot                              = {'connect':'sql lite'}
+    setting_bot                              = {'connect':'MySQL'}
     setting_bot                              = get_setting       (message_info,setting_bot)                                                                                                     ###  Получение из базы информации по боту. Параметры и данные.        
     status_input                             = user_get_data            (message_info,setting_bot,message_info['user_id'])                                                                                                  ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     #answer                                  = testing_time             (message_info,status_input,setting_bot,14,15,9,15)                                                                 ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
