@@ -88,11 +88,14 @@ class grup_bot (Thread):
         username                     = self.username
         namebot    = message_info.setdefault('namebot','')
         namebot    = namebot.replace("@","")
-        print ('[+] username:',username)
-        mycode = 'import start_{}'.format (username)
-        exec(mycode)        
-        mycode = 'start_{}.start_prog (message_info)'.format(username)
-        exec(mycode)
+        try:
+            print ('[+] username:',username)
+            mycode = 'import start_{}'.format (username)
+            exec(mycode)        
+            mycode = 'start_{}.start_prog (message_info)'.format(username)
+            exec(mycode)
+        except:
+            pass            
 
 def get_id ():
     import iz_bot
