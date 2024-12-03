@@ -944,7 +944,6 @@ def testing_blocking        (message_info,status_input,setting_bot):            
                 markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
                 answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
                 status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",""],[name,message_in]])
-        
         ask = get_ask_nomer (message_info,status_input,setting_bot)        
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
