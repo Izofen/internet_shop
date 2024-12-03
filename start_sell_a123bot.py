@@ -9,6 +9,57 @@ def complite_key_for_name (name):
     return key    
 
 ##################################################################################################################################################################################################
+
+def get_info_main_menu      (message_info,status_input,setting_bot):
+    answer = {}
+    from iz_bot import connect as connect
+    db,cursor = connect (namebot)
+    sql = "select id,menu01,menu02,menu11,menu12,menu21,menu22 from food where status = 'main' ORDER BY id desc limit 1 ;".format ()
+    cursor.execute(sql)
+    results = cursor.fetchall()  
+    for row in results:
+        id,menu01,menu02,menu11,menu12,menu21,menu22 = row.values() 
+        answer['m_id1]       = id
+        answer['m_menu01']    = menu01
+        answer['m_menu02']    = menu02
+        answer['m_menu11']    = menu11
+        answer['m_menu12']    = menu12
+        answer['m_menu21']    = menu21
+        answer['m_menu22']    = menu22
+    sql = "select id,menu01,menu02,menu11,menu12,menu21,menu22 from food where status = 'good' ORDER BY id desc limit 1 ;".format ()
+    cursor.execute(sql)
+    results = cursor.fetchall()  
+    for row in results:
+        id,menu01,menu02,menu11,menu12,menu21,menu22 = row.values() 
+        answer['g_id']       = id
+        answer['g_menu01']    = menu01
+        answer['g_menu02']    = menu02
+        answer['g_menu11']    = menu11
+        answer['g_menu12']    = menu12
+        answer['g_menu21']    = menu21
+        answer['g_menu22']    = menu22
+    return answer
+
+def get_message_main_menu   (message_info,status_input,setting_bot,info_service):
+    message             = setting_bot.setdefault  ("Вывести список меню","Вывести список меню")
+    answer              = save_message            (message_info,setting_bot,user_id,message)
+    message_out         = gets_message            (message_info,setting_bot,user_id,message)
+    list_change         = get_list_change         (message_info,status_input,setting_bot,message_out)
+    for change in list_change:
+        message_out = message_out.replace (change,info_service.setdefault (change,""))
+    message_out     = message_out.replace ("##","")
+    key = {}
+    key['Кнопка 11']  = "Кнопка 11"
+    key['Кнопка 12']  = "Кнопка 12"
+    key['Кнопка 21']  = "Кнопка 21"
+    key['Кнопка 22']  = "Кнопка 22"
+    key['Команда 11'] = "Команда 11"
+    key['Команда 12'] = "Команда 12"
+    key['Команда 21'] = "Команда 21"
+    key['Команда 22'] = "Команда 22"
+    markup = key_type_keybord (key)
+    return message,markup
+
 def get_info_product        (message_info,status_input,setting_bot,id_list):                                                                                    ###  Получаем информацию по товару
     from iz_bot import connect as connect
     namebot     = message_info.setdefault('namebot','')
@@ -75,7 +126,7 @@ def get_ask_nober           (message_info,status_input,setting_bot,ask):
         answer['name']  = name        
     return answer    
                                        
-def send_message_ask        (message_info,status_input,setting_bot,ask):                                                            ### Процедура которая задает вопрос по номеру
+def send_message_ask        (message_info,status_input,setting_bot,ask):                                                                                        ### Процедура которая задает вопрос по номеру
     ask_name        = get_ask_nober (message_info,status_input,setting_bot,ask) 
     user_id         = message_info.setdefault('user_id','') 
     message         = setting_bot .setdefault (ask_name['name'],ask_name['name'])
@@ -98,105 +149,9 @@ def get_list_product        (message_info,status_input,setting_bot,message):    
     message        = setting_bot .setdefault ("Подвал отчета","Подвал отчета")
     answer         = save_message (message_info,setting_bot,user_id,message)
     message_result = gets_message (message_info,setting_bot,user_id,message)
-    
     list_operation = get_list_operation (message_info,status_input,setting_bot,[])
-    #    import iz_bot
-    #    namebot     = message_info.setdefault('namebot','')
-    #    db,cursor   = iz_bot.connect (namebot)
-    #    sql = "select id,user_id,menu01,menu02,menu03 from `order` where id > {} and status <> 'delete' ".format(setting_bot.setdefault('Последний ID',0))
-    #    cursor.execute(sql)
-    #    data = cursor.fetchall()
-    #    st_line1 = ""
-    #    st_line2 = ""
-    #    str_koll = 0
-    #    for rec in data: 
-    #        id,user_id_p,menu01,menu02,menu03 = rec.values()
-    #        str_koll = str_koll + 1
-    #        get_data    = {'user_id':user_id_p}
-    
     list_operation = get_user_operation (message_info,status_input,setting_bot,list_operation)
-    #        status_user = iz_bot.user_get_data (message_info,get_data)
-    #        st_one = str(str_koll) + ") " + str(status_user.setdefault('Имя cотрудника',str(user_id))) +'('+ str(user_id_p) + "), <code>" + str(menu01) + ", " +str(menu02) + ", " + str(menu03) + " </code>\n"
-    #        if str_koll < 30:
-    #            st_line1 = st_line1 + st_one   
-    #        else:
-    #            st_line2 = st_line2 + st_one               
-
-    #    if st_line1 != '':
-    #        send_data = {'Text':'Список заказав','Замена':[['#Список#',st_line1]]} 
-    #        iz_bot.send_message (message_info,send_data)
-    #    if st_line2 != '':
-    #        send_data = {'Text':'Список заказав','Замена':[['#Список#',st_line2]]} 
-    #        iz_bot.send_message (message_info,send_data)
     list_line      = get_user_operation (message_info,status_input,setting_bot,list_operation)
-  
-    #    import iz_bot
-    #    db,cursor = iz_bot.connect (namebot)
-    #    sql = "select id,user_id,menu01,menu02,menu03 from `order` where id > {} and status <> 'delete'".format(setting_bot.setdefault('Последний ID',0))
-    #    cursor.execute(sql)
-    #    data = cursor.fetchall()
-    #    st_line = ""
-    #        
-    #    menu01_a = 0
-    #    menu01_b = 0
-    #    menu02_a = 0
-    #    menu02_b = 0
-    #    menu03_a = 0
-    #    menu03_b = 0
-    #    element = get_list_product (message_info,"main")   
-    #    
-    #    for rec in data: 
-    #        id,user_id_p,menu01,menu02,menu03 = rec.values()
-    #        if element['Mmenu01'] == menu01:
-    #            menu01_a = menu01_a + 1
-    #        if element['Mmenu02'] == menu01:
-    #            menu01_b = menu01_b + 1
-    #            
-    #        if element['Mmenu11'] == menu02:
-    #            menu02_a = menu02_a + 1    
-    #        if element['Mmenu12'] == menu02:
-    #            menu02_b = menu02_b + 1  
-    #
-    #        if element['Mmenu21'] == menu03:
-    #            menu03_a = menu03_a + 1    
-    #        if element['Mmenu22'] == menu03:
-    #            menu03_b = menu03_b + 1   
-    #            
-    #            
-    #    
-    #    s01_a = ['#Menu01#',str(menu01_a)]    
-    #    n01_a = ['#name01#',str(element['Mmenu01'])]
-    #    s02_a = ['#Menu02#',str(menu01_b)]    
-    #    n02_a = ['#name02#',str(element['Mmenu02'])]
-    #
-    #
-    #    s03_a = ['#Menu03#',str(menu02_a)]    
-    #    n03_a = ['#name03#',str(element['Mmenu11'])]
-    #    s04_a = ['#Menu04#',str(menu02_b)]    
-    #    n04_a = ['#name04#',str(element['Mmenu12'])]
-    # 
-    #
-    #    s05_a = ['#Menu05#',str(menu03_a)]    
-    #    n05_a = ['#name05#',str(element['Mmenu21'])]
-    #    s06_a = ['#Menu06#',str(menu03_b)]    
-    #    n06_a = ['#name06#',str(element['Mmenu22'])]
-    #
-    # 
-    #    st_long = ''
-    #    if element['Mmenu01'] != '': 
-    #        st_long = st_long + ' ' + element['Mmenu01'] + ' ' + str(menu01_a)+'\n'
-    #    if element['Mmenu02'] != '':         
-    #        st_long = st_long + ' ' + element['Mmenu02'] + ' ' + str(menu01_b)+'\n' 
-    #    if element['Mmenu11'] != '':     
-    #        st_long = st_long + ' ' + element['Mmenu11'] + ' ' + str(menu02_a)+'\n' 
-    #    if element['Mmenu12'] != '':     
-    #        st_long = st_long + ' ' + element['Mmenu12'] + ' ' + str(menu02_b)+'\n' 
-    #    if element['Mmenu21'] != '':     
-    #        st_long = st_long + ' ' + element['Mmenu21'] + ' ' + str(menu03_a)+'\n' 
-    #    if element['Mmenu22'] != '':     
-    #        st_long = st_long + ' ' + element['Mmenu22'] + ' ' + str(menu03_b)+'\n' 
-    #    send_data = {'Text':'Статистика заказов','Замена':[['#Статистика#',st_long]]} 
-    #    iz_bot.send_message (message_info,send_data)
     list_message  = get_user_operation (message_info,status_input,setting_bot,list_line)
     answer = send_message   (message_info,setting_bot,user_id,message_hat,markup)
     for message_out in list_message:
@@ -237,6 +192,41 @@ def delete_send_message_user(message_info,status_input,setting_bot,user_id,answe
     pass
 
 ##################################################################################################################################################################################################
+
+
+def save_order_info         (message_info,setting_bot,user_id,nomer_order,colomn,info):
+    if nomer_order == 0:
+        import time
+        unixtime    = int(time.time ())
+        namebot     = message_info.setdefault ('namebot','') 
+        from iz_bot import connect as connect 
+        db,cursor = connect (namebot)
+        sql = "INSERT INTO `order` (date,user_id,unixtime,menu01,menu02,menu03,status,regim) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)".format ()
+        sql_save = ('',user_id,unixtime,'','','','','')
+        cursor.execute(sql,sql_save)
+        db.commit()
+        lastid = cursor.lastrowid
+        nomer_order = lastid
+    if  colomn != '':  
+        sql = "UPDATE `order` SET {} = %s WHERE id = {} ".format (colomn,info)
+        sql_save = (picture_download,ID)
+        cursor.execute(sql,sql_save)    
+        db.commit()     
+    return nomer_order    
+
+def update_info_main_menu   (message_info,status_input,setting_bot,nomer,info_service):
+    sql     = "select id,name,info from `order` where id = {} limit 1".format(nomer)                                                                            ###  Обновляем информацию по ордеру
+    cursor.execute(sql)
+    data    = cursor.fetchall()
+    for rec in data: 
+        id,menu01,menu02,menu03 = rec.values() 
+        info_service['id_order']  = id
+        info_service['id_menu01'] = menu01
+        info_service['id_menu02'] = menu02
+        info_service['id_menu03'] = menu03
+    return info_service
+
+
 
 def get_setting             (message_info,setting_bot):
     namebot = message_info['namebot']
@@ -1013,7 +1003,15 @@ def executing_run           (message_info,status_input,setting_bot,answer):
 
 def executing_message       (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
-    if message_in   == 'Каталог':                                                                                                                               ###  Пример работы тестового Входящего сообщения 
+    
+    if message_in   == 'Главное меню': 
+       info_service         = get_info_main_menu     (message_info,status_input,setting_bot)
+       nomer                = save_order_info        (message_info,setting_bot,user_id,nomer_order,'date',info_service['date'])
+       info_service         = update_info_main_menu  (message_info,status_input,setting_bot,nomer,info_service)
+       message_out,markup   = get_message_main_menu  (message_info,status_input,setting_bot,info_service) 
+       answer               = send_message           (message_info,setting_bot,user_id,message_out,markup)
+    
+    if message_in   == 'Каталог':                                                                                                                              ###  Пример работы тестового Входящего сообщения              
         user_id         = message_info['user_id']
         sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
@@ -1103,29 +1101,56 @@ def start_prog (message_info):                                                  
     setting_bot                              = get_setting       (message_info,setting_bot)                                                                                                     ###  Получение из базы информации по боту. Параметры и данные.        
     status_input                             = user_get_data            (message_info,setting_bot,message_info['user_id'])                                                                                                  ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     #answer                                  = testing_time             (message_info,status_input,setting_bot,14,15,9,15)                                                                 ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
-    print_status                                 (message_info,status_input,setting_bot)                                                                            ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
-    #executing_admin                             (message_info,status_input,setting_bot)                                                                 ###  Выполнение команды администраторов бота 
-    #testing_double                              (message_info,status_input,setting_bot)                                                                 ###  Проверка на повторно нажатые клавиши
-    #answer      = executing_run                 (message_info,status_input,setting_bot,{})                                                              ###  Выполнение команды из базы данных
-    answer       = executing_start               (message_info,status_input,setting_bot,{})                                                              ###  Выполнение команды /start
-    answer       = testing_blocking              (message_info,status_input,setting_bot)                                                                 ###  Проверка заполнения данных
+    print_status                                 (message_info,status_input,setting_bot)                                                                        ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
+    #executing_admin                             (message_info,status_input,setting_bot)                                                                        ###  Выполнение команды администраторов бота 
+    #testing_double                              (message_info,status_input,setting_bot)                                                                        ###  Проверка на повторно нажатые клавиши
+    #answer      = executing_run                 (message_info,status_input,setting_bot,{})                                                                     ###  Выполнение команды из базы данных
+    answer       = executing_start               (message_info,status_input,setting_bot,{})                                                                     ###  Выполнение команды /start
+    answer       = testing_blocking              (message_info,status_input,setting_bot)                                                                        ###  Проверка заполнения данных
     if answer == 0:
-        #save_info_refer                         (message_info,status_input,setting_bot)                                                                 ###  Записываем информацию по полученной реферальной ссылке 
-        #save_info_user                          (message_info,status_input,setting_bot)                                                                 ###  Обновляем информацию по текущему пользователю 
-        #lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                 ###  Записываем входяшие сообшение для протоколирования
-        answer      = executing_command          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем команды присланные боту
-        #answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
-        answer      = executing_message          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
-        answer      = executing_program          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
-        #executing_free_messsage                  (message_info,status_input,setting_bot,answer)                                                          ###  Слова введенные вне команд   
-        #analis                                  (message_info,status_input,setting_bot,answer)                                                                ###  Выполнение кода если нет действия на сообщения
-        #save_out_message                        (message_info,status_input,setting_bot)                                                                       ###  Протоколирование исходящего сообщения
+        #save_info_refer                         (message_info,status_input,setting_bot)                                                                        ###  Записываем информацию по полученной реферальной ссылке 
+        #save_info_user                          (message_info,status_input,setting_bot)                                                                        ###  Обновляем информацию по текущему пользователю 
+        #lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                        ###  Записываем входяшие сообшение для протоколирования
+        answer      = executing_command          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем команды присланные боту
+        #answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем на действие статуса бота. Например ввод данных
+        answer      = executing_message          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в базе данных
+        answer      = executing_program          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в этом файле
+        #executing_free_messsage                  (message_info,status_input,setting_bot,answer)                                                                ###  Слова введенные вне команд   
+        #analis                                  (message_info,status_input,setting_bot,answer)                                                                 ###  Выполнение кода если нет действия на сообщения
+        #save_out_message                        (message_info,status_input,setting_bot)                                                                        ###  Протоколирование исходящего сообщения
         #statictic                               (message_info,status_input,setting_bot)
         #backUp                                  (message_info,status_input,setting_bot)   
 
 ##################################################################################################################################################################################################
 
 
+def backUp ():
+    pass
+    
+    
+    
+def statictic ():
+    pass
+
+
+
+def reglament_operation ():
+    import datetime
+    now     = datetime.datetime.now().time()
+    hour    = now.hour
+    minute  = now.minute
+    second  = now.second
+    now     = datetime.datetime.now()
+    current_date_string = now.strftime('%d.%m.%y')
+    
+    if hour > 2 and hour < 4:
+        pass
+    
+    
+    
+    
+    
+    
 #                                                                  <Главное меню>                                       /start
 #                                                                 [Заказать меню]
 #                                                                         |
