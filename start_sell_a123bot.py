@@ -398,6 +398,25 @@ def get_ask_nomer           (message_info,status_input,setting_bot):
             ask = id
     return ask 
 
+def get_ask_nomer_status    (message_info,status_input,setting_bot,status):
+    namebot     = message_info.setdefault ('namebot','') 
+    from iz_bot import connect as connect  
+    db,cursor   = connect (namebot)
+    sql  = "select id,name,answer from ask where name = '{}' ".format(status)                       
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    answer = {}
+    for rec in data:
+        if str(type(rec)) == "<class 'tuple'>":    
+            id,name,message_answer = rec
+        else:    
+            id,name,message_answer = rec.values()
+        answer['id']             = id
+        answer['name']           = name
+        answer['message_answer'] = message_answer    
+    return answer        
+            
+
 ##################################################################################################################################################################################################    
 
 def save_sql                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
@@ -917,38 +936,30 @@ def testing_blocking        (message_info,status_input,setting_bot):            
     message_in  = message_info.setdefault ('message_in','')                                                                                                     ### Проверяем статус - возможно пользователь ввел значение
     callback    = message_info.setdefault ('callback','')
     ask         = 0
-    if callback == 'Ввести данные':
+    label_send  = True
+
+    if callback == 'Ввести данные' and label_send = True:
         ask = get_ask_nomer (message_info,status_input,setting_bot) 
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
-    if message_in.find ('/start') == -1:                                                                                            #### Проверяем любое входящие сообщение
+            label_send = False
+
+    if message_in.find ('/start') == -1 and label_send = True:                                                                                                                        #### Проверяем любое входящие сообщение
         status     = status_input.setdefault ('Статус','')  
-        if status != '':                                                                                                            #### Проверяем что это не ответ на поставленный вопрос    
-            namebot     = message_info.setdefault ('namebot','') 
-            from iz_bot import connect as connect  
-            db,cursor   = connect (namebot)
-            sql  = "select id,name,answer from ask where name = '{}' ".format(status)                       
-            cursor.execute(sql)
-            data = cursor.fetchall()
-            id   = 0
-            for rec in data:
-                if str(type(rec)) == "<class 'tuple'>":    
-                    id,name,message_answer = rec
-                else:    
-                    id,name,message_answer = rec.values()
-            if id != 0:
-                print ('    [+] Найден необходимый статус ...')
+        if status != '':                                                                                                                                        #### Проверяем что это не ответ на поставленный вопрос    
+            ask_answer = get_ask_nomer_status (message_info,status_input,setting_bot,status)
+            if ask_answer.setdefault('id',0) != 0:
                 user_id         = message_info.setdefault('user_id','') 
                 message         = message_answer
                 answer          = save_message   (message_info,setting_bot,user_id,message)
                 message_out     = gets_message   (message_info,setting_bot,user_id,message)
                 markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
                 answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
-                print ('Меняем статус')
                 status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",""],[name,message_in]])
-        ask = get_ask_nomer (message_info,status_input,setting_bot)                                                                     #### Проверяем если не заданные вопросы если есть задаем    
+        ask = get_ask_nomer (message_info,status_input,setting_bot)                                                                                             #### Проверяем если не заданные вопросы если есть задаем    
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
+            label_send = False
     return ask            
    
 def save_info_refer         (message_info,status_input,setting_bot):
@@ -1050,14 +1061,9 @@ def executing_start         (message_info,status_input,setting_bot,answer):
         message_out      = gets_message (message_info,setting_bot,user_id,message)
         ask              = get_ask_nomer (message_info,status_input,setting_bot)
         if ask == 0:
-            #markup              = gets_key     (message_info,setting_bot,user_id,'Главное меню')
             markup               = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
-            print ('[message_out]',message_out)
-            print (message_out.setdefault ('Меню',''))
-            print ('markup 0 ',markup)
         else:
             markup              = gets_key     (message_info,setting_bot,user_id,'Ввод данных')
-        print ('markup 1',markup)    
         answer                  = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
         if ask != 0:
             user_id             = message_info.setdefault ('user_id','') 
@@ -1066,7 +1072,6 @@ def executing_start         (message_info,status_input,setting_bot,answer):
             message_out         = gets_message          (message_info,setting_bot,user_id,message)
             key                 = complite_key_for_name ("Ввести данные")
             markup              = key_type_message  (key)
-            #markup              = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
             answer              = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
         status_input            = user_save_data (message_info,status_input,setting_bot,[["Статус",""]])                                                                          #### Модуль обнуления данных                                      
  
