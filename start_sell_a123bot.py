@@ -939,10 +939,10 @@ def testing_blocking        (message_info,status_input,setting_bot):            
     label_send  = True
 
     if callback == 'Ввести данные' and label_send = True:
+        label_send = False
         ask = get_ask_nomer (message_info,status_input,setting_bot) 
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
-            label_send = False
 
     if message_in.find ('/start') == -1 and label_send = True:                                                                                                                        #### Проверяем любое входящие сообщение
         status     = status_input.setdefault ('Статус','')  
@@ -1111,6 +1111,7 @@ def start_prog (message_info):                                                  
         #answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем на действие статуса бота. Например ввод данных
         answer      = executing_message          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в базе данных
         answer      = executing_program          (message_info,status_input,setting_bot,answer)                                                          ###  Выполняем код прописанный в этом файле
+        #executing_free_messsage                  (message_info,status_input,setting_bot,answer)                                                          ###  Слова введенные вне команд   
         #analis                                  (message_info,status_input,setting_bot,answer)                                                                ###  Выполнение кода если нет действия на сообщения
         #save_out_message                        (message_info,status_input,setting_bot)                                                                       ###  Протоколирование исходящего сообщения
         #statictic                               (message_info,status_input,setting_bot)
