@@ -550,7 +550,9 @@ def user_save_data          (message_info,status_input,setting_bot,save_data):
                     sql_save    = (data_id,info_status,name_status)
                     cursor.execute(sql,sql_save)
                     db.commit() 
-            status_input[name] = info
+            status_input[name_status] = info
+        cursor.close()
+        db.close()    
     return status_input 
         
 def key_type_message        (key):                                                          #                                                                   ## Процедура формирует кнопку из Соответствия
@@ -938,28 +940,32 @@ def testing_blocking        (message_info,status_input,setting_bot):            
     ask         = 0
     label_send  = True
 
-    if callback == 'Ввести данные' and label_send = True:
+    if callback == 'Ввести данные' and label_send == True:
+        label_send = False
         ask = get_ask_nomer (message_info,status_input,setting_bot) 
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
-            label_send = False
+            
 
-    if message_in.find ('/start') == -1 and label_send = True:                                                                                                                        #### Проверяем любое входящие сообщение
+    if message_in.find ('/start') == -1 and label_send == True:                                                                                                     #### Проверяем любое входящие сообщение
+        label_send = False
         status     = status_input.setdefault ('Статус','')  
         if status != '':                                                                                                                                        #### Проверяем что это не ответ на поставленный вопрос    
             ask_answer = get_ask_nomer_status (message_info,status_input,setting_bot,status)
             if ask_answer.setdefault('id',0) != 0:
                 user_id         = message_info.setdefault('user_id','') 
-                message         = message_answer
+                message         = ask_answer['message_answer']
                 answer          = save_message   (message_info,setting_bot,user_id,message)
                 message_out     = gets_message   (message_info,setting_bot,user_id,message)
                 markup          = gets_key       (message_info,setting_bot,user_id,message_out['Меню'])
                 answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup)
-                status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",""],[name,message_in]])
+                status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",""],[ask_answer['name'],message_in]])
+                import time
+                print ('[pause]')
+                time.sleep (20)
         ask = get_ask_nomer (message_info,status_input,setting_bot)                                                                                             #### Проверяем если не заданные вопросы если есть задаем    
         if ask != 0:
             send_message_ask (message_info,status_input,setting_bot,ask)
-            label_send = False
     return ask            
    
 def save_info_refer         (message_info,status_input,setting_bot):
@@ -1032,14 +1038,14 @@ def executing_program       (message_info,status_input,setting_bot,answer):
     if callback == 'Вызов меню':                                                                                                    ###  Пример работы команды кнопки
         pass  
     answer = {}
-    if callback == "Ввести данные":
-        user_id         = message_info.setdefault ('user_id','') 
-        message         = setting_bot .setdefault ("Сообщение ввести данные","Ввести данные")
-        answer          = save_message (message_info,setting_bot,user_id,message)
-        message_out     = gets_message (message_info,setting_bot,user_id,message)
-        markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
-        answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
-        #status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
+    #if callback == "Ввести данные":
+    #    user_id         = message_info.setdefault ('user_id','') 
+    #    message         = setting_bot .setdefault ("Сообщение ввести данные","Ввести данные")
+    #    answer          = save_message (message_info,setting_bot,user_id,message)
+    #    message_out     = gets_message (message_info,setting_bot,user_id,message)
+    #    markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
+    #    answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
+    #    #status_input    = user_save_data (message_info,status_input,[["Статус",""]]) 
     return answer      
     
 def executing_command       (message_info,status_input,setting_bot,answer):                                                                                    ### Выполнение общих команд бота /start
