@@ -1004,6 +1004,23 @@ def executing_run           (message_info,status_input,setting_bot,answer):
 def executing_message       (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
     
+    
+    if message_in == 'Анкета':                                                                                                                              ### Формируем список Анкет
+        user_id         = message_info['user_id']
+        sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
+        limit           = 10
+        offset          = 0
+        back            = ''
+        ask             = "name = 'Анкета'"
+        id_sql          = save_sql     (message_info,status_input,setting_bot,"Список анкет",sql,limit,offset,back)                                           
+        markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'anket')                                                    
+        message         = setting_bot .setdefault ("Сообщение анкета список","Список анкет")                                                                  
+        answer          = save_message   (message_info,setting_bot,user_id,message)
+        message_out     = gets_message   (message_info,setting_bot,user_id,message)          
+        answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)
+    
+    
+    
     if message_in   == 'Главное меню': 
        info_service         = get_info_main_menu     (message_info,status_input,setting_bot)
        nomer                = save_order_info        (message_info,setting_bot,user_id,nomer_order,'date',info_service['date'])
@@ -1017,7 +1034,7 @@ def executing_message       (message_info,status_input,setting_bot,answer):
         limit           = 10
         offset          = 0
         back            = ''
-        ask             = '1=1'
+        ask             = "name = 'Каталог'"
         id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
         markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
         message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                                               ###  Выводим полученный список
