@@ -109,6 +109,26 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):
 
 ##################################################################################################################################################################################################
 
+def statistic_complite (namebot,sql,name):
+    from iz_bot import connect_postgres as connect_postgres
+    db,cursor    = connect_postgres ()
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    sum  = 0
+    for rec in data:
+        id,name = rec.values() 
+        sum  = sum  + 1
+    import datetime
+    import time
+    now                 = datetime.datetime.now()
+    current_date_string = now.strftime('%d.%m.%y')
+    unixtime            = int(time.time())
+    namebot             = message_info.setdefault('namebot','')
+    db,cursor           = iz_bot.connect (namebot)
+    sql = "INSERT INTO statistica (`name`,`unixtime`,`date`,`status`,`info`) VALUES ('{}',{},'{}','','{}')".format (name,unixtime,current_date_string,sum)
+    db.commit() 
+
+
 def get_ask_nober           (message_info,status_input,setting_bot,ask): 
     namebot   = message_info.setdefault ('namebot','') 
     from iz_bot import connect as connect 
@@ -193,7 +213,6 @@ def delete_send_message_user(message_info,status_input,setting_bot,user_id,answe
 
 ##################################################################################################################################################################################################
 
-
 def save_order_info         (message_info,setting_bot,user_id,nomer_order,colomn,info):
     if nomer_order == 0:
         import time
@@ -225,8 +244,6 @@ def update_info_main_menu   (message_info,status_input,setting_bot,nomer,info_se
         info_service['id_menu02'] = menu02
         info_service['id_menu03'] = menu03
     return info_service
-
-
 
 def get_setting             (message_info,setting_bot):
     namebot = message_info['namebot']
@@ -818,6 +835,42 @@ def print_operator          (message_info,status_input,setting_bot,operation,id_
    
 def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Выполнение команды оператор в json
     
+    
+    if operation == 'anketa': 
+        namebot      = message_info.setdefault('namebot','')
+        db,cursor    = iz_bot.connect (namebot)
+        sql = "select id,name,data_id from service where id = {} and name = 'Вопрос' ".format(nomer_ask)            
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        for rec in data:
+            id,name,data_id = rec.values() 
+            nomer_anketa = data_id
+        sql = "select id,name,info from service where data_id = {} ".format(id)
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        key       = {}
+        for rec in data:
+            id,name,info = rec.values() 
+            key[name] = info
+        sql = "INSERT INTO answer (`anketa`,`answer`,`ask`,`name`,`status`,`unixtime`,`user_id`) VALUES ({},'{}',{},'{}','{}',{},'{}')".format (nomer_anketa,nomer_key,nomer_ask,'Ответ на анкету','',0,user_id)
+        cursor.execute(sql)
+        db.commit()   
+        if str(nomer_key) == key.setdefault('Правильные ответы','Нет'):
+            send_data = {'Text':'Вы ответили правильно'}
+            iz_bot.send_message (message_info,send_data)    
+            time.sleep (10)
+        else:    
+            send_data = {'Text':'Правильный ответ','Замена':[['%%Ваш ответ%%',str(nomer_key)],['%%Правельный ответ%%',key.setdefault('Правильные ответы','Нет')]]}    ##  key.setdefault('Правильные ответы','Нет'),'Запись в базу':'Не записывать'
+            iz_bot.send_message (message_info,send_data) 
+            time.sleep (5)
+            send_data = {'Text':'Коментарий к ответу','Замена':[['%%Коментарий%%',key.setdefault('Комментарий','Нет')]]}  ## key.setdefault('Комментарий','Нет'),'Запись в базу':'Не записывать'
+            iz_bot.send_message (message_info,send_data)               
+            time.sleep (10)
+        select_ask (message_info,nomer_anketa,nomer_ask)
+    
+    
+    
+    
     if operation == 'catat':                                                                                                                                    ###  Нажата кнопка в списке
         ### id_list - id товара в списке
         ### id_sql  - id sql запроса
@@ -1002,9 +1055,7 @@ def executing_run           (message_info,status_input,setting_bot,answer):
     return answer 
 
 def executing_message       (message_info,status_input,setting_bot,answer):
-    message_in      = message_info.setdefault ("message_in","")
-    
-    
+    message_in      = message_info.setdefault ("message_in","")   
     if message_in == 'Анкета':                                                                                                                              ### Формируем список Анкет
         user_id         = message_info['user_id']
         sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
@@ -1018,8 +1069,6 @@ def executing_message       (message_info,status_input,setting_bot,answer):
         answer          = save_message   (message_info,setting_bot,user_id,message)
         message_out     = gets_message   (message_info,setting_bot,user_id,message)          
         answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)
-    
-    
     
     if message_in   == 'Главное меню': 
        info_service         = get_info_main_menu     (message_info,status_input,setting_bot)
@@ -1144,11 +1193,26 @@ def start_prog (message_info):                                                  
 def backUp ():
     pass
     
-    
-    
-def statictic ():
-    pass
+def statictic (message_info):
+    sql     = "select id,name from torrent where 1=1 ".format()
+    name    = 'Всего записей торрент'
+    namebot = message_info.setdefault('namebot','')
+    statistic_complite (namebot,sql,name)
 
+    sql     = "select id,name from torrent where (magnet = 'нет' or magnet = ''".format()
+    name    = 'Нет магнитной ссылки'
+    namebot = message_info.setdefault('namebot','')
+    statistic_complite (namebot,sql,name)
+
+    sql     = "select id,name from torrent where pic_type = 'Файл не найден'  ".format()
+    name    = 'Нет картинки у торента'
+    namebot = message_info.setdefault('namebot','')
+    statistic_complite (namebot,sql,name)
+
+    sql     = "select id,name from torrent where url_picture = ''  ".format()
+    name    = 'Не проставлены ссылки на картинку'
+    namebot = message_info.setdefault('namebot','')
+    statistic_complite (namebot,sql,name)
 
 
 def reglament_operation ():
