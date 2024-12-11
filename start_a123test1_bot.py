@@ -19,7 +19,7 @@ def get_info_main_menu      (message_info,status_input,setting_bot):
     results = cursor.fetchall()  
     for row in results:
         id,menu01,menu02,menu11,menu12,menu21,menu22 = row.values() 
-        answer['m_id1]       = id
+        answer['m_d1']       = id
         answer['m_menu01']    = menu01
         answer['m_menu02']    = menu02
         answer['m_menu11']    = menu11
@@ -434,7 +434,7 @@ def save_sql                (message_info,status_input,setting_bot,name,sql,limi
         import iz_bot
         namebot    = message_info.setdefault('namebot','')
         db,cursor = iz_bot.connect (namebot)
-        sql = "INSERT INTO data_sql (name,data) VALUES (%s,%s)".format ()
+        sql = "INSERT INTO data_sql (name,data,limit1,offset1,back1,status) VALUES (%s,%s,%s,%s,%s,'')".format ()
         sql_save = (name,sql,limit,offset,back)
         result = cursor.execute(sql,sql_save)
         db.commit()    
