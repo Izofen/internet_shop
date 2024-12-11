@@ -1083,7 +1083,7 @@ def executing_message       (message_info,status_input,setting_bot,answer):
         limit           = 20
         offset          = 0
         back            = ''
-        ask             = "name = 'Программы'"
+        ask             = "name = 'Программа'"
         id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
         markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
         message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                                               ###  Выводим полученный список
