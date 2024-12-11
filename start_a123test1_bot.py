@@ -1070,20 +1070,20 @@ def executing_message       (message_info,status_input,setting_bot,answer):
         message_out     = gets_message   (message_info,setting_bot,user_id,message)          
         answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)
     
-    if message_in   == 'Главное меню': 
+    if message_in   == 'Обед': 
        info_service         = get_info_main_menu     (message_info,status_input,setting_bot)
        nomer                = save_order_info        (message_info,setting_bot,user_id,nomer_order,'date',info_service['date'])
        info_service         = update_info_main_menu  (message_info,status_input,setting_bot,nomer,info_service)
        message_out,markup   = get_message_main_menu  (message_info,status_input,setting_bot,info_service) 
        answer               = send_message           (message_info,setting_bot,user_id,message_out,markup)
     
-    if message_in   == 'Каталог':                                                                                                                              ###  Пример работы тестового Входящего сообщения              
+    if message_in   == 'Главное меню':                                                                                                                              ###  Пример работы тестового Входящего сообщения              
         user_id         = message_info['user_id']
         sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
-        limit           = 10
+        limit           = 20
         offset          = 0
         back            = ''
-        ask             = "name = 'Каталог'"
+        ask             = "name = 'Программы'"
         id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
         markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
         message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                                               ###  Выводим полученный список
@@ -1189,7 +1189,6 @@ def start_prog (message_info):                                                  
 
 ##################################################################################################################################################################################################
 
-
 def backUp ():
     pass
     
@@ -1213,7 +1212,6 @@ def statictic (message_info):
     name    = 'Не проставлены ссылки на картинку'
     namebot = message_info.setdefault('namebot','')
     statistic_complite (namebot,sql,name)
-
 
 def reglament_operation ():
     import datetime
