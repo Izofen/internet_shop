@@ -19,7 +19,7 @@ def get_info_main_menu      (message_info,status_input,setting_bot):
     results = cursor.fetchall()  
     for row in results:
         id,menu01,menu02,menu11,menu12,menu21,menu22 = row.values() 
-        answer['m_d1']       = id
+        answer['m_d1']        = id
         answer['m_menu01']    = menu01
         answer['m_menu02']    = menu02
         answer['m_menu11']    = menu11
@@ -917,7 +917,14 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         sql,ask,limit,offset,back = get_sql (message_info,id_sql)
         id_sql                    = id_sql         
         key_list                  = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')
-        
+ 
+    if operation == 'mes': 
+
+
+    if operation == 'menu': 
+
+
+ 
 def executing_program_json  (message_info,status_input,setting_bot):                                                                                            ###  Разбор команды оператор в json
     import iz_bot                                                                                                                   ###  Основные функции программы
     import json
@@ -957,8 +964,10 @@ def executing_admin         (message_info,status_input,setting_bot):
             message_out = gets_message (message_info,setting_bot,user_id,message)
             markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
             answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
+        
         if message_in   == '/send':                                                                                                         ### Рассылка сообщений телеграмм боты
            pass
+        
         if  message_in   == '/key':                                                                                                         ### Выводим команды администратора
             user_id     = message_info.setdefault ('user_id','') 
             message     = setting_bot .setdefault ("Сообщение команды администратора","Команды администратора")                             ### Команды администратора
@@ -976,11 +985,36 @@ def executing_admin         (message_info,status_input,setting_bot):
         if  message_in   == '/task':            ### Получаем список заданий
             pass
             
-        if  message_in   == '/message':         ### Исправляем исходящие сообщения    
-            pass
+        if  message_in   == '/message':                                                                                                                     ### Исправляем исходящие сообщения    
+            user_id         = message_info['user_id']
+            sql             = "select id,`info` from `message` where ##s1## limit ##s2## offset ##s3##"
+            limit           = 20
+            offset          = 0
+            back            = ''
+            ask             = "name = 'Имя'"
+            id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
+            markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'mes')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
+            message         = setting_bot .setdefault ("Сообщение заменить сообщение","Заменить сообщение")                                                               ###  Выводим полученный список
+            answer          = save_message   (message_info,setting_bot,user_id,message)
+            message_out     = gets_message   (message_info,setting_bot,user_id,message)          
+            answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)    
+                
 
-        if  message_in   == '/menu':            ### Исправляем исходящие список меню
-            pass
+
+        if  message_in   == '/menu':                                                                                                                        ### Исправляем исходящие список меню                
+            user_id         = message_info['user_id']
+            sql             = "select id,`info` from `menu` where ##s1## limit ##s2## offset ##s3##"
+            limit           = 20
+            offset          = 0
+            back            = ''
+            ask             = "name = 'Имя'"
+            id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
+            markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'menu')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
+            message         = setting_bot .setdefault ("Сообщение заменить меню","Заменить меню")                                                               ###  Выводим полученный список
+            answer          = save_message   (message_info,setting_bot,user_id,message)
+            message_out     = gets_message   (message_info,setting_bot,user_id,message)          
+            answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list) 
+
             
         if  message_in   == '/setting':         ### Исправляем настроки бота
             pass    
@@ -1076,7 +1110,7 @@ def executing_run           (message_info,status_input,setting_bot,answer):
 
 def executing_message       (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")   
-    if message_in == 'Анкета':                                                                                                                              ### Формируем список Анкет
+    if message_in   == 'Анкета':                                                                                                                              ### Формируем список Анкет
         user_id         = message_info['user_id']
         sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
@@ -1141,7 +1175,7 @@ def executing_command       (message_info,status_input,setting_bot,answer):     
         message_out = gets_message (message_info,setting_bot,user_id,message)
         markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
         answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
-       
+              
 def executing_start         (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
     if message_in.find ('/start') != -1:                                                                                                                        #### Модуль подготовки сообшения         
@@ -1188,7 +1222,7 @@ def start_prog (message_info):                                                  
     status_input                             = user_get_data            (message_info,setting_bot,message_info['user_id'])                                                                                                  ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     #answer                                  = testing_time             (message_info,status_input,setting_bot,14,15,9,15)                                                                 ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     print_status                                 (message_info,status_input,setting_bot)                                                                        ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
-    #executing_admin                             (message_info,status_input,setting_bot)                                                                        ###  Выполнение команды администраторов бота 
+    executing_admin                             (message_info,status_input,setting_bot)                                                                        ###  Выполнение команды администраторов бота 
     #testing_double                              (message_info,status_input,setting_bot)                                                                        ###  Проверка на повторно нажатые клавиши
     #answer      = executing_run                 (message_info,status_input,setting_bot,{})                                                                     ###  Выполнение команды из базы данных
     answer       = executing_start               (message_info,status_input,setting_bot,{})                                                                     ###  Выполнение команды /start
