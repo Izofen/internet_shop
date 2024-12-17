@@ -116,17 +116,21 @@ def statistic_complite (namebot,sql,name):
     data = cursor.fetchall()
     sum  = 0
     for rec in data:
-        id,name = rec.values() 
+        #id,name = rec 
         sum  = sum  + 1
     import datetime
     import time
     now                 = datetime.datetime.now()
     current_date_string = now.strftime('%d.%m.%y')
     unixtime            = int(time.time())
-    namebot             = message_info.setdefault('namebot','')
+    #namebot             = message_info.setdefault('namebot','')
+    import iz_bot
     db,cursor           = iz_bot.connect (namebot)
     sql = "INSERT INTO statistica (`name`,`unixtime`,`date`,`status`,`info`) VALUES ('{}',{},'{}','','{}')".format (name,unixtime,current_date_string,sum)
-    db.commit() 
+    #print ('[+] sql',sql)
+    cursor.execute(sql)
+    db.commit()
+    return sum    
 
 
 def get_ask_nober           (message_info,status_input,setting_bot,ask): 
@@ -835,6 +839,25 @@ def print_operator          (message_info,status_input,setting_bot,operation,id_
    
 def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Выполнение команды оператор в json
     
+    if operation == 'bots': 
+        if id_list == 1:
+            user_id         = message_info.setdefault ('user_id','') 
+            message         = setting_bot .setdefault ("Главное меню nnm","Главное меню nnm")
+            answer          = save_message (message_info,setting_bot,user_id,message)
+            message_out     = gets_message (message_info,setting_bot,user_id,message)
+            markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
+            answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
+            #status_input    = user_save_data (message_info,status_input,[["Статус",""]]
+    
+        if id_list == 2:
+            user_id         = message_info.setdefault ('user_id','') 
+            message         = setting_bot .setdefault ("Главное меню столовая","Главное меню столовая")
+            answer          = save_message (message_info,setting_bot,user_id,message)
+            message_out     = gets_message (message_info,setting_bot,user_id,message)
+            markup          = gets_key     (message_info,setting_bot,user_id,message_out.setdefault ('Меню',''))
+            answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
+            #status_input    = user_save_data (message_info,status_input,[["Статус",""]]
+    
     
     if operation == 'anketa': 
         namebot      = message_info.setdefault('namebot','')
@@ -867,10 +890,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             iz_bot.send_message (message_info,send_data)               
             time.sleep (10)
         select_ask (message_info,nomer_anketa,nomer_ask)
-    
-    
-    
-    
+       
     if operation == 'catat':                                                                                                                                    ###  Нажата кнопка в списке
         ### id_list - id товара в списке
         ### id_sql  - id sql запроса
@@ -1085,7 +1105,7 @@ def executing_message       (message_info,status_input,setting_bot,answer):
         back            = ''
         ask             = "name = 'Программа'"
         id_sql          = save_sql     (message_info,status_input,setting_bot,"Список товаров",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
-        markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
+        markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'bots')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
         message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                                               ###  Выводим полученный список
         answer          = save_message   (message_info,setting_bot,user_id,message)
         message_out     = gets_message   (message_info,setting_bot,user_id,message)          
@@ -1196,22 +1216,40 @@ def statictic (message_info):
     sql     = "select id,name from torrent where 1=1 ".format()
     name    = 'Всего записей торрент'
     namebot = message_info.setdefault('namebot','')
-    statistic_complite (namebot,sql,name)
-
-    sql     = "select id,name from torrent where (magnet = 'нет' or magnet = ''".format()
+    sum = statistic_complite (namebot,sql,name)
+    print ('[sql]',sql)
+    print ('[sum]',sum)
+    
+    
+    sql     = "select id,name from torrent where (magnet = 'нет' or magnet = '')".format()
     name    = 'Нет магнитной ссылки'
     namebot = message_info.setdefault('namebot','')
-    statistic_complite (namebot,sql,name)
+    sum = statistic_complite (namebot,sql,name)
+    print ('[sql]',sql)
+    print ('[sum]',sum)    
 
     sql     = "select id,name from torrent where pic_type = 'Файл не найден'  ".format()
     name    = 'Нет картинки у торента'
     namebot = message_info.setdefault('namebot','')
-    statistic_complite (namebot,sql,name)
+    sum = statistic_complite (namebot,sql,name)
+    print ('[sql]',sql)
+    print ('[sum]',sum)    
 
     sql     = "select id,name from torrent where url_picture = ''  ".format()
     name    = 'Не проставлены ссылки на картинку'
     namebot = message_info.setdefault('namebot','')
-    statistic_complite (namebot,sql,name)
+    sum = statistic_complite (namebot,sql,name)
+    print ('[sql]',sql)
+    print ('[sum]',sum)   
+
+
+    sql     = "select id,name from torrent where parset = ''  ".format()
+    name    = 'Нет скаченного тела сайта'
+    namebot = message_info.setdefault('namebot','')
+    sum = statistic_complite (namebot,sql,name)
+    print ('[sql]',sql)
+    print ('[sum]',sum) 
+    
 
 def reglament_operation ():
     import datetime
