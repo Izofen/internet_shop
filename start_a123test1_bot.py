@@ -919,9 +919,11 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         key_list                  = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')
  
     if operation == 'mes': 
+        pass
 
 
     if operation == 'menu': 
+        pass
 
 
  
