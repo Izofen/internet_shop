@@ -175,6 +175,31 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):
 
 ##################################################################################################################################################################################################
 
+def get_active_ask (message_info,status_input,setting_bot,name):
+    namebot   = message_info.setdefault ('namebot','') 
+    from iz_bot import connect as connect 
+    db,cursor = connect (namebot)                                                                                                                               ### Задаем вопрос из списка вопросов. 
+    sql       = "select id,name from ask where id = {} ".format(ask)                                                                                            ### Получаем данные для вопроса
+    answer    = {}
+    cursor.execute(sql)
+    data      = cursor.fetchall()
+    for rec in data:
+        if str(type(rec)) == "<class 'tuple'>":
+            id,name,active1,type1,order,message11,message12 = rec
+        else:
+            id,name,active1,type1,order,message11,message12 = rec.values()
+        answer['id']        = id        
+        answer['name']      = name 
+        answer['active1']   = active1  
+        answer['type1']     = type1     
+        answer['order']     = order 
+        answer['message11'] = message11  
+        answer['message12'] = message12       
+    return answer 
+
+
+
+
 def statistic_complite (namebot,sql,name):
     from iz_bot import connect_postgres as connect_postgres
     db,cursor    = connect_postgres ()
@@ -197,7 +222,6 @@ def statistic_complite (namebot,sql,name):
     cursor.execute(sql)
     db.commit()
     return sum    
-
 
 def get_ask_nober           (message_info,status_input,setting_bot,ask): 
     namebot   = message_info.setdefault ('namebot','') 
@@ -565,30 +589,37 @@ def active_save_data        (message_info,status_input,setting_bot,name,type_ask
     user_id         = message_info['user_id']
     answer          = {}
     if status_input.setdefault("Сбор данных","") == name:                                                       ### .setdefault ("Сообщение ввод значения 12","Ввод значения 12")
-        status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
-        message         = setting_bot.setdefault ("Сообщение ввод значения 12","Ввод значения 12")
-        answer_null     = save_message (message_info,setting_bot,user_id,message)
-        message_out     = gets_message (message_info,setting_bot,user_id,message)
-        answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})        
+
+        if status_input.setdefault ('active1','') == '': 
+            ask_info        = get_active_ask (message_info,status_input,setting_bot,name)
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
+            message         = setting_bot.setdefault ("Сообщение ввод значения 12",ask_info['message12'])
+            answer_null     = save_message (message_info,setting_bot,user_id,message)
+            message_out     = gets_message (message_info,setting_bot,user_id,message)
+            answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
+            message_in              = message_info['message_in']
+            status_input            = user_save_data (message_info,status_input,setting_bot,[["'active1",message_in]])
         
-        answer['operation']     = 'message'
-        answer['order']         = 'message'
-        message_in              = message_info['message_in']
-        answer['message_in']    = message_in
+        if status_input.setdefault ('active1','') <> '': 
+            answer['operation']     = 'message'
+            answer['order']         = 'message'
+            message_in              = message_info['message_in']
+            answer['message_in']    = message_in
+            status_input            = user_save_data (message_info,status_input,setting_bot,[["'active1",""]])
         
         
     if type_ask == "Старт":
-        status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",name]])
-        message         = setting_bot.setdefault ("Сообщение ввод значения 11","Ввод значения 11")
-        answer_null     = save_message (message_info,setting_bot,user_id,message)
-        message_out     = gets_message (message_info,setting_bot,user_id,message)
-        answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+        ask_info        = get_active_ask (message_info,status_input,setting_bot,name)
+        if status_input.setdefault ('active1','') == '': 
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",name]])
+            message         = setting_bot.setdefault ("Сообщение ввод значения 11",ask_info['message11'])
+            answer_null     = save_message (message_info,setting_bot,user_id,message)
+            message_out     = gets_message (message_info,setting_bot,user_id,message)
+            answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
     
     #answer = {}    
     return answer     
     
-    
-
 def save_sql                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
     if setting_bot['connect'] == 'sql lite':
         pass
@@ -1394,9 +1425,7 @@ def start_prog (message_info):                                                  
     setting_bot                     = get_setting           (message_info,setting_bot)                                                              ###  Получение из базы информации по боту. Параметры и данные.        
     status_input                    = user_get_data         (message_info,setting_bot,message_info['user_id'])                                      ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     answer                          = active_save_data      (message_info,status_input,setting_bot,'Сообщение 11','')                               ###  11111
-    print ('[answer] : ',answer)
     if answer.setdefault ('operation') == "message":
-        print ('[!!! Внимание !!!]')
         create_order (message_info,status_input,setting_bot,answer)    
     #answer                         = testing_time          (message_info,status_input,setting_bot,14,15,9,15)                                      ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     print_status                                            (message_info,status_input,setting_bot)                                                 ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
