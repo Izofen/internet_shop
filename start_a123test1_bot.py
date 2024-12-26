@@ -618,6 +618,9 @@ def active_save_data        (message_info,status_input,setting_bot,name,type_ask
             
             
             
+            
+            
+            
     if type_ask == "Старт":
         ask_info        = get_active_ask (message_info,status_input,setting_bot,name)
         if status_input.setdefault ('active1','') == '': 
