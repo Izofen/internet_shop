@@ -75,6 +75,7 @@ class start_bot (Thread):
         mycode = 'import start_{}'.format (namebot)
         exec(mycode)        
         mycode = 'start_{}.start_prog (message_info)'.format(namebot)
+        print ('[mycode]',mycode)
         exec(mycode)
 
 class grup_bot (Thread):
@@ -850,21 +851,76 @@ def bot_command (access_code):     ###
         print ('    [Информация] :',info)
  
  
+ 
+ 
+        if command == "DLE : Список новостей":
+            import json
+            db,cursor = connect ("news")
+            sql = "select id from dle_post where 1=1".format ()
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            json_string = json.dumps(data)
+            print (json_string)
+            return str(json_string)         
+            
+
+
+        if command == "DLE : Список новостей":
+            id       = info.setdefault('id','')
+            import json
+            db,cursor = connect ("news")
+            sql = "select * from dle_post where id = {}".format (id)
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            json_string = json.dumps(data)
+            print (json_string)
+            return str(json_string)         
+
+            
+            
+ 
+ 
+        if command == "DLE : Записать Новость":
+            autor       = info.setdefault('autor','')
+            date        = info.setdefault('date','')
+            short_story = info.setdefault('short_story','')
+            full_story  = info.setdefault('full_story','')
+            xfields     = info.setdefault('xfields','')
+            title       = info.setdefault('title','')
+            descr       = info.setdefault('descr','')
+            keywords    = info.setdefault('keywords','')
+            category    = info.setdefault('category','')
+            alt_name    = info.setdefault('alt_name','')
+            comm_num    = info.setdefault('comm_num','')
+            allow_comm  = info.setdefault('allow_comm','')
+            allow_main  = info.setdefault('allow_main','')
+            approve     = info.setdefault('approve','')
+            fixed       = info.setdefault('fixed','')
+            allow_br    = info.setdefault('allow_br','')
+            symbol      = info.setdefault('symbol','')
+            tags        = info.setdefault('tags','')
+            metatitle   = info.setdefault('metatitle','')
+            db,cursor = connect_mysql ("news")
+            sql = "INSERT INTO dle_post (autor,date,short_story,full_story,xfields,title,descr,keywords,category,alt_name,comm_num,allow_comm,allow_main,approve,fixed,allow_br,symbol,tags,metatitle) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)".format ()
+            sql_save = (autor,date,short_story,full_story,xfields,title,descr,keywords,category,alt_name,comm_num,allow_comm,allow_main,approve,fixed,allow_br,symbol,tags,metatitle)
+            cursor.execute(sql,sql_save)
+            db.commit()
+            lastid = cursor.lastrowid
+            return str(lastid)
+            
+            
+            
+ 
+ 
         if command == "Управление : Создать telegraph Сайт":
             html_content = info.setdefault('html_content','')
             title        = info.setdefault('title','')
             short_name   = info.setdefault('short_name','')
             name         = info.setdefault('name','site')
-            #import requests
             from telegraph import Telegraph
             telegraph = Telegraph()
             result=telegraph.create_account(short_name=short_name)
             print (result)
-            ##{'short_name': '1337', 
-            ##'author_name': '', 
-            ##'author_url': '', 
-            ##'access_token': 'ec647c3494b4178ef303db3f9b5b6f5a55f38aec6fa4eab209e5a7c5fc00', 
-            ##'auth_url': 'https://edit.telegra.ph/auth/TssMFEMezFTLTleCRfu9ZmvAEYbhHNuydUkQx644KV'}
             telegraph = Telegraph(result['access_token']) # передаём токен доступ к страницам аккаунта
             response = telegraph.create_page(title,html_content=html_content) # ставим параметр html_content, добавляем текст страницы
             print ('[response]',response)
@@ -925,18 +981,12 @@ def bot_command (access_code):     ###
             for rec in data: 
                 id,name,data_id,info = rec.values()
             answer = ''  
-            print ('[data_id] : ',data_id)    
             sql = "select id,name,info from `users` where name = 'Имя cотрудника' and data_id = '{}'  limit 1".format (data_id)
-            print ('sql',sql)
             cursor.execute(sql)
             data = cursor.fetchall()
             for rec in data: 
                 id,name,info = rec.values() 
                 answer = answer + info + '\n'
-            print ('[+] answer',answer)    
-            #import json
-            #json_string = json.dumps(result)
-            #print (json_string)
             return str(answer) 
  
         if command == 'ОренКлип : Получить заказы':
@@ -972,7 +1022,7 @@ def bot_command (access_code):     ###
             user_id     = info.setdefault('user_id','')
             nomer       = info.setdefault('nomer',0)
             db,cursor = connect_mysql ("orenlkip_bot")
-            sql = "select id,name from balans where data_id = {} limit 1".format (data_id)
+            sql = "select id,name from balans where data_id = {} and user_id = '{}' limit 1".format (data_id,user_id)
             cursor.execute(sql)
             data = cursor.fetchall()
             id = 0
@@ -1033,12 +1083,42 @@ def bot_command (access_code):     ###
             name     = info.setdefault('name','')
             kod      = info.setdefault('kod','')
             grup     = info.setdefault('grup','')
-            color01  = info.setdefault('color01','')
-            color02  = info.setdefault('color02','') 
-            color03  = info.setdefault('color03','')
+            color01  = info.setdefault('color01','#ecec53')
+            color02  = info.setdefault('color02','#1C0606') 
+            color03  = info.setdefault('color03','#1C0606')
             color04  = info.setdefault('color04','')
-            color05  = info.setdefault('color05','') 
+            color05  = info.setdefault('color05','#ecec53') 
+            font      = info.setdefault('font','20851.ttf')
+            font_size = info.setdefault('font_size',50)
+            grup      = info.setdefault('grup','')  
+            l1c       = info.setdefault('l1c','')
+            picture   = info.setdefault('picture','logo001.jpeg')  
+            text01    = info.setdefault('text01','%d-%m-%Y %H:%M')  
+            text02    = info.setdefault('text02','Вступил в группу последний')
+            text03    = info.setdefault('text03','')
+            text04    = info.setdefault('text04','')
+            text05    = info.setdefault('text05','')
+            token     = info.setdefault('token','vk1.a.CzNcMTSxyyhaCHwYWODB8Bmlrbp7b-LOnhaYac3U-aaP7rnABKhgrVKyX77Gwy-njx1tBWHwllHoQwVLNrHAwsV28s9gwMY6BQUVaNgtP_UyFsKmveby3VPSWfE0K62Y2DrQzr-01tKyJGX6b8-iQ593KrLGKjbjII9jv2ZbsmSnT8pQEmCeDWESEwd2hC-8haJ1DdMIqoOvAMRvIgqgAQ')
+            x01       = info.setdefault('x01',1300)
+            x02       = info.setdefault('x02',1000)
+            x03       = info.setdefault('x03',1300)
+            x04       = info.setdefault('x04',1040)
+            x05       = info.setdefault('x05',1200)
+            y01       = info.setdefault('y01',400)
+            y02       = info.setdefault('y02',330)
+            y03       = info.setdefault('y03',545)
+            y04       = info.setdefault('y04',210)
+            y05       = info.setdefault('y05',240)
             db,cursor = connect_postgs ()
+            
+            nomer = 0
+            sql = "select id,name from vk_hat where 1=1;".format ()
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            for rec in result: 
+               nomer = nomer + 1
+            
+            nomer = nomer + 1
             sql = "select id,name from vk_hat where l1c = '{}';".format (kod)
             cursor.execute(sql)
             result = cursor.fetchall()
@@ -1046,7 +1126,7 @@ def bot_command (access_code):     ###
             for rec in result: 
                 id,name_sql = rec
             if id == 0:
-                sql = "INSERT INTO vk_hat (name,color01,color02,color03,color04,color05,font,font_size,grup,l1c,picture,text01,text02,text03,text04,text05,token,x01,x02,x03,x04,x05,y01,y02,y03,y04,y05) VALUES ('"+str(name)+"','"+str(color01)+"','"+str(color02)+"','"+str(color03)+"','"+str(color04)+"','"+str(color05)+"','7',8,'"+str(grup)+"','"+str(kod)+"','11','12','13','14','15','16','17',18,19,20,21,22,23,24,25,26,27)".format ()
+                sql = "INSERT INTO vk_hat (id,name,color01,color02,color03,color04,color05,font,font_size,grup,l1c,picture,text01,text02,text03,text04,text05,token,x01,x02,x03,x04,x05,y01,y02,y03,y04,y05) VALUES ("+str(nomer)+",'"+str(name)+"','"+str(color01)+"','"+str(color02)+"','"+str(color03)+"','"+str(color04)+"','"+str(color05)+"','"+str(font)+"',"+str(font_size)+",'"+str(grup)+"','"+str(kod)+"','"+str(picture)+"','"+str(text01)+"','"+str(text02)+"','"+str(text03)+"','"+str(text04)+"','"+str(text05)+"','"+str(token)+"',"+str(x01)+","+str(x02)+","+str(x03)+","+str(x04)+","+str(x05)+","+str(y01)+","+str(y02)+","+str(y03)+","+str(y04)+","+str(y05)+")".format ()
                 cursor.execute(sql)
                 db.commit()
                 lastid = cursor.lastrowid
@@ -1054,9 +1134,6 @@ def bot_command (access_code):     ###
                 sql = "UPDATE vk_hat SET name = '{}' WHERE l1c = '{}'".format (name,kod)
                 cursor.execute(sql)
                 db.commit()                
-            #import json
-            #json_string = json.dumps(data)
-            #print (json_string)
             return str("ok")                  
                
         if command == 'orenlkip_bot Новое меню':  
@@ -1073,7 +1150,7 @@ def bot_command (access_code):     ###
             sql = "INSERT INTO food (date,menu01,menu02,menu11,menu12,status,menu21,menu22) VALUES ('{}','{}','{}','{}','{}','{}','{}','{}')".format (date,menu01,menu02,menu11,menu12,status,menu21,menu22)
             cursor.execute(sql)
             db.commit()
-            sql = "select id,name from order where 1=1  ORDER BY id desc limit 1".format()   
+            sql = "select id,user_id from `order` where 1=1  ORDER BY id desc limit 1".format()   
             cursor.execute(sql)
             results = cursor.fetchall()  
             for row in results:
@@ -1272,10 +1349,7 @@ def bot_command (access_code):     ###
             db_main = pymysql.connect(host='localhost',user='izofen',password='podkjf4',charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
             cursor_main = db_main.cursor() 
             sql_main = 'CREATE DATABASE '+str(namebase)
-            #try:
             cursor_main.execute(sql_main)
-            #except Exception as e:
-            #    print ('    [+] Ошибка создания базы данных:',e)  
             db_main.commit() 
             return 'ok'    
               
@@ -1322,14 +1396,12 @@ def bot_command (access_code):     ###
             limit   = info.setdefault('limit',100)
             offset  = info.setdefault('offset',0)
             db,cursor = connect_postgs ()
-            #print ('[+] Тестовый пример ...')
-            sql = "select id,code,name,picture,text,title02,title03,magnet from torrent where (pic_type = 'jpeg' or pic_type = 'png' or pic_type = 'webp' ) and id > {} order by id asc limit {} offset {} ".format (id,limit,offset)
-            #print ('[sql]',sql)
+            sql = "select id,code,name,picture,text,title02,title03,magnet,pic_type,url_picture from torrent where (pic_type = 'jpeg' or pic_type = 'png' or pic_type = 'webp' ) and id > {} order by id asc limit {}  ".format (id,limit,offset)
+            sql = "select id,code,name,picture,text,title02,title03,magnet,pic_type,url_picture from torrent where  1=1 and id > {} order by id asc limit {} ".format (id,limit)
             cursor.execute(sql)
             data = cursor.fetchall()   
             import json
             json_string = json.dumps(data)
-            #print (json_string)
             return str(json_string)          
         
         if command == '1С Создать задание для шапки':
@@ -1341,8 +1413,6 @@ def bot_command (access_code):     ###
             name        = info.setdefault('name','')  ## 'Научная и техническая литература'
             L1C         = info.setdefault('L1C','')  ## '000000017'
             grup        = info.setdefault('grup','')  ## '225150934'
-            
-            
             color01     = '#ecec53'
             color02     = '#1C0606'
             color03     = '#1C0606'
@@ -1350,7 +1420,6 @@ def bot_command (access_code):     ###
             color05     = '#ecec53'
             font        = '20851.ttf'    
             font_size   = 50
-            
             picture     = 'logo001.jpeg'
             text01      = '%d-%m-%Y %H:%M'
             text02      = 'Вступил в группу последний'
@@ -1368,9 +1437,8 @@ def bot_command (access_code):     ###
             y03         = 545
             y04         = 210
             y05         = 240
-            #sql = "INSERT INTO vk_hat (id,name,L1C,color01,color02,color03,color04,color05,font,font_size,grup,picture,text01,text02,text03,text04,text05,token,x01,x02,x03,x04,x05,y01,y02,y03,y04,y05) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)".format ()
             sql = "INSERT INTO vk_hat (id,token,name,font,font_size,grup,picture,text01,text02,text03,text04,text05,x01,x02,x03,x04,x05,y01,y02,y03,y04,y05,color01,color02,color03,color04,color05,L1C) VALUES ({},'{}','{}','{}',{},'{}','{}','{}','{}','{}','{}','{}',{},{},{},{},{},{},{},{},{},{},'{}','{}','{}','{}','{}','{}')".format (id,token,name,font,font_size,grup,picture,text01,text02,text03,text04,text05,x01,x02,x03,x04,x05,y01,y02,y03,y04,y05,color01,color02,color03,color04,color05,L1C)
-            print ('sql',sql)
+            #print ('sql',sql)
             sql_save = (id)
             cursor.execute(sql)
             db.commit()             
@@ -1404,7 +1472,6 @@ def bot_command (access_code):     ###
             db,cursor = connect ("password_save_bot")
             data_id     = info.setdefault('Номер','')            
             sql = "select id,name,info,user_id from password  where info <> '' and status <> 'delete';".format (data_id)
-            print ('[sql]',sql)
             cursor.execute(sql)
             data = cursor.fetchall()
             json_string = json.dumps(data)

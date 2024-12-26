@@ -179,8 +179,16 @@ def get_active_ask (message_info,status_input,setting_bot,name):
     namebot   = message_info.setdefault ('namebot','') 
     from iz_bot import connect as connect 
     db,cursor = connect (namebot)                                                                                                                               ### Задаем вопрос из списка вопросов. 
-    sql       = "select id,name from ask where id = {} ".format(ask)                                                                                            ### Получаем данные для вопроса
+    sql       = "select id,name,active1,type1,`order`,message11,message12 from active where name = '{}' ".format(name)                                                                                            ### Получаем данные для вопроса
+    print ('[sql]',sql)
     answer    = {}
+    id          = 0
+    name        = ''
+    active1     = ''
+    type1       = ''    
+    order       = ''    
+    message11   = ''
+    message12   = ''
     cursor.execute(sql)
     data      = cursor.fetchall()
     for rec in data:
@@ -188,13 +196,13 @@ def get_active_ask (message_info,status_input,setting_bot,name):
             id,name,active1,type1,order,message11,message12 = rec
         else:
             id,name,active1,type1,order,message11,message12 = rec.values()
-        answer['id']        = id        
-        answer['name']      = name 
-        answer['active1']   = active1  
-        answer['type1']     = type1     
-        answer['order']     = order 
-        answer['message11'] = message11  
-        answer['message12'] = message12       
+    answer['id']        = id        
+    answer['name']      = name 
+    answer['active1']   = active1  
+    answer['type1']     = type1     
+    answer['order']     = order 
+    answer['message11'] = message11  
+    answer['message12'] = message12       
     return answer 
 
 
@@ -589,7 +597,6 @@ def active_save_data        (message_info,status_input,setting_bot,name,type_ask
     user_id         = message_info['user_id']
     answer          = {}
     if status_input.setdefault("Сбор данных","") == name:                                                       ### .setdefault ("Сообщение ввод значения 12","Ввод значения 12")
-
         if status_input.setdefault ('active1','') == '': 
             ask_info        = get_active_ask (message_info,status_input,setting_bot,name)
             status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
@@ -598,16 +605,19 @@ def active_save_data        (message_info,status_input,setting_bot,name,type_ask
             message_out     = gets_message (message_info,setting_bot,user_id,message)
             answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
             message_in              = message_info['message_in']
-            status_input            = user_save_data (message_info,status_input,setting_bot,[["'active1",message_in]])
-        
-        if status_input.setdefault ('active1','') <> '': 
+            status_input            = user_save_data (message_info,status_input,setting_bot,[["active1",message_in]])
+        if status_input.setdefault ('active1','') != '': 
             answer['operation']     = 'message'
             answer['order']         = 'message'
             message_in              = message_info['message_in']
             answer['message_in']    = message_in
-            status_input            = user_save_data (message_info,status_input,setting_bot,[["'active1",""]])
-        
-        
+            status_input            = user_save_data (message_info,status_input,setting_bot,[["active1",""]])
+            
+            
+            
+            
+            
+            
     if type_ask == "Старт":
         ask_info        = get_active_ask (message_info,status_input,setting_bot,name)
         if status_input.setdefault ('active1','') == '': 
@@ -616,8 +626,6 @@ def active_save_data        (message_info,status_input,setting_bot,name,type_ask
             answer_null     = save_message (message_info,setting_bot,user_id,message)
             message_out     = gets_message (message_info,setting_bot,user_id,message)
             answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
-    
-    #answer = {}    
     return answer     
     
 def save_sql                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
@@ -723,6 +731,7 @@ def user_save_data          (message_info,status_input,setting_bot,save_data):
             name_status    = line[0]
             info_status    = line[1]
             sql     = "select id,name,info from users where data_id = {} and name = '{}';".format (data_id,name_status)
+            print ('[sql user]',sql)
             cursor.execute(sql)
             results = cursor.fetchall()  
             id = 0
@@ -1098,9 +1107,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         key_list                  = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'catat')
  
     if operation == 'mes': 
-<<<<<<< HEAD
-        pass
-=======
         user_id        = message_info['user_id']
         informanion    = get_message_in_id (message_info,status_input,setting_bot,id_list)                                                                      ### Собираем информацию о товаре
         message_out    = get_message_text (message_info,status_input,setting_bot,informanion)                                                                   ### Готовим текст сообщения о товаре
@@ -1114,7 +1120,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         answer          = data_sql     (message_info,status_input,setting_bot,id_sql,info_data)
         markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'com_mes')                                                        ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
         answer          = send_message   (message_info,setting_bot,user_id,message_out,markup_list)  
->>>>>>> 2a229260075427f557ba5fdb3c35ccacc7a14e20
+
 
     if operation == 'com_mes':
         #user_id         = message_info['user_id']
@@ -1124,7 +1130,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         #answer          = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
         #info_data       = get_sql_data (message_info,status_input,setting_bot,id_sql,{})
         if id_list == 3:
-            answer = active_save_data (message_info,status_input,setting_bot,'Сообщение 11','Старт')
+            answer = active_save_data (message_info,status_input,setting_bot,'Новое сообщение в боте','Старт')
     if operation == 'menu': 
         pass
 
@@ -1424,7 +1430,7 @@ def start_prog (message_info):                                                  
     setting_bot                     = {'connect':'MySQL'}
     setting_bot                     = get_setting           (message_info,setting_bot)                                                              ###  Получение из базы информации по боту. Параметры и данные.        
     status_input                    = user_get_data         (message_info,setting_bot,message_info['user_id'])                                      ###  Получение из базы информацию по пользователю. Настройки и статусы. 
-    answer                          = active_save_data      (message_info,status_input,setting_bot,'Сообщение 11','')                               ###  11111
+    answer                          = active_save_data      (message_info,status_input,setting_bot,'Новое сообщение в боте','')                     ###  Проверка что идет ввод данных от клиента
     if answer.setdefault ('operation') == "message":
         create_order (message_info,status_input,setting_bot,answer)    
     #answer                         = testing_time          (message_info,status_input,setting_bot,14,15,9,15)                                      ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
