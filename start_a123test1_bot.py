@@ -175,39 +175,6 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):
 
 ##################################################################################################################################################################################################
 
-def get_active_ask (message_info,status_input,setting_bot,name):
-    namebot   = message_info.setdefault ('namebot','') 
-    from iz_bot import connect as connect 
-    db,cursor = connect (namebot)                                                                                                                               ### Задаем вопрос из списка вопросов. 
-    sql       = "select id,name,active1,type1,`order`,message11,message12 from active where name = '{}' ".format(name)                                                                                            ### Получаем данные для вопроса
-    print ('[sql]',sql)
-    answer    = {}
-    id          = 0
-    name        = ''
-    active1     = ''
-    type1       = ''    
-    order       = ''    
-    message11   = ''
-    message12   = ''
-    cursor.execute(sql)
-    data      = cursor.fetchall()
-    for rec in data:
-        if str(type(rec)) == "<class 'tuple'>":
-            id,name,active1,type1,order,message11,message12 = rec
-        else:
-            id,name,active1,type1,order,message11,message12 = rec.values()
-    answer['id']        = id        
-    answer['name']      = name 
-    answer['active1']   = active1  
-    answer['type1']     = type1     
-    answer['order']     = order 
-    answer['message11'] = message11  
-    answer['message12'] = message12       
-    return answer 
-
-
-
-
 def statistic_complite (namebot,sql,name):
     from iz_bot import connect_postgres as connect_postgres
     db,cursor    = connect_postgres ()
@@ -593,42 +560,167 @@ def get_sql_data            (message_info,status_input,setting_bot,id_sql,info_d
         info_data [name] = info
     return info_data
     
-def active_save_data        (message_info,status_input,setting_bot,name,type_ask):
+def get_active_ask (message_info,status_input,setting_bot,name):
+    namebot     = message_info.setdefault ('namebot','') 
+    from iz_bot import connect as connect 
+    db,cursor   = connect (namebot)                                                                                                                               ### Задаем вопрос из списка вопросов. 
+    sql         = "select id,name,active1,type1,`order`,message11,message12 from active where name = '{}' ".format(name)                                                                                            ### Получаем данные для вопроса
+    answer      = {}
+    id          = 0
+    name        = ''
+    active1     = ''
+    type1       = ''    
+    order       = ''    
+    message11   = ''
+    message12   = ''
+    cursor.execute(sql)
+    data                    = cursor.fetchall()
+    for rec in data:
+        if str(type(rec)) == "<class 'tuple'>":
+            id,name,active1,type1,order,message11,message12 = rec
+        else:
+            id,name,active1,type1,order,message11,message12 = rec.values()
+    answer['id']            = id        
+    answer['name']          = name 
+    answer['active1']       = active1  
+    answer['type1']         = type1     
+    answer['order']         = order 
+    answer['message11']     = message11  
+    answer['message12']     = message12       
+    return answer 
+    
+def active_save_data        (message_info,status_input,setting_bot,name_active,type_ask):
     user_id         = message_info['user_id']
     answer          = {}
-    if status_input.setdefault("Сбор данных","") == name:                                                       ### .setdefault ("Сообщение ввод значения 12","Ввод значения 12")
-        if status_input.setdefault ('active1','') == '': 
-            ask_info        = get_active_ask (message_info,status_input,setting_bot,name)
-            status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
-            message         = setting_bot.setdefault ("Сообщение ввод значения 12",ask_info['message12'])
-            answer_null     = save_message (message_info,setting_bot,user_id,message)
-            message_out     = gets_message (message_info,setting_bot,user_id,message)
-            answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
-            message_in              = message_info['message_in']
-            status_input            = user_save_data (message_info,status_input,setting_bot,[["active1",message_in]])
-        if status_input.setdefault ('active1','') != '': 
-            answer['operation']     = 'message'
-            answer['order']         = 'message'
-            message_in              = message_info['message_in']
-            answer['message_in']    = message_in
-            status_input            = user_save_data (message_info,status_input,setting_bot,[["active1",""]])
+    if type_ask == "Сбор данных":                                                                                                   ### Принимаем введенную информацию
+        if status_input.setdefault("Сбор данных","") == name_active:                                                                ### Метка пользователя 'Сбор данных', Говорит что идет сбор данных.
+        
+            ###  Мы вводим информацию согласно установленных параметров в базе    
+            label_in                = True
+            ask_info                = get_active_ask (message_info,status_input,setting_bot,name_active)
+            if ask_info['active1') != '' and status_input.setdefault ('active1','') == '' and label_in == True:                                                                        ### Ввод первого значения
+                #status_input   = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
+                message         = setting_bot.setdefault ("Сообщение ввод значения 12",ask_info['message12'])
+                answer_null     = save_message (message_info,setting_bot,user_id,message)
+                message_out     = gets_message (message_info,setting_bot,user_id,message)
+                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
+                message_in      = message_info['message_in']
+                status_input    = user_save_data (message_info,status_input,setting_bot,[["active1",message_in]])
+                label_in        = False
+                
+            if ask_info['active2') != '' a and status_input.setdefault ('active2','') != 'нет' and label_in == True:                                                                        ### Ввод первого значения
+                ask_info        = get_active_ask (message_info,status_input,setting_bot,name_active)
+                #status_input   = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
+                message         = setting_bot.setdefault ("Сообщение ввод значения 22",ask_info['message22'])
+                answer_null     = save_message (message_info,setting_bot,user_id,message)
+                message_out     = gets_message (message_info,setting_bot,user_id,message)
+                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
+                message_in      = message_info['message_in']
+                status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",message_in]])
+                label_in        = False
+
+            if ask_info['active3') != '' and status_input.setdefault ('active3','') != 'нет' and label_in == True:                                                                        ### Ввод первого значения
+                ask_info        = get_active_ask (message_info,status_input,setting_bot,name_active)
+                #status_input   = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
+                message         = setting_bot.setdefault ("Сообщение ввод значения 32",ask_info['message32'])
+                answer_null     = save_message (message_info,setting_bot,user_id,message)
+                message_out     = gets_message (message_info,setting_bot,user_id,message)
+                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
+                message_in      = message_info['message_in']
+                status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",message_in]])
+                label_in        = False
+
+
+            ### Теперь проверяем нужно запрашивать остальные параметры или нет.  
+            
+            label_in                = True
+            ask_info                = get_active_ask (message_info,status_input,setting_bot,name_active)
+            if ask_info['active1') != '' and status_input.setdefault ('active1','') == '' and label_in == True: 
+                message         = setting_bot.setdefault ("Сообщение ввод значения 11",ask_info['message11'])                           ###  Выводим текст информированный что это первый запрос    
+                answer_null     = save_message (message_info,setting_bot,user_id,message)
+                message_out     = gets_message (message_info,setting_bot,user_id,message)
+                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+                label_in        = False
+            
+            if ask_info['active2') != '' and status_input.setdefault ('active2','') == '' and label_in == True: 
+                message         = setting_bot.setdefault ("Сообщение ввод значения 21",ask_info['message21'])                           ###  Выводим текст информированный что это первый запрос    
+                answer_null     = save_message (message_info,setting_bot,user_id,message)
+                message_out     = gets_message (message_info,setting_bot,user_id,message)
+                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+                label_in        = False
+
+            if ask_info['active3') != '' and status_input.setdefault ('active3','') == '' and label_in == True: 
+                message         = setting_bot.setdefault ("Сообщение ввод значения 31",ask_info['message31'])                           ###  Выводим текст информированный что это первый запрос    
+                answer_null     = save_message (message_info,setting_bot,user_id,message)
+                message_out     = gets_message (message_info,setting_bot,user_id,message)
+                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+                label_in        = False
+
+            ### Проверяем что нужно выйти из режима ввода данных
+            
+            label_in                = True
+            if (ask_info['active1') != '' and status_input.setdefault ('active1','') != '') or (ask_info['active1') == ''):
+                if (ask_info['active2') != '' and status_input.setdefault ('active2','') != '') or (ask_info['active2') == ''):
+                    if (ask_info['active3') != '' and status_input.setdefault ('active3','') != '') or (ask_info['active3') == ''):
+                        label_in    = False
+                        print ('[+]  Выход из системы ввода данных')
+            
+            
+            
+
+
+        else:
+            print ('[+] Нет сбора данных. Система запущена зря.')
             
             
             
             
             
-            
-            
-            
-            
-    if type_ask == "Старт":
-        ask_info        = get_active_ask (message_info,status_input,setting_bot,name)
-        if status_input.setdefault ('active1','') == '': 
-            status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",name]])
-            message         = setting_bot.setdefault ("Сообщение ввод значения 11",ask_info['message11'])
+    if type_ask == "Старт":                                                                                                         ###  Запускаем метку сбора данных                                                                     
+        ask_info        = get_active_ask (message_info,status_input,setting_bot,name_active)                                        ###  Информация хранится в таблице данный
+        label_in = True
+        if ask_info['active1'] != '' and status_input.setdefault('active1','') == '' and label_in == True:                          ###  Все данные мы храним в переменных пользователя. В базе данных : active1,active2,active3,active4,active5 и т.д.
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",name_active]])                  ###  Метка называется как название строки    
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active1",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active3",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active4",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active5",""]])
+            message         = setting_bot.setdefault ("Сообщение ввод значения 11",ask_info['message11'])                           ###  Выводим текст информированный что это первый запрос    
             answer_null     = save_message (message_info,setting_bot,user_id,message)
             message_out     = gets_message (message_info,setting_bot,user_id,message)
             answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+            label_in        = False
+            
+        if ask_info['active2'] != '' and status_input.setdefault('active2','') == '' and label_in == True:                          ###  Все данные мы храним в переменных пользователя. В базе данных : active1,active2,active3,active4,active5 и т.д.
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",name_active]])                  ###  Метка называется как название строки    
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active1",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active3",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active4",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active5",""]])
+            message         = setting_bot.setdefault ("Сообщение ввод значения 21",ask_info['message21'])                           ###  Выводим текст информированный что это первый запрос    
+            answer_null     = save_message (message_info,setting_bot,user_id,message)
+            message_out     = gets_message (message_info,setting_bot,user_id,message)
+            answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+            label_in        = False
+            
+        if ask_info['active3'] != '' and status_input.setdefault('active3','') == '' and label_in == True:                          ###  Все данные мы храним в переменных пользователя. В базе данных : active1,active2,active3,active4,active5 и т.д.
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",name_active]])                  ###  Метка называется как название строки    
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active1",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active3",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active4",""]])
+            status_input    = user_save_data (message_info,status_input,setting_bot,[["active5",""]])
+            message         = setting_bot.setdefault ("Сообщение ввод значения 21",ask_info['message21'])                           ###  Выводим текст информированный что это первый запрос    
+            answer_null     = save_message (message_info,setting_bot,user_id,message)
+            message_out     = gets_message (message_info,setting_bot,user_id,message)
+            answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+            label_in        = False
+            
+            
+            
+            
     return answer     
     
 def save_sql                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
