@@ -664,11 +664,6 @@ def active_save_data        (message_info,status_input,setting_bot,name_active,t
                     if (ask_info['active3') != '' and status_input.setdefault ('active3','') != '') or (ask_info['active3') == ''):
                         label_in    = False
                         print ('[+]  Выход из системы ввода данных')
-            
-            
-            
-
-
         else:
             print ('[+] Нет сбора данных. Система запущена зря.')
             
@@ -1525,7 +1520,7 @@ def start_prog (message_info):                                                  
     setting_bot                     = {'connect':'MySQL'}
     setting_bot                     = get_setting           (message_info,setting_bot)                                                              ###  Получение из базы информации по боту. Параметры и данные.        
     status_input                    = user_get_data         (message_info,setting_bot,message_info['user_id'])                                      ###  Получение из базы информацию по пользователю. Настройки и статусы. 
-    answer                          = active_save_data      (message_info,status_input,setting_bot,'Новое сообщение в боте','')                     ###  Проверка что идет ввод данных от клиента
+    answer                          = active_save_data      (message_info,status_input,setting_bot,'Новое сообщение в боте','Сбор данных')                     ###  Проверка что идет ввод данных от клиента
     if answer.setdefault ('operation') == "message":
         create_order (message_info,status_input,setting_bot,answer)    
     #answer                         = testing_time          (message_info,status_input,setting_bot,14,15,9,15)                                      ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
