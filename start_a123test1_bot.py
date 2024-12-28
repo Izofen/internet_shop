@@ -627,7 +627,7 @@ def active_save_data        (message_info,status_input,setting_bot,name_active,t
                 message_out     = gets_message (message_info,setting_bot,user_id,message)
                 answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
                 message_in      = message_info['message_in']
-                status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",message_in]])
+                status_input    = user_save_data (message_info,status_input,setting_bot,[["active3",message_in]])
                 label_in        = False
 
 
