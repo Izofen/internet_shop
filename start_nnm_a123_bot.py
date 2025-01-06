@@ -217,6 +217,7 @@ def create_order (message_info,status_input,setting_bot,answer):
         word        = active1
         list_answer = execution_procedure (message_info,status_input,setting_bot,word)
         send_telegram_message (message_info,status_input,setting_bot,list_answer)
+        send_user_message_v1 (message_info,status_input,setting_bot,'Введите слово'):
     
     if answer.setdefault('name','') == 'Новое сообщение в боте':
         ask_info    = get_active_ask (message_info,status_input,setting_bot,'Новое сообщение в боте')
@@ -400,7 +401,7 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):
 
 ##################################################################################################################################################################################################
 
-def send_user_message_v1 (message_info,status_input,setting_bot,name_message) 
+def send_user_message_v1 (message_info,status_input,setting_bot,name_message):
     user_id     = message_info.setdefault('user_id','') 
     message     = setting_bot .setdefault (name_message)
     answer      = save_message (message_info,setting_bot,user_id,message)
@@ -1253,7 +1254,7 @@ def send_picture            (message_info,setting_bot,user_id,message_out,markup
     print ('') 
     return answer 
     
-def edit_caption  (message_info,setting_bot,user_id,message_out,markup):    
+def edit_caption            (message_info,setting_bot,user_id,message_out,markup):    
     import requests
     token                   = setting_bot.setdefault ('Токен','')
     params = {}
@@ -1272,7 +1273,7 @@ def edit_caption  (message_info,setting_bot,user_id,message_out,markup):
     print ('') 
     return answer 
 
-def edit_picture  (message_info,setting_bot,user_id,message_out,markup,picture):
+def edit_picture            (message_info,setting_bot,user_id,message_out,markup,picture):
     import requests
     import json
     token       = setting_bot.setdefault ('Токен','')
@@ -1835,10 +1836,6 @@ def start_prog (message_info):                                                  
         create_order  (message_info,status_input,setting_bot,answer) 
         history_order (message_info,status_input,setting_bot,answer)
         answer = send_user_message_v1 (message_info,status_input,setting_bot,"Поиск окончен")    
-
-
-        
-        
         
     #answer                         = testing_time          (message_info,status_input,setting_bot,14,15,9,15)                                                  ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     print_status                                            (message_info,status_input,setting_bot)                                                             ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
