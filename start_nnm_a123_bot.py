@@ -1184,6 +1184,9 @@ def gets_key                (message_info,setting_bot,user_id,menu):
         markup = key_type_keybord (key)
     return markup
     
+    
+##################################################################################################################################################################################################        
+    
 def send_message            (message_info,setting_bot,user_id,message_out,markup):
     import requests
     token                   = setting_bot.setdefault ('Токен','')
@@ -1205,96 +1208,92 @@ def send_message            (message_info,setting_bot,user_id,message_out,markup
     print ('') 
     #print ('[markup]',markup)
     return answer 
-       
-def send_sendPhoto          (message_info,setting_bot,user_id,message_out,picture,markup):
+    
+def edit_message            (message_info,setting_bot,user_id,message_out,markup,message_id):
     import requests
     token                   = setting_bot.setdefault ('Токен','')
     params                  = {}
     params['chat_id']       = user_id
     params['text']          = message_out
     params['parse_mode']    = 'HTML'
-    try:   
-        file_path   = picture
-        file_opened = open(file_path, 'rb')
-    except:    
-        file_path   = setting_bot.setdefault ('Картинка как нет основной','')
-        file_opened = open(file_path, 'rb')
-    files = {'photo': file_opened}    
+    params['message_id']    = message_id
     if markup != {}:
         params['reply_markup'] = markup                
-    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'sendPhoto')
-    resp                    = requests.post(url, params,files=files) 
-    answer                  = resp.json()
-    print ('[+]👧------------------------------------------------------------ [Ответ sendPhoto] -------------------------------------------------------👧[+]')
+    if message_out != '':    
+        url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'sendMessage')
+        resp                    = requests.post(url, params) 
+        answer                  = resp.json()
+    else:
+        answer = {'error':'Нет текста сообщения'}
+    print ('[+]👧------------------------------------------------------------ [Ответ sendMessage] -------------------------------------------------------👧[+]')
     print ( answer)
-    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
     print ('') 
     return answer     
     
-def editMessageText         (message_info,setting_bot,user_id,message_out,message_id,markup):
+
+def send_picture            (message_info,setting_bot,user_id,message_out,markup,picture):
     import requests
     token                   = setting_bot.setdefault ('Токен','')
-    params                  = {}
+    params = {}
     params['chat_id']       = user_id
-    params['text']          = message_out
-    params['message_id']    = message_id
+    params['caption']       = str(message_out)
     params['parse_mode']    = 'HTML'
     if markup != {}:
-        params['reply_markup'] = markup                
-    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageText')
-    resp                    = requests.post(url, params) 
-    answer                  = resp.json()
-    print ('[+]👧------------------------------------------------------------ [Ответ editMessageText] -------------------------------------------------------👧[+]')
+        params['reply_markup'] = markup
+    file_path               = picture
+    file_opened = open(file_path, 'rb')
+    files = {'photo': file_opened}
+    url='https://api.telegram.org/bot{0}/{1}'.format(token, "sendPhoto") 
+    resp = requests.post(url, params, files=files)
+    answer = resp.json()   
+    print ('[+]👧------------------------------------------------------------ [Ответ sendMessage] -------------------------------------------------------👧[+]')
     print ( answer)
-    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
     print ('') 
-    return answer    
+    return answer 
     
-def editMessageCaption      (message_info,setting_bot,user_id,message_out,message_id,marku):
+def edit_caption  (message_info,setting_bot,user_id,message_out,markup):    
     import requests
     token                   = setting_bot.setdefault ('Токен','')
-    params                  = {}
-    params['chat_id']       = user_id
-    params['text']          = message_out
-    params['message_id']    = message_id
-    params['parse_mode']    = 'HTML'
-    if markup != {}:
-        params['reply_markup'] = markup                
-    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageCaption')
-    resp                    = requests.post(url, params) 
-    answer                  = resp.json()
-    print ('[+]👧------------------------------------------------------------ [Ответ editMessageCaption] -------------------------------------------------------👧[+]')
+    params = {}
+    params['chat_id'] = user_id
+    params['caption'] = str(message_out)
+    params['message_id'] = message_id
+    params['parse_mode'] = 'HTML'
+    if markup != '' or key_array != '':
+        params['reply_markup'] = markup
+    url='https://api.telegram.org/bot{0}/{1}'.format(token, "editMessageCaption")            
+    resp = requests.post(url, params)
+    answer = resp.json()   
+    print ('[+]👧------------------------------------------------------------ [Ответ sendMessage] -------------------------------------------------------👧[+]')
     print ( answer)
-    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
     print ('') 
-    return answer     
+    return answer 
+
+def edit_picture  (message_info,setting_bot,user_id,message_out,markup,picture):
+    import requests
+    import json
+    token       = setting_bot.setdefault ('Токен','')
+    file_path   = picture 
+    file_opened = open(file_path, 'rb')
+    files       = {'media':file_opened}
+    media       = json.dumps({'type': 'photo','media': 'attach://media'})
+    method      = 'editMessageMedia'
+    url         = 'https://api.telegram.org/bot{0}/{1}'.format(token, "editMessageMedia")   
+    params = {'chat_id': user_id,'message_id':message_id,'media':media,'caption':str(message_out)}
+    if markup != {}:
+        params['reply_markup'] = markup    
+    answer = requests.post(url, params,files = files)                
+    print ('[+]👧------------------------------------------------------------ [Ответ sendMessage] -------------------------------------------------------👧[+]')
+    print ( answer)
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
+    print ('') 
+    return answer             
     
-def editMessageMedia        (message_info,setting_bot,user_id,message_out,message_id,picture,markup):
-    import requests
-    token                   = setting_bot.setdefault ('Токен','')
-    params                  = {}
-    params['chat_id']       = user_id
-    params['text']          = message_out
-    params['message_id']    = message_id
-    params['parse_mode']    = 'HTML'
-    try:   
-        file_path   = picture
-        file_opened = open(file_path, 'rb')
-    except:    
-        file_path   = "/home/izofen/Main/Server/picture/file_2.jpg"
-        file_opened = open(file_path, 'rb')
-    files = {'photo': file_opened}    
-    if markup != {}:
-        params['reply_markup'] = markup                
-    url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageMedia')
-    resp                    = requests.post(url, params,files=files) 
-    answer                  = resp.json()
-    print ('[+]👧------------------------------------------------------------ [Ответ editMessageMedia] -------------------------------------------------------👧[+]')
-    print ( answer)
-    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] ------------------------------------------------------👧[+]') 
-    print ('') 
-    return answer    
-      
+##################################################################################################################################################################################################    
+         
 def complite_list_key       (message_info,status_input,setting_bot,name):                                                                  ###  Формируем Много задачную кнопку
     from iz_bot import connect as connect
     from iz_bot import build_jsom as build_jsom
@@ -1522,6 +1521,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
                 user_save_data (message_info,status_input,setting_bot,[[key_name,"key11"]])
             
             info_service         = {}
+            message_id           = message_info.setdefault('message_id',0)
             message_out,markup   = get_message_setting    (message_info,status_input,setting_bot,info_service) 
             answer               = edit_message           (message_info,setting_bot,user_id,message_out,markup)
 
