@@ -1,4 +1,5 @@
 
+
 def get_user_id (message_info,data_info):
     import iz_bot
     namebot    = message_info.setdefault('namebot','')
@@ -467,8 +468,8 @@ def send_message_menu (status_input,message_info,message_id,add_message,key_arra
     try:
         if int(dolg) > 0:
             change.append(['##Коммент##',str("Указанную сумму оплатить в пятницу 27.12 в 14-00")]) 
-        if int(dolg) < 0:
-            change.append(['##Коммент##',str("До 27-12-2024 у Вас все оплачено ")]) 
+        if int(dolg) <= 0:
+            change.append(['##Коммент##',str("До 10-01-2025 у Вас все оплачено ")]) 
     except:        
         change.append(['##Коммент##',str("")]) 
     change.append(['##ФИО##',str(fio)]) 
