@@ -657,7 +657,7 @@ def active_save_data        (message_info,status_input,setting_bot,name_active,t
             
             label_in                = True
             ask_info                = get_active_ask (message_info,status_input,setting_bot,name_active)
-            if ask_info['active1'] != '' and status_input.setdefault ('active1','') == '' and label_in == True: 
+            if ask_info['active1'] != '' and status_input.setdefault ('active1','') == '' and label_in == True:             
                 message         = ask_info['message11']                           ###  Выводим текст информированный что это первый запрос    
                 answer_null     = save_message (message_info,setting_bot,user_id,message)
                 message_out     = gets_message (message_info,setting_bot,user_id,message)
