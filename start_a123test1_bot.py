@@ -663,6 +663,7 @@ def active_save_data        (message_info,status_input,setting_bot,name_active,t
                 message_out     = gets_message (message_info,setting_bot,user_id,message)
                 answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
                 label_in        = False
+                
             
             if ask_info['active2'] != '' and status_input.setdefault ('active2','') == '' and label_in == True: 
                 message         = ask_info['message21']                           ###  Выводим текст информированный что это первый запрос    
