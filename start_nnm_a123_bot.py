@@ -8,7 +8,7 @@
 
 ### Узко специализированные программы ###
 
-def list_find_menu (message_info,status_input,setting_bot):
+def list_find_menu  (message_info,status_input,setting_bot):
     user_id         = message_info['user_id']
     sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
     limit           = 20
@@ -16,14 +16,10 @@ def list_find_menu (message_info,status_input,setting_bot):
     back            = ''
     ask             = "name = 'Поиск'"
     id_sql          = save_sql     (message_info,status_input,setting_bot,"Список поиска",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
-    markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'bots')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
-    #message         = setting_bot .setdefault ("Сообщение тестовый список","Тестовый список")                                                             ###  Выводим полученный список
-    #answer          = save_message   (message_info,setting_bot,user_id,message)
-    #message_out     = gets_message   (message_info,setting_bot,user_id,message)          
-    #answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list) 
+    markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'find')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
     return markup_list 
 
-def change_simvol (message_out):
+def change_simvol   (message_out):
     message_out = message_out.replace ('<','#')
     message_out = message_out.replace ('>','#')
     #message_out = message_out.replace ('/','.')
@@ -36,7 +32,7 @@ def change_simvol (message_out):
     #message_out = message_out.replace ('</b>','')
     return message_out
 
-def change_word (message_text,new):
+def change_word     (message_text,new):
     #message_text  = message_out
     message_text = message_text.replace('%%code%%'      ,str(new['ID']))  
     message_text = message_text.replace('%%title%%'     ,str(new['title']))  
@@ -74,10 +70,6 @@ def message_send_tg (chat_id,token_avtor,message_out,picture):
     import requests
     message_out_01 = message_out[0]
     message_out_02 = message_out[1]
-    print ('[+] message_01')    
-    print (message_out_01)
-    print ('[+] message_02')
-    print (message_out_02)
     params = {}
     method = "sendPhoto"
     params['chat_id'] = int(chat_id) ##-1001644105615
@@ -104,8 +96,6 @@ def message_send_tg (chat_id,token_avtor,message_out,picture):
         print ( answer)
         print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
         print ('')  
-        
-        
     #parsed_print   ('Отправка сообщения в группу',parsed_string)
     print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
     print ( parsed_string)
@@ -136,7 +126,6 @@ def send_telegram_message (message_info,status_input,setting_bot,list_answer):
     namebot = message_info.setdefault ('namebot','')
     setting = iz_bot.get_setting_prog ('nnm-club')
     user_id = message_info['user_id']
-    #sql     = "select id,code,name,text,title02,title03,magnet,picture from torrent where code = '{}' limit 1;".format (ID_torent)
     for rec in list_answer: 
         id,code,name,text,title02,title03,magnet,picture  =  rec
         new = {}
@@ -150,12 +139,7 @@ def send_telegram_message (message_info,status_input,setting_bot,list_answer):
         new['magnet']           = magnet.strip()
         new['title02']          = title02.strip()
         new['title03']          = title03.strip()
-        #print ('\n\n')    
-        #print ('[name]',name)
-        #print ('[text]',text)
-        #print ('\n\n')    
         message_info = {'namebot':namebot}
-        #print ('[new]',new)
         token_avtor = setting_bot.setdefault ('Токен','')
         message_out = message_slip_tg (message_info,new,setting) 
         answer      = message_send_tg (user_id,token_avtor,message_out,picture)   
@@ -164,30 +148,30 @@ def send_telegram_message (message_info,status_input,setting_bot,list_answer):
 def execution_procedure (message_info,status_input,setting_bot,word):
     import iz_bot
     db,cursor       = iz_bot.connect_postgres ()
-    #sql             = "select id,name,title02,title03,`text`,`code`,magnet,name_file_save from `torrent` where `name` like  '%{}%' order by id desc limit 6".format(word)
-    sql = "select id,code,name,text,title02,title03,magnet,picture from torrent where (name like '%{}%' or text like '%{}%' ) and picture <> 'Нет картинки' and pic_type <> 'Файл не найден '  limit 10;".format (word,word)
-    print ('[+] sql:',sql)
+    sql             = "select id,code,name,text,title02,title03,magnet,picture from torrent where (name like '%{}%' or text like '%{}%' ) and picture <> 'Нет картинки' and pic_type <> 'Файл не найден ' order by id desc limit 10;".format (word,word)
     cursor.execute(sql)
     data            = cursor.fetchall()
     answer          = []
     for rec in data:
         id,code,name,text,title02,title03,magnet,picture = rec
         answer.append ([id,code,name,text,title02,title03,magnet,picture])        
-        #name        = change_back (name)
-        #text        = change_back (text)
-        #text        = text[:500]
-        #title02     = change_back (title02)
-        #title03     = change_back (title03)
-        #text        = text.replace(message,"<b>"+str(message)+"</b>")
-        #name        = name.replace(message,"<b>"+str(message)+"</b>")
-        #send_data   = {"Text":"Пусто","Метод":"sendPhoto","Картинка":picture}
-        #answer      = iz_bot.send_message (message_info,send_data)
-        #send_data   = {"Text":"Вывод найденного сообшения","Замена":[['##title01##',name],['##title02##',title02],['##title03##',title03],['##text##',text],['##code##',code],['##magnet##',magnet]]}           #### "Запись в базу":"Не записывать"
-        #answer      = iz_bot.send_message (message_info,send_data)
-    #print ('[answer]',answer)    
     return answer
+    
+def execution_procedure_sql (message_info,status_input,setting_bot,sql):
+    import iz_bot
+    db,cursor       = iz_bot.connect_postgres ()
+    cursor.execute(sql)
+    data            = cursor.fetchall()
+    answer          = []
+    for rec in data:
+        id,code,name,text,title02,title03,magnet,picture = rec
+        answer.append ([id,code,name,text,title02,title03,magnet,picture])        
+    return answer    
+    
+    
 
 def history_order (message_info,status_input,setting_bot,answer):
+    print ('[+] [+] [+] [+]',answer)
     if answer.setdefault('name','') == 'Поиск торрент':
         namebot     = message_info.setdefault('namebot','')
         user_id     = message_info['user_id']
@@ -201,7 +185,7 @@ def history_order (message_info,status_input,setting_bot,answer):
         db,cursor   = connect (namebot)
         import time
         unixtime    = int(time.time ())
-        sql         = "INSERT INTO history (`name`,`user_id`,`active1`,`active2`,`active3`,`active4`,`active5`,unixtime) VALUES ('{}','{}','{}','{}','{}','{}','{}',{})".format (answer['name'],name,active1,active2,active3,active4,active5,unixtime)
+        sql         = "INSERT INTO history (`name`,`user_id`,`active1`,`active2`,`active3`,`active4`,`active5`,unixtime) VALUES ('{}','{}','{}','{}','{}','{}','{}',{})".format (answer['name'],user_id,active1,active2,active3,active4,active5,unixtime)
         cursor.execute(sql)
         db.commit()
 
@@ -217,7 +201,7 @@ def create_order (message_info,status_input,setting_bot,answer):
         word        = active1
         list_answer = execution_procedure (message_info,status_input,setting_bot,word)
         send_telegram_message (message_info,status_input,setting_bot,list_answer)
-        send_user_message_v1 (message_info,status_input,setting_bot,'Введите слово'):
+        send_user_message_v1 (message_info,status_input,setting_bot,'Поиск завершен')
     
     if answer.setdefault('name','') == 'Новое сообщение в боте':
         ask_info    = get_active_ask (message_info,status_input,setting_bot,'Новое сообщение в боте')
@@ -288,7 +272,7 @@ def get_message_text (message_info,status_input,setting_bot,informanion):
     ##status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",""]])
     return message_text
 
-##################################################################################################################################################################################################
+######################################################################### Получение всех данных по настройкам data_id #########################################################################################################################
 
 def get_message_setting   (message_info,status_input,setting_bot,info_service):
     message             = setting_bot.setdefault  ("Вывести настройки","Вывести настройки")
@@ -399,17 +383,18 @@ def get_info_tovar          (message_info,status_input,setting_bot,id_list):
     info_tovar['catalog'] = 0
     return info_tovar
 
+
 ##################################################################################################################################################################################################
 
-def send_user_message_v1 (message_info,status_input,setting_bot,name_message):
+def send_user_message_v1    (message_info,status_input,setting_bot,name_message):
     user_id     = message_info.setdefault('user_id','') 
-    message     = setting_bot .setdefault (name_message)
+    message     = setting_bot .setdefault (name_message,name_message)
     answer      = save_message (message_info,setting_bot,user_id,message)
     message_out = gets_message (message_info,setting_bot,user_id,message)
     markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
     answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
     return answer
-
+    
 def statistic_complite      (namebot,sql,name):
     from iz_bot import connect_postgres as connect_postgres
     db,cursor    = connect_postgres ()
@@ -614,14 +599,19 @@ def change_message          (message_info,status_input,setting_bot,message,list_
     return message
        
 def get_service             (message_info,status_input,setting_bot,data_id):                                                                                    ###  Получение информации о услугах  
-        sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
-        answer         = []
-        cursor.execute(sql)
-        data = cursor.fetchall()
-        for rec in data:
-            id,name,info = rec.values() 
-            answer[name] = info
-        return answer  
+    from iz_bot import connect as connect
+    namebot    = message_info.setdefault('namebot','')
+    db,cursor = connect (namebot)
+    sql             = "select id,name,`info` from `service` where data_id = {} ".format (data_id)
+    print ('[SQL]',sql)
+    answer         = {}
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data:
+        id,name,info = rec.values() 
+        print ('[name]',name)
+        answer[name] = str(info)
+    return answer  
         
 def get_time_set            (message_info,status_input,setting_bot,name):                                                                                       ###  Процедура для замера времени
     import time
@@ -833,11 +823,11 @@ def active_save_data        (message_info,status_input,setting_bot,name_active,t
             ask_info                = get_active_ask (message_info,status_input,setting_bot,name_active)
                         
             if ask_info['active1'] != '' and status_input.setdefault ('active1','') == '' and label_in == True:                                                                        ### Ввод первого значения
-                #status_input   = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
                 message         = ask_info['message12']
                 answer_null     = save_message (message_info,setting_bot,user_id,message)
                 message_out     = gets_message (message_info,setting_bot,user_id,message)
-                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],{}) 
+                markup          = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
+                answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup) 
                 message_in      = message_info['message_in']
                 status_input    = user_save_data (message_info,status_input,setting_bot,[["active1",message_in]])
                 label_in        = False
@@ -895,8 +885,6 @@ def active_save_data        (message_info,status_input,setting_bot,name_active,t
                 if (ask_info['active2'] != '' and status_input.setdefault ('active2','') != '') or (ask_info['active2'] == ''):
                     if (ask_info['active3'] != '' and status_input.setdefault ('active3','') != '') or (ask_info['active3'] == ''):
                         label_in    = False
-                        print ('[+]  Выход из системы ввода данных')
-                        
                         answer['operation'] = "Выполнено" 
                         answer['active1']   = status_input['active1']
                         answer['active2']   = status_input['active2']
@@ -904,7 +892,6 @@ def active_save_data        (message_info,status_input,setting_bot,name_active,t
                         answer['active4']   = status_input['active4']
                         answer['active5']   = status_input['active5']
                         answer['name'   ]   = name_active
-                        
                         status_input    = user_save_data (message_info,status_input,setting_bot,[["active1",'']])
                         status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",'']])
                         status_input    = user_save_data (message_info,status_input,setting_bot,[["active3",'']])
@@ -1327,9 +1314,6 @@ def complite_list_key       (message_info,status_input,setting_bot,name):       
     markup   = key_type_message (key_array)
     return markup      
       
-      
-      
-      
 def complite_key            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka):                                                                  ###  Формируем кнопокe из списока  по переданным нам параметрам
     from iz_bot import connect as connect
     from iz_bot import build_jsom as build_jsom
@@ -1415,6 +1399,21 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             answer          = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
             #status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",""]]
        
+       
+    if operation == 'find':
+        send_user_message_v1    (message_info,status_input,setting_bot,"Список последних обновлений по данной категории")
+        status_input        = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
+        #sql                 = "select id,code,name,text,title02,title03,magnet,picture from torrent where title02 = 'Win Игры' and picture <> 'Нет картинки' and pic_type <> 'Файл не найден ' order by id desc limit 10;".format ()
+        print ('[id_list]',id_list)
+        info_ask_torrent    = get_service       (message_info,status_input,setting_bot,id_list)
+        print ('[info_ask_torrent] : ',info_ask_torrent)
+        sql = info_ask_torrent['SQL']
+        list_answer         = execution_procedure_sql (message_info,status_input,setting_bot,sql)
+        send_telegram_message (message_info,status_input,setting_bot,list_answer)
+        
+        
+       
+       
     if operation == 'anketa': 
         namebot      = message_info.setdefault('namebot','')
         db,cursor    = iz_bot.connect (namebot)
@@ -1488,16 +1487,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         answer          = data_sql     (message_info,status_input,setting_bot,id_sql,info_data)
         markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'com_mes')                                                        ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
         answer          = send_message   (message_info,setting_bot,user_id,message_out,markup_list)  
-
-    if operation == 'com_mes':
-        #user_id         = message_info['user_id']
-        #message         = setting_bot .setdefault ("Сообщение команды сообщения","Команды сообщения")
-        #answer          = save_message (message_info,setting_bot,user_id,message)
-        #message_out     = gets_message (message_info,setting_bot,user_id,message)
-        #answer          = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
-        #info_data       = get_sql_data (message_info,status_input,setting_bot,id_sql,{})
-        if id_list == 3:
-            answer = active_save_data (message_info,status_input,setting_bot,'Новое сообщение в боте','Старт')
     
     if operation == 'menu': 
         pass
@@ -1713,6 +1702,7 @@ def executing_message       (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")   
     if message_in   == 'Поиск':
         answer = active_save_data (message_info,status_input,setting_bot,'Поиск торрент','Старт')
+        send_user_message_v1      (message_info,status_input,setting_bot,'Отмена')
         
     if message_in   == 'Анкета':                                                                                                                              ### Формируем список Анкет
         user_id         = message_info['user_id']
@@ -1828,15 +1818,19 @@ def start_prog (message_info):                                                  
     setting_bot                     = get_setting           (message_info,setting_bot)                                                                          ###  Получение из базы информации по боту. Параметры и данные.        
     status_input                    = user_get_data         (message_info,setting_bot,message_info['user_id'])                                                  ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     message_in  = message_info.setdefault ("message_in","")
+    
+    if message_in == '⛔ Отмена':
+        send_user_message_v1      (message_info,status_input,setting_bot,'Отмена ввода слова')
+        return ''
+    
     if message_in != '':
         answer                     = active_save_data      (message_info,status_input,setting_bot,'Поиск торрент','Сбор данных')                                ###  Проверка что идет ввод данных от клиента
     else:    
         answer = {}
+    
     if answer.setdefault ('operation') == "Выполнено":
         create_order  (message_info,status_input,setting_bot,answer) 
         history_order (message_info,status_input,setting_bot,answer)
-        answer = send_user_message_v1 (message_info,status_input,setting_bot,"Поиск окончен")    
-        
     #answer                         = testing_time          (message_info,status_input,setting_bot,14,15,9,15)                                                  ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     print_status                                            (message_info,status_input,setting_bot)                                                             ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
     executing_admin                                         (message_info,status_input,setting_bot)                                                             ###  Выполнение команды администраторов бота 
@@ -1900,8 +1894,6 @@ def reglament_operation ():
     
     if hour > 2 and hour < 4:
         pass
-    
-    
     
     
 #                                                                  <Главное меню>                                       /start
