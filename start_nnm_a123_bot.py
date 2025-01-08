@@ -274,7 +274,8 @@ def get_message_text (message_info,status_input,setting_bot,informanion):
 
 ######################################################################### Получение всех данных по настройкам data_id #########################################################################################################################
 
-def get_message_setting   (message_info,status_input,setting_bot,info_service):
+def get_message_setting   (message_info,status_input,setting_bot,info_service):                                                             ### Вывод сообщения у которого заполнены все переменные. В данном случаи настройки
+    user_id             = message_info.setdefault('user_id','')
     message             = setting_bot.setdefault  ("Вывести настройки","Вывести настройки")
     answer              = save_message            (message_info,setting_bot,user_id,message)
     message_out         = gets_message            (message_info,setting_bot,user_id,message)
@@ -282,39 +283,9 @@ def get_message_setting   (message_info,status_input,setting_bot,info_service):
     for change in list_change:
         message_out = message_out.replace (change,info_service.setdefault (change,""))
     message_out     = message_out.replace ("##","")    
-    markup          = complite_list_key (message_info,status_input,setting_bot,"Настройка")
+    markup          = complite_list_key (message_info,status_input,setting_bot,"Настройка")                                                 ####
     return message,markup
     
-def get_info_main_menu      (message_info,status_input,setting_bot):
-    answer = {}
-    namebot     = message_info.setdefault('namebot','')
-    from iz_bot import connect as connect
-    db,cursor = connect (namebot)
-    sql = "select id,menu01,menu02,menu11,menu12,menu21,menu22 from food where status = 'main' ORDER BY id desc limit 1 ;".format ()
-    cursor.execute(sql)
-    results = cursor.fetchall()  
-    for row in results:
-        id,menu01,menu02,menu11,menu12,menu21,menu22 = row.values() 
-        answer['m_d1']        = id
-        answer['m_menu01']    = menu01
-        answer['m_menu02']    = menu02
-        answer['m_menu11']    = menu11
-        answer['m_menu12']    = menu12
-        answer['m_menu21']    = menu21
-        answer['m_menu22']    = menu22
-    sql = "select id,menu01,menu02,menu11,menu12,menu21,menu22 from food where status = 'good' ORDER BY id desc limit 1 ;".format ()
-    cursor.execute(sql)
-    results = cursor.fetchall()  
-    for row in results:
-        id,menu01,menu02,menu11,menu12,menu21,menu22 = row.values() 
-        answer['g_id']       = id
-        answer['g_menu01']    = menu01
-        answer['g_menu02']    = menu02
-        answer['g_menu11']    = menu11
-        answer['g_menu12']    = menu12
-        answer['g_menu21']    = menu21
-        answer['g_menu22']    = menu22
-    return answer
 
 def get_message_main_menu   (message_info,status_input,setting_bot,info_service):
     message             = setting_bot.setdefault  ("Вывести список меню","Вывести список меню")
@@ -490,9 +461,9 @@ def send_message_user       (message_info,status_input,setting_bot,user_id_list,
                 if message_02 != '':
                     answer = send_message   (message_info,setting_bot,user_id,message_02,markup02)
                     save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,'Номер 2',answer)
-    ### Рассылка всем администраторам отчета по отправке                
+                   
 
-def send_message_admin      (message_info,status_input,setting_bot,user_id_list,message_id,wait,change): 
+def send_message_admin      (message_info,status_input,setting_bot,user_id_list,message_id,wait,change):                                                        ### Рассылка всем администраторам отчета по отправке 
     pass
 
 def delete_send_message_user(message_info,status_input,setting_bot,user_id,answer,wait):                                                                        ###  Удаление сообшения через определенное время
@@ -1282,7 +1253,7 @@ def edit_picture            (message_info,setting_bot,user_id,message_out,markup
     
 ##################################################################################################################################################################################################    
          
-def complite_list_key       (message_info,status_input,setting_bot,name):                                                                  ###  Формируем Много задачную кнопку
+def complite_list_key       (message_info,status_input,setting_bot,name):                                                                                       ###  Формируем Много задачную кнопку
     from iz_bot import connect as connect
     from iz_bot import build_jsom as build_jsom
     import json
@@ -1512,7 +1483,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             
             info_service         = {}
             message_id           = message_info.setdefault('message_id',0)
-            message_out,markup   = get_message_setting    (message_info,status_input,setting_bot,info_service) 
+            message_out,markup   = get_message_setting    (message_info,status_input,setting_bot,info_service)                                                  ### Вывод сообщения у которого заполнены все переменные
             answer               = edit_message           (message_info,setting_bot,user_id,message_out,markup)
 
 
@@ -1704,7 +1675,7 @@ def executing_message       (message_info,status_input,setting_bot,answer):
         answer = active_save_data (message_info,status_input,setting_bot,'Поиск торрент','Старт')
         send_user_message_v1      (message_info,status_input,setting_bot,'Отмена')
         
-    if message_in   == 'Анкета':                                                                                                                              ### Формируем список Анкет
+    if message_in   == 'Анкета':                                                                                                                                ### Формируем список Анкет
         user_id         = message_info['user_id']
         sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
@@ -1720,13 +1691,10 @@ def executing_message       (message_info,status_input,setting_bot,answer):
     
     if message_in   == 'Настройка': 
        info_service         = {}
-       #info_service        = get_info_main_menu     (message_info,status_input,setting_bot)
-       #nomer               = save_order_info        (message_info,setting_bot,user_id,nomer_order,'date',info_service['date'])
-       #info_service        = update_info_main_menu  (message_info,status_input,setting_bot,nomer,info_service)
-       message_out,markup   = get_message_setting    (message_info,status_input,setting_bot,info_service) 
+       message_out,markup   = get_message_setting    (message_info,status_input,setting_bot,info_service)                                                       ### Вывод сообщения у которого заполнены все переменные
        answer               = send_message           (message_info,setting_bot,user_id,message_out,markup)
     
-    if message_in   == 'Главное меню':                                                                                                                              ###  Пример работы тестового Входящего сообщения              
+    if message_in   == 'Главное меню':                                                                                                                          ###  Пример работы тестового Входящего сообщения              
         user_id         = message_info['user_id']
         sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
         limit           = 20
@@ -1772,7 +1740,18 @@ def executing_command       (message_info,status_input,setting_bot,answer):     
         message_out = gets_message (message_info,setting_bot,user_id,message)
         markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
         answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
-              
+     
+
+def executing_free_messsage (message_info,status_input,setting_bot,answer):                                                                                     ### Сообщение полученное текстом от пользователя
+    message_in      = message_info.setdefault ("message_in","")
+    list_admin      = get_list_admin     (message_info,status_input,setting_bot)
+    answer          = save_message_admin (message_info,status_input,setting_bot)
+    markup          = get_admin_key ()
+    answer          = send_admin_message (message_info,status_input,setting_bot,message,picture,markup)
+
+
+
+     
 def executing_start         (message_info,status_input,setting_bot,answer):
     message_in      = message_info.setdefault ("message_in","")
     if message_in.find ('/start') != -1:                                                                                                                        #### Модуль подготовки сообшения         
@@ -1796,13 +1775,26 @@ def executing_start         (message_info,status_input,setting_bot,answer):
             answer              = send_message (message_info,setting_bot,user_id,message_out.setdefault ('Текст',''),markup)
         status_input            = user_save_data (message_info,status_input,setting_bot,[["Статус",""]])                                                                          #### Модуль обнуления данных                                      
  
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 def analis                  (message_info,status_input,setting_bot,answer):
-    status  = answer.setdefault('status','')
-    message = answer.setdefault('message','')
-    program = answer.setdefault('program','')
-    user_id = answer.setdefault('user_id','')
+    status  = answer.setdefault ('status' ,'')
+    message = answer.setdefault ('message','')
+    program = answer.setdefault ('program','')
+    user_id = answer.setdefault ('user_id','')
     if message == '':
-        message         = setting_bot .setdefault ("Сообщение о новом реферале","У Вас новый реферал")                                                          ### Информируем что клиент стал чем то рефералом 
+        message         = setting_bot .setdefault ("Сообщение о новом реферале","У Вас новый реферал")                                                          
         answer          = save_message   (message_info,setting_bot,user_id,message)
         message_out     = gets_message   (message_info,setting_bot,user_id,message)
         markup          = gets_key       (message_info,setting_bot,user_id,message_out.setdefault('Меню',''))
@@ -1847,7 +1839,7 @@ def start_prog (message_info):                                                  
         answer      = executing_message          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в базе данных
         answer      = executing_program          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в этом файле
         #executing_free_messsage                  (message_info,status_input,setting_bot,answer)                                                                ###  Слова введенные вне команд   
-        #analis                                  (message_info,status_input,setting_bot,answer)                                                                 ###  Выполнение кода если нет действия на сообщения
+        #analis                                   (message_info,status_input,setting_bot,answer)                                                                ###  Выполнение кода если нет действия на сообщения
         #save_out_message                        (message_info,status_input,setting_bot)                                                                        ###  Протоколирование исходящего сообщения
         #statictic                               (message_info,status_input,setting_bot)
         #backUp                                  (message_info,status_input,setting_bot)   
