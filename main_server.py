@@ -850,9 +850,6 @@ def bot_command (access_code):     ###
         print ('    [Команда]    :',command)
         print ('    [Информация] :',info)
  
- 
- 
- 
         if command == "DLE : Список новостей":
             import json
             db,cursor = connect ("news")
@@ -862,8 +859,6 @@ def bot_command (access_code):     ###
             json_string = json.dumps(data)
             print (json_string)
             return str(json_string)         
-            
-
 
         if command == "DLE : Список новостей":
             id       = info.setdefault('id','')
@@ -876,10 +871,6 @@ def bot_command (access_code):     ###
             print (json_string)
             return str(json_string)         
 
-            
-            
- 
- 
         if command == "DLE : Записать Новость":
             autor       = info.setdefault('autor','')
             date        = info.setdefault('date','')
@@ -900,18 +891,45 @@ def bot_command (access_code):     ###
             symbol      = info.setdefault('symbol','')
             tags        = info.setdefault('tags','')
             metatitle   = info.setdefault('metatitle','')
+            nomer       = info.setdefault('nomer',0)
+            
             db,cursor = connect_mysql ("news")
-            sql = "INSERT INTO dle_post (autor,date,short_story,full_story,xfields,title,descr,keywords,category,alt_name,comm_num,allow_comm,allow_main,approve,fixed,allow_br,symbol,tags,metatitle) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)".format ()
-            sql_save = (autor,date,short_story,full_story,xfields,title,descr,keywords,category,alt_name,comm_num,allow_comm,allow_main,approve,fixed,allow_br,symbol,tags,metatitle)
-            cursor.execute(sql,sql_save)
-            db.commit()
-            lastid = cursor.lastrowid
-            return str(lastid)
+            if nomer == '':
+                nomer = 0
+            print ('[+] nomer : ',nomer)
+            if int(nomer) == 0:
+            #if 1==1:    
+                print ('[+] Добавление')
+                sql = "INSERT INTO dle_post (autor,date,short_story,full_story,xfields,title,descr,keywords,category,alt_name,comm_num,allow_comm,allow_main,approve,fixed,allow_br,symbol,tags,metatitle) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)".format ()
+                sql_save = (autor,date,short_story,full_story,xfields,title,descr,keywords,category,alt_name,comm_num,allow_comm,allow_main,approve,fixed,allow_br,symbol,tags,metatitle)
+                cursor.execute(sql,sql_save)
+                db.commit()
+                lastid = cursor.lastrowid
+                answer = lastid
+            else: 
+                print ('[+] Обновление')
+                sql = "UPDATE dle_post SET short_story = %s WHERE id  = %s".format ()
+                sql_save = (short_story,nomer)
+                cursor.execute(sql,sql_save)
+                db.commit()
+                sql = "UPDATE dle_post SET full_story  = %s WHERE id  = %s".format ()
+                sql_save = (full_story,nomer)
+                cursor.execute(sql,sql_save)
+                db.commit()
+                sql = "UPDATE dle_post SET category    = %s WHERE id  = %s".format ()
+                sql_save = (category,nomer)
+                cursor.execute(sql,sql_save)
+                db.commit()
+                sql = "UPDATE dle_post SET date    = %s WHERE id  = %s".format ()
+                sql_save = (date,nomer)
+                print ('[sql]',sql_save)
+                cursor.execute(sql,sql_save)
+                db.commit()
+
+                
+                answer = nomer
+            return str(answer)
             
-            
-            
- 
- 
         if command == "Управление : Создать telegraph Сайт":
             html_content = info.setdefault('html_content','')
             title        = info.setdefault('title','')
