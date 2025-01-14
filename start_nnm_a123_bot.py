@@ -521,6 +521,7 @@ def update_info_main_menu   (message_info,status_input,setting_bot,nomer,info_se
 def get_setting             (message_info,setting_bot):
     namebot = message_info['namebot']
     from iz_bot import connect as connect
+    print ('[+] namebot :',namebot)
     db,cursor = connect (namebot)
     answer = setting_bot
     sql = "select id,name,info from setting where 1=1".format ()

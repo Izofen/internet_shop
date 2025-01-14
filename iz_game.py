@@ -1,6 +1,73 @@
 #!/usr/bin/python
 # -*- coding: utf-8
 ############################################### ИГРА ПОКЕР ############################################################
+def key_type_message        (key):                                                          #                                                                   ## Процедура формирует кнопку из Соответствия
+    import json
+    line = []
+    for number in range(6):
+        line1  = []
+        key11  = {}
+        key11['text']          = key.setdefault('Кнопка ' +str(number+1)+'1','')
+        key11['callback_data'] = key.setdefault('Команда '+str(number+1)+'1','')
+        key12  = {}
+        key12['text']          = key.setdefault('Кнопка ' +str(number+1)+'2','')
+        key12['callback_data'] = key.setdefault('Команда '+str(number+1)+'2','')
+        key13  = {}
+        key13['text']          = key.setdefault('Кнопка ' +str(number+1)+'3','')
+        key13['callback_data'] = key.setdefault('Команда '+str(number+1)+'3','')
+        key14  = {}
+        key14['text']          = key.setdefault('Кнопка ' +str(number+1)+'4','')
+        key14['callback_data'] = key.setdefault('Команда '+str(number+1)+'4','')
+        key15  = {}
+        key15['text']          = key.setdefault('Кнопка ' +str(number+1)+'5','')
+        key15['callback_data'] = key.setdefault('Команда '+str(number+1)+'5','')
+        key16  = {}
+        key16['text']          = key.setdefault('Кнопка ' +str(number+1)+'6','')
+        key16['callback_data'] = key.setdefault('Команда '+str(number+1)+'6','')
+
+        if key.setdefault('Кнопка ' +str(number+1)+'1','') != '':        
+            line1.append(key11)
+        if key.setdefault('Кнопка ' +str(number+1)+'2','') != '':
+             line1.append(key12)
+        if key.setdefault('Кнопка ' +str(number+1)+'3','') != '':        
+            line1.append(key13)
+        if key.setdefault('Кнопка ' +str(number+1)+'4','') != '':        
+            line1.append(key14)
+        if key.setdefault('Кнопка ' +str(number+1)+'5','') != '':        
+            line1.append(key15)
+        if key.setdefault('Кнопка ' +str(number+1)+'6','') != '':        
+            line1.append(key16)
+
+
+
+        line.append(line1)    
+    array = {"inline_keyboard":line}  
+    markup = json.dumps(array) 
+    return markup     
+
+def send_message_main            (message_info,setting_bot,user_id,message_out,markup):
+    print ('[+] markup',markup)
+    import requests
+    token                   = setting_bot.setdefault ('Токен','')
+    params                  = {}
+    params['chat_id']       = user_id
+    params['text']          = message_out
+    params['parse_mode']    = 'HTML'
+    if markup != {}:
+        params['reply_markup'] = markup                
+    if message_out != '':    
+        url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'sendMessage')
+        resp                    = requests.post(url, params) 
+        answer                  = resp.json()
+    else:
+        answer = {'error':'Нет текста сообщения'}
+    print ('[+]👧------------------------------------------------------------ [Ответ sendMessage] -------------------------------------------------------👧[+]')
+    print ( answer)
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
+    print ('') 
+    #print ('[markup]',markup)
+    return answer 
+
 
 
 def poker_send_message (user_id,namebot,hand2,message_id):
@@ -101,6 +168,35 @@ def set_name_key (message_info,namekey):
     return_key  = info.setdefault('Текст',info_data.setdefault('Имя',''))
     return return_key
 
+
+def get_message_fermer (message_info,setting,game_id):
+    import iz_bot
+    koll01                      = int(setting.setdefault    ('Количество первого'  ,5))
+    koll02                      = int(setting.setdefault    ('Количество второго'  ,5))
+    koll03                      = int(setting.setdefault    ('Количество третьего' ,5))
+    koll04                      = int(setting.setdefault    ('Количество проигрышь',5))
+    koll05                      = 36 - koll01 - koll02 - koll03 - koll04
+    currency                    = 'RUB'
+    stavka                      = int(setting.setdefault    ('Начальная ставка',100))
+    game_amount,game_currency   = get_balans_farmer         (message_info,game_id)
+    balans_user                 = get_balans_user           (message_info,currency)
+    info_data                   =                           {'Имя':'Текст игры','Сохранить':'Да'}
+    data_message                = iz_bot.get_message        (message_info,info_data)
+    message_out                 = data_message.setdefault   ('Текст','Текст игры')
+    message_out                 = message_out.replace       ('%%Баланс игры%%'  ,str(game_amount))        
+    message_out                 = message_out.replace       ('%%Ставка  игры%%' ,str(stavka))
+    message_out                 = message_out.replace       ('%%Общий баланс%%' ,str(balans_user))
+    message_out                 = message_out.replace       ('##Ставка1##'      ,str(stavka))
+    message_out                 = message_out.replace       ('##Ставка2##'      ,str(stavka*2))
+    message_out                 = message_out.replace       ('##Ставка3##'      ,str(stavka*3))
+    message_out                 = message_out.replace       ('##Колличество1##' ,str(koll01))
+    message_out                 = message_out.replace       ('##Колличество2##' ,str(koll02))
+    message_out                 = message_out.replace       ('##Колличество3##' ,str(koll03))
+    message_out                 = message_out.replace       ('##Колличество4##' ,str(koll04))
+    message_out                 = message_out.replace       ('##Колличество5##' ,str(koll05))
+    return message_out
+
+
 def game_farmer (message_info,message_in,refer):                                                                                        ### НАЧАЛЬНОЕ ПРОВЕРКА ДАННЫХ
     import iz_bot
     import requests
@@ -113,42 +209,21 @@ def game_farmer (message_info,message_in,refer):                                
     token                   = setting.setdefault        ('Токен','')
     currency                = 'RUB'
     balans_user             = get_balans_user  (message_info,currency)
-
+    #print ('[+] Начало работы')
     if message_in == 'start':                                                                                                           ####   САМЫЙ ПЕРВЫЙ ВХОД ПО КНОПКУ ФЕРМЕР   ####        
-        from telebot import TeleBot
+        #from telebot import TeleBot
         game_id                     = create_new_game_farmer    (message_info)
-        
-        game_amount,game_currency   = get_balans_farmer         (message_info,game_id)
-
-        koll01                      = int(setting.setdefault    ('Количество первого'  ,5))
-        koll02                      = int(setting.setdefault    ('Количество второго'  ,5))
-        koll03                      = int(setting.setdefault    ('Количество третьего' ,5))
-        koll04                      = int(setting.setdefault    ('Количество проигрышь',5))
-        koll05                      = 36 - koll01 - koll02 - koll03 - koll04
-        
-        info_data                   =                           {'Имя':'Текст игры','Сохранить':'Да'}
-        data_message                = iz_bot.get_message        (message_info,info_data)
-        message_out                 = data_message.setdefault   ('Текст','Текст игры')
-        message_out                 = message_out.replace       ('%%Баланс игры%%'  ,str(game_amount))        
-        message_out                 = message_out.replace       ('%%Ставка  игры%%' ,str(stavka))
-        message_out                 = message_out.replace       ('%%Общий баланс%%' ,str(balans_user))
-        message_out                 = message_out.replace       ('##Ставка1##'      ,str(stavka))
-        message_out                 = message_out.replace       ('##Ставка2##'      ,str(stavka*2))
-        message_out                 = message_out.replace       ('##Ставка3##'      ,str(stavka*3))
-        message_out                 = message_out.replace       ('##Колличество1##' ,str(koll01))
-        message_out                 = message_out.replace       ('##Колличество2##' ,str(koll02))
-        message_out                 = message_out.replace       ('##Колличество3##' ,str(koll03))
-        message_out                 = message_out.replace       ('##Колличество4##' ,str(koll04))
-        message_out                 = message_out.replace       ('##Колличество5##' ,str(koll05))
-        
+        message_out                 = get_message_fermer (message_info,setting,game_id)
         markup                      = get_menu_game_farmer      (message_info,game_id)
         namekey                     = set_name_key              (message_info,'Начать игру кнопка')
         namekey                     = namekey.replace           ('##Ставка##',str(stavka))
         data_info                   =                           {'markup':markup,'game_id':game_id,'Имя':namekey,'name_m':'game_farmer_new_games_'}
-        markup                      = menu_down                 (data_info)                
-        
-        bot                         = TeleBot(token)        
-        bot.send_message(user_id,message_out,reply_markup = markup,parse_mode='HTML') 
+        #markup                      = menu_down                 (data_info)                        
+        #bot                         = TeleBot(token)        
+        #bot.send_message(user_id,message_out,reply_markup = markup,parse_mode='HTML') 
+        setting_bot                 = {'Токен':'6422168947:AAGy4pzndN1WYgMyFRf_mVXF6gEptDpzLz0'}
+        send_message_main            (message_info,setting_bot,user_id,message_out,markup)
+        #print ('[+] Отправляем свет')
 
     if message_in.find ("game_farmer_key_") != -1:                                                                                      ####   НАЖАТИЕ КНОПКИ УГАДАЙКИ ####
         import json
@@ -529,8 +604,8 @@ def get_menu_game_farmer    (message_info,game_id):                             
     namebot    = message_info.setdefault('namebot','')
     user_id    = message_info.setdefault('user_id','') 
     db,cursor = iz_bot.connect (namebot)
-    from telebot import types
-    markup = types.InlineKeyboardMarkup(row_width=6)
+    #from telebot import types
+    #markup = types.InlineKeyboardMarkup(row_width=6)
     setting_bot  = iz_bot.get_setting (message_info)
     clear_key   = setting_bot.setdefault('Начальная кнопка','0')
     interes_key = setting_bot.setdefault('Кнопка под вопросом','?')
@@ -555,7 +630,10 @@ def get_menu_game_farmer    (message_info,game_id):                             
          param = 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
     if status == 'Выигрыш':
          param = 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
+    #array_all = []     
+    key_list = {}
     for number_line in range(6):
+        #array_line = []
         for number_row in range(6):
             namekey = int(number_line)*6+int(number_row)
             value = param   [namekey:namekey+1]
@@ -577,70 +655,99 @@ def get_menu_game_farmer    (message_info,game_id):                             
                     if status == 'Игра':
                         menu10 = interes_key    
                     comd10 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    mn10 = types.InlineKeyboardButton(text=menu10,callback_data=comd10)
+                    #mn10 = types.InlineKeyboardButton(text=menu10,callback_data=comd10)
+                    #array_line.append ([comd10,menu10])
+                    key_list['Кнопка '  +str(number_line+1)+str(number_row+1)] = menu10
+                    key_list['Команда ' +str(number_line+1)+str(number_row+1)] = comd10
                 if number_row == 1:
                     if status == 'Начало игры':
                         menu11 = clear_key
                     if status == 'Игра':
                         menu11 = interes_key                        
                     comd11 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    mn11 = types.InlineKeyboardButton(text=menu11,callback_data=comd11)                    
+                    #mn11 = types.InlineKeyboardButton(text=menu11,callback_data=comd11)                    
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu11
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd11
                 if number_row == 2:
                     if status == 'Начало игры':
                         menu12 = clear_key
                     if status == 'Игра':
                         menu12 = interes_key                        
                     comd12 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    mn12 = types.InlineKeyboardButton(text=menu12,callback_data=comd12)                    
+                    #mn12 = types.InlineKeyboardButton(text=menu12,callback_data=comd12)                    
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu12 
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd12
                 if number_row == 3:
                     if status == 'Начало игры':
                         menu13 = clear_key
                     if status == 'Игра':
                         menu13 = interes_key                        
                     comd13 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    mn13 = types.InlineKeyboardButton(text=menu13,callback_data=comd13) 
+                    #mn13 = types.InlineKeyboardButton(text=menu13,callback_data=comd13) 
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu13
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd13
                 if number_row == 4:
                     if status == 'Начало игры':
                         menu14 = clear_key
                     if status == 'Игра':
                         menu14 = interes_key                        
                     comd14 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    mn14 = types.InlineKeyboardButton(text=menu14,callback_data=comd14) 
+                    #mn14 = types.InlineKeyboardButton(text=menu14,callback_data=comd14) 
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu14
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd14
                 if number_row == 5:
                     if status == 'Начало игры':
                         menu15 = clear_key
                     if status == 'Игра':
                         menu15 = interes_key                        
                     comd15 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    mn15 = types.InlineKeyboardButton(text=menu15,callback_data=comd15)
-                    markup.add(mn10,mn11,mn12,mn13,mn14,mn15)
+                    #mn15 = types.InlineKeyboardButton(text=menu15,callback_data=comd15)
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu15
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd15
+                    #markup.add(mn10,mn11,mn12,mn13,mn14,mn15)
+                    #markup = '' 
             if value == 'Y':
                 if number_row == 0:
                     namekey = str(number_line)+'_'+str(number_row)
                     menu10 = fruit
                     comd10 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    mn10 = types.InlineKeyboardButton(text=menu10,callback_data=comd10)
+                    #mn10 = types.InlineKeyboardButton(text=menu10,callback_data=comd10)
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu10
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd10
+
                 if number_row == 1:
                     menu11 = fruit
                     comd11 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    mn11 = types.InlineKeyboardButton(text=menu11,callback_data=comd11)
+                    #mn11 = types.InlineKeyboardButton(text=menu11,callback_data=comd11)
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu11
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd11
                 if number_row == 2:
                     menu12 = fruit
                     comd12 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    mn12 = types.InlineKeyboardButton(text=menu12,callback_data=comd12)
+                    #mn12 = types.InlineKeyboardButton(text=menu12,callback_data=comd12)
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu12
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd12
                 if number_row == 3:
                     menu13 = fruit
                     comd13 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    mn13 = types.InlineKeyboardButton(text=menu13,callback_data=comd13)
+                    #mn13 = types.InlineKeyboardButton(text=menu13,callback_data=comd13)
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)] = menu13
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd13
                 if number_row == 4:
                     menu14 = fruit
                     comd14 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    mn14 = types.InlineKeyboardButton(text=menu14,callback_data=comd14)
+                    #mn14 = types.InlineKeyboardButton(text=menu14,callback_data=comd14)
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu14
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd14
                 if number_row == 5:
                     menu15 = fruit
                     comd15 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    mn15 = types.InlineKeyboardButton(text=menu15,callback_data=comd15)
-                    markup.add(mn10,mn11,mn12,mn13,mn14,mn15)                
+                    #mn15 = types.InlineKeyboardButton(text=menu15,callback_data=comd15)
+                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu15
+                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd15
+                    #markup.add(mn10,mn11,mn12,mn13,mn14,mn15)   
+    print ('[+] key_list:',key_list)
+    markup = key_type_message (key_list)            
     db.close              
     return markup
 
@@ -790,14 +897,13 @@ def menu_down               (data_info):
     game_id   = data_info.setdefault ('game_id') 
     nomer_row   = data_info.setdefault ('nomer_row',0) 
     nomer_line  = data_info.setdefault ('nomer_line',0) 
-    menu_name   = data_info.setdefault ('Имя','Нет названия') 
-    
-    
+    menu_name   = data_info.setdefault ('Имя','Нет названия')     
     ## game_farmer_get_price_
-    from telebot import types
+    #from telebot import types
     comd  = name_m+str(iz_bot.build_jsom({'g':game_id,'l':nomer_line,'r':nomer_row}))
-    mn   = types.InlineKeyboardButton(text=menu_name,callback_data=comd)
-    markup.add(mn)     
+    #mn   = types.InlineKeyboardButton(text=menu_name,callback_data=comd)
+    #markup.add(mn) 
+    ## 271563    
     return markup 
 
 def start_full_menu (user_id,namebot,game_id,answer_move,menu00,comd00,message_out):

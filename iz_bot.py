@@ -8,15 +8,10 @@ def connect_postgres ():
     return db,cursor 
 
 def connect (namebot):
-    #import pymysql 
-    #base = namebot.replace("@","")
-    #db = pymysql.connect(host='localhost',user='root',password='podkjf4',database=base,charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)  
-    #cursor = db.cursor()
-    
-    import sqlite3
-    db      = sqlite3.connect('orenklip_bot.db')
-    cursor  = db.cursor()
-    
+    import pymysql 
+    base = namebot.replace("@","")
+    db = pymysql.connect(host='localhost',user='root',password='podkjf4',database=base,charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)  
+    cursor = db.cursor()
     return db,cursor
         
 def change (word):
@@ -418,10 +413,7 @@ def get_setting (message_info):
     cursor.execute(sql)
     results = cursor.fetchall()    
     for row in results:
-        if str(type(row)) == "<class 'tuple'>":
-            id,name,info = row
-        else:    
-            id,name,info = row.values() 
+        id,name,info = row.values() 
         data_answer[name] = info
     return data_answer 
       
@@ -751,10 +743,11 @@ def send_message (message_info,send_data):
             print (resp.json())
             
     if log != '':   
-        sql = "INSERT INTO message_log (answer,message_id,name,text,user_id,status) VALUES (%s,%s,%s,%s,%s,%s)".format ()
-        sql_save = (str(answer),answer['result']['message_id'],log,message_out,user_id,'')
-        cursor.execute(sql,sql_save)
-        db.commit()    
+        #sql = "INSERT INTO message_log (answer,message_id,name,text,user_id,status) VALUES (%s,%s,%s,%s,%s,%s)".format ()
+        #sql_save = (str(answer),answer['result']['message_id'],log,message_out,user_id,'')
+        #cursor.execute(sql,sql_save)
+        #db.commit()    
+        pass
             
     return answer
 
