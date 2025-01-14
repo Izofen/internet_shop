@@ -193,11 +193,6 @@ def history_order (message_info,status_input,setting_bot,answer):
 
 def create_order (message_info,status_input,setting_bot,answer):
     
-    if answer.setdefault('name','') == 'Рассылка':
-        send_user_message_v1 (message_info,status_input,setting_bot,'Рассылка всем сообщения')
-
-
-    
     if answer.setdefault('name','') == 'Поиск торрент':
         ask_info    = get_active_ask (message_info,status_input,setting_bot,'Новое сообщение в боте')
         active1     = answer.setdefault('active1','')
@@ -521,7 +516,6 @@ def update_info_main_menu   (message_info,status_input,setting_bot,nomer,info_se
 def get_setting             (message_info,setting_bot):
     namebot = message_info['namebot']
     from iz_bot import connect as connect
-    print ('[+] namebot :',namebot)
     db,cursor = connect (namebot)
     answer = setting_bot
     sql = "select id,name,info from setting where 1=1".format ()
@@ -1552,12 +1546,10 @@ def executing_admin         (message_info,status_input,setting_bot):
             markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
             answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
         
-        if message_in   == '/send':                                                                                                                             ### Рассылка сообщений телеграмм боты
-            answer = active_save_data (message_info,status_input,setting_bot,'Рассылка','Старт')
-            send_user_message_v1      (message_info,status_input,setting_bot,'Отмена')
-            result['operation']     = "Рассылка"           
+        if message_in   == '/send':                                                                                                         ### Рассылка сообщений телеграмм боты
+           pass
         
-        if  message_in   == '/key':                                                                                                                             ### Выводим команды администратора
+        if  message_in   == '/key':                                                                                                         ### Выводим команды администратора
             user_id     = message_info.setdefault ('user_id','') 
             message     = setting_bot .setdefault ("Сообщение команды администратора","Команды администратора")                             ### Команды администратора
             answer      = save_message (message_info,setting_bot,user_id,message)
@@ -1565,16 +1557,16 @@ def executing_admin         (message_info,status_input,setting_bot):
             markup      = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
             answer      = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup)
 
-        if  message_in   == '/new':                                                                                                                             ### Создаем новое питание
+        if  message_in   == '/new':                                                                                                             ### Создаем новое питание
             pass
             
-        if  message_in   == '/input_01':                                                                                                                        ### Исправляем часть питание
+        if  message_in   == '/input_01':                                                                                                                ### Исправляем часть питание
             pass
             
-        if  message_in   == '/task':                                                                                                                            ### Получаем список заданий
+        if  message_in   == '/task':                                                                                                                        ### Получаем список заданий
             pass
             
-        if  message_in   == '/message':                                                                                                                         ### Исправляем исходящие сообщения    
+        if  message_in   == '/message':                                                                                                                     ### Исправляем исходящие сообщения    
             user_id         = message_info['user_id']
             sql             = "select id,`info` from `message` where ##s1## limit ##s2## offset ##s3##"
             limit           = 20
@@ -1588,7 +1580,7 @@ def executing_admin         (message_info,status_input,setting_bot):
             message_out     = gets_message   (message_info,setting_bot,user_id,message)          
             answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list)    
                 
-        if  message_in   == '/menu':                                                                                                                            ### Исправляем исходящие список меню                
+        if  message_in   == '/menu':                                                                                                                        ### Исправляем исходящие список меню                
             user_id         = message_info['user_id']
             sql             = "select id,`info` from `menu` where ##s1## limit ##s2## offset ##s3##"
             limit           = 20
@@ -1602,7 +1594,7 @@ def executing_admin         (message_info,status_input,setting_bot):
             message_out     = gets_message   (message_info,setting_bot,user_id,message)          
             answer          = send_message   (message_info,setting_bot,user_id,message_out['Текст'],markup_list) 
 
-        if  message_in   == '/setting':                                                                                                                         ### Исправляем настроки бота
+        if  message_in   == '/setting':                                                                                                                             ### Исправляем настроки бота
             pass    
                       
 def testing_double          (message_info,status_input,setting_bot):
@@ -1705,7 +1697,7 @@ def executing_message       (message_info,status_input,setting_bot,answer):
     if message_in   == 'Поиск':
         answer = active_save_data (message_info,status_input,setting_bot,'Поиск торрент','Старт')
         send_user_message_v1      (message_info,status_input,setting_bot,'Отмена')
-        result['operation']     = "Поиск"
+        result['operation'] = "Поиск"
     
     if message_in   == 'Анкета':                                                                                                                                ### Формируем список Анкет
         user_id         = message_info['user_id']
@@ -1844,14 +1836,14 @@ def executing_game_(message_info,status_input,setting_bot):
     if message_in   == 'Coin Farmer' or message_in == '/Farmer':
         label_send  = True
         import iz_game
-        iz_game.game_farmer (message_info,"start",'')
+        iz_game.game_farmer_1 (message_info,status_input,setting_bot)
         result['operation'] = "Coin Farmer"
         #return ''
 
     if callback.find ('game_farmer_') != -1:
         label_send = True
         import iz_game
-        iz_game.game_farmer (message_info,callback,'')
+        iz_game.game_farmer_2 (message_info,status_input,setting_bot)
         result['operation'] = "Coin Farmer"
     return result
  
@@ -1877,7 +1869,7 @@ def start_prog (message_info):                                                  
     setting_bot                     = get_setting           (message_info,setting_bot)                                                                          ###  Получение из базы информации по боту. Параметры и данные.        
     status_input                    = user_get_data         (message_info,setting_bot,message_info['user_id'])                                                  ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     message_in  = message_info.setdefault ("message_in","")
-    answer      = {}
+    answer = {}
     if message_in == '⛔ Отмена':
         send_user_message_v1      (message_info,status_input,setting_bot,'Отмена ввода слова')
         status_input              = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]]) 
@@ -1888,23 +1880,12 @@ def start_prog (message_info):                                                  
         answer['Ответ'] = "Сбор данных 7"
     
     if message_in != '':
-        info_answer = active_save_data (message_info,status_input,setting_bot,'Поиск торрент','Сбор данных')                                                    ###  Проверка что идет ввод данных от клиента
-        info_answer = active_save_data (message_info,status_input,setting_bot,'Рассылка','Сбор данных')                                                         ###  Проверка что идет ввод данных от клиента        
-
-
-        
-
-        
+        info_answer = active_save_data (message_info,status_input,setting_bot,'Поиск торрент','Сбор данных')                                ###  Проверка что идет ввод данных от клиента
         if info_answer.setdefault ('operation','') == "Выполнено":
             create_order  (message_info,status_input,setting_bot,info_answer) 
             history_order (message_info,status_input,setting_bot,info_answer)
         if result != {} and answer == {}:
             answer['Ответ'] = "Сбор данных 6"
-            
-            
-            
-            
-            
             
     #answer                         = testing_time          (message_info,status_input,setting_bot,14,15,9,15)                                                  ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     print_status                                            (message_info,status_input,setting_bot)                                                             ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
@@ -1919,21 +1900,40 @@ def start_prog (message_info):                                                  
         answer['Ответ'] = "Сбор данных 4"
     
     ###  Проверка заполнения данных
+    print ('[+] answer -00-: ',answer)
     #if answer.setdefault ('Ответ','') == '':
     if 1==1:
+        print ('[+] answer -01-: ',answer)
         #save_info_refer                         (message_info,status_input,setting_bot)                                                                        ###  Записываем информацию по полученной реферальной ссылке 
         #save_info_user                          (message_info,status_input,setting_bot)                                                                        ###  Обновляем информацию по текущему пользователю 
         #lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                        ###  Записываем входяшие сообшение для протоколирования
+        print ('[+] answer -12-: ',answer)
         result       = executing_command          (message_info,status_input,setting_bot)                                                                 ###  Выполняем команды присланные боту
-        if result   != {} and answer == {}:
+        
+        
+        print ('[+] answer -22-: ',answer)
+        
+        if result != {} and answer == {}:
+            print ('[+] answer -23-: ',answer)
             answer['Ответ'] = "Сбор данных 3"
+            
+        print ('[+] answer -2-: ',answer)    
+            
         #answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем на действие статуса бота. Например ввод данных
-        result       = executing_message          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в базе данных
-        if result   != {} and answer == {}:
+        result      = executing_message          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в базе данных
+        if result != {} and answer == {}:
             answer['Ответ'] = "Сбор данных 2"        
+            
+            
+        print ('[+] answer -3-: ',answer)    
+            
         result      = executing_program          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в этом файле
-        if result   != {} and answer == {}:
+        if result != {} and answer == {}:
             answer['Ответ'] = "Сбор данных 1"         
+        
+        
+        print ('[+] answer -4-: ',answer)
+        
         if answer.setdefault ('Ответ','') == '':
             executing_free_messsage                  (message_info,status_input,setting_bot,answer)                                                                ###  Слова введенные вне команд   
         #analis                                   (message_info,status_input,setting_bot,answer)                                                                ###  Выполнение кода если нет действия на сообщения

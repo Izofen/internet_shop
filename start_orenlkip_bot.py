@@ -467,9 +467,9 @@ def send_message_menu (status_input,message_info,message_id,add_message,key_arra
     change.append(['##Расчет##',str(activ)]) 
     try:
         if int(dolg) > 0:
-            change.append(['##Коммент##',str("Указанную сумму оплатить в пятницу 27.12 в 14-00")]) 
+            change.append(['##Коммент##',str("Указанную сумму оплатить в пятницу 17.01.2025 в 14-00")]) 
         if int(dolg) <= 0:
-            change.append(['##Коммент##',str("До 10-01-2025 у Вас все оплачено ")]) 
+            change.append(['##Коммент##',str("До 17-01-2025 у Вас все оплачено ")]) 
     except:        
         change.append(['##Коммент##',str("")]) 
     change.append(['##ФИО##',str(fio)]) 

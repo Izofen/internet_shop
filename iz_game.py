@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8
-############################################### ИГРА ПОКЕР ############################################################
-def key_type_message        (key):                                                          #                                                                   ## Процедура формирует кнопку из Соответствия
+############################################## ИГРА ПОКЕР ############################################################
+def key_type_message         (key):                                                          #                                                                   ## Процедура формирует кнопку из Соответствия
     import json
     line = []
-    for number in range(6):
+    for number in range(7):
         line1  = []
         key11  = {}
         key11['text']          = key.setdefault('Кнопка ' +str(number+1)+'1','')
@@ -24,6 +24,8 @@ def key_type_message        (key):                                              
         key16  = {}
         key16['text']          = key.setdefault('Кнопка ' +str(number+1)+'6','')
         key16['callback_data'] = key.setdefault('Команда '+str(number+1)+'6','')
+        
+        
 
         if key.setdefault('Кнопка ' +str(number+1)+'1','') != '':        
             line1.append(key11)
@@ -45,8 +47,7 @@ def key_type_message        (key):                                              
     markup = json.dumps(array) 
     return markup     
 
-def send_message_main            (message_info,setting_bot,user_id,message_out,markup):
-    print ('[+] markup',markup)
+def send_message_main        (message_info,setting_bot,user_id,message_out,markup):
     import requests
     token                   = setting_bot.setdefault ('Токен','')
     params                  = {}
@@ -69,8 +70,92 @@ def send_message_main            (message_info,setting_bot,user_id,message_out,m
     return answer 
 
 
+def edit_message_main            (message_info,setting_bot,user_id,message_out,markup):
+    message_id              = message_info.setdefault ('message_id','')
+    import requests
+    token                   = setting_bot.setdefault ('Токен','')
+    params                  = {}
+    params['chat_id']       = user_id
+    params['text']          = message_out
+    params['parse_mode']    = 'HTML'
+    params['message_id']    = message_id
+    if markup != {}:
+        params['reply_markup'] = markup                
+    if message_out != '':    
+        url                     = 'https://api.telegram.org/bot{0}/{1}'.format(token, 'editMessageText')
+        resp                    = requests.post(url, params) 
+        answer                  = resp.json()
+    else:
+        answer = {'error':'Нет текста сообщения'}
+    print ('[+]👧------------------------------------------------------------ [Ответ sendMessage] -------------------------------------------------------👧[+]')
+    print ( answer)
+    print ('[+]👧-------------------------------------------------------------- [Ответ Отправки] --------------------------------------------------------👧[+]') 
+    print ('') 
+    return answer 
 
-def poker_send_message (user_id,namebot,hand2,message_id):
+
+
+def save_message             (message_info,setting_bot,message_name):
+    from iz_bot import connect as connect
+    namebot      = message_info.setdefault('namebot','')
+    db,cursor    = connect (namebot)
+    answer          = message_name
+    id = 0
+    sql = "select id,name from message where name = 'Имя' and info = '{}' ;".format(message_name)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for rec in data:
+        if str(type(rec)) == "<class 'tuple'>":
+            id,name = rec
+        else:
+            id,name = rec.values() 
+        
+    if id == 0:
+        sql = "INSERT INTO message (data_id,info,name,status) VALUES ({},'{}','{}','')".format (0,message_name,'Имя')
+        cursor.execute(sql)
+        db.commit()
+        lastid = cursor.lastrowid
+        sql = "UPDATE message SET data_id = '{}' WHERE id = {}".format(lastid,lastid)
+        cursor.execute(sql)
+        db.commit()
+        sql = "INSERT INTO message (data_id,info,name,status) VALUES ({},'{}','{}','')".format (lastid,message_name,'Текст')
+        cursor.execute(sql)
+        db.commit()    
+    return answer 
+
+def gets_message            (message_info,setting_bot,message_name): 
+    from iz_bot import connect as connect   
+    namebot      = message_info.setdefault('namebot','')
+    db,cursor    = connect (namebot)
+    message      = {}
+    sql = "select id,name,info,data_id from message where name = 'Имя' and info = '{}' ;".format(message_name)
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    data_id = 0
+    for rec in data:
+        if str(type(rec)) == "<class 'tuple'>":
+            id,name,info,data_id = rec
+        else:
+            id,name,info,data_id = rec.values() 
+    if data_id == 0:
+        message = {}
+    else:        
+        sql  = "select id,name,info,data_id from message where data_id = {};".format(data_id)
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        for rec in data:
+            if str(type(rec)) == "<class 'tuple'>":
+                id,name,info,data_id = rec
+            else:    
+                id,name,info,data_id = rec.values()
+            message[name] = info
+        if message.setdefault('Текст','') == '': 
+            message['Текст'] = message_name 
+        if message.setdefault('Меню','') == '': 
+            message['Меню'] = ''        
+    return message
+
+def poker_send_message      (user_id,namebot,hand2,message_id):
     import iz_telegram
     import time
     if 1==1:
@@ -84,7 +169,7 @@ def poker_send_message (user_id,namebot,hand2,message_id):
         answer = iz_telegram.bot_send (user_id,namebot,str(hand2.game_name),markup,0)
         #message_out,menu,answer  = iz_telegram.send_message (user_id,namebot,'Ваша ставка','S',0) 
 
-def poker_save_game (summ):
+def poker_save_game         (summ):
     from hand import hand
     from player import player
     from deck import deck
@@ -124,8 +209,7 @@ def poker_save_game (summ):
 
 ############################################### ИГРА ФЕРМЕР ############################################################
 
-
-def get_koll_priz (message_info,game_id):
+def get_koll_priz           (message_info,game_id):
     import iz_bot
     namebot    = message_info.setdefault('namebot','')
     db,cursor  = iz_bot.connect (namebot)
@@ -161,206 +245,334 @@ def get_koll_priz (message_info,game_id):
         nm = nm + 1
     return kl1,kl2,kl3,kl4,kl5
 
-def set_name_key (message_info,namekey):
+def set_name_key            (message_info,namekey):
     import iz_bot
     info_data   = {'Имя':namekey}
     info        = iz_bot.get_message(message_info,info_data)
     return_key  = info.setdefault('Текст',info_data.setdefault('Имя',''))
     return return_key
 
-
-def get_message_fermer (message_info,setting,game_id):
+def get_message_fermer      (message_info,status_input,setting_bot,game_id,message_name):
     import iz_bot
-    koll01                      = int(setting.setdefault    ('Количество первого'  ,5))
-    koll02                      = int(setting.setdefault    ('Количество второго'  ,5))
-    koll03                      = int(setting.setdefault    ('Количество третьего' ,5))
-    koll04                      = int(setting.setdefault    ('Количество проигрышь',5))
-    koll05                      = 36 - koll01 - koll02 - koll03 - koll04
-    currency                    = 'RUB'
-    stavka                      = int(setting.setdefault    ('Начальная ставка',100))
-    game_amount,game_currency   = get_balans_farmer         (message_info,game_id)
-    balans_user                 = get_balans_user           (message_info,currency)
-    info_data                   =                           {'Имя':'Текст игры','Сохранить':'Да'}
-    data_message                = iz_bot.get_message        (message_info,info_data)
-    message_out                 = data_message.setdefault   ('Текст','Текст игры')
-    message_out                 = message_out.replace       ('%%Баланс игры%%'  ,str(game_amount))        
-    message_out                 = message_out.replace       ('%%Ставка  игры%%' ,str(stavka))
-    message_out                 = message_out.replace       ('%%Общий баланс%%' ,str(balans_user))
-    message_out                 = message_out.replace       ('##Ставка1##'      ,str(stavka))
-    message_out                 = message_out.replace       ('##Ставка2##'      ,str(stavka*2))
-    message_out                 = message_out.replace       ('##Ставка3##'      ,str(stavka*3))
-    message_out                 = message_out.replace       ('##Колличество1##' ,str(koll01))
-    message_out                 = message_out.replace       ('##Колличество2##' ,str(koll02))
-    message_out                 = message_out.replace       ('##Колличество3##' ,str(koll03))
-    message_out                 = message_out.replace       ('##Колличество4##' ,str(koll04))
-    message_out                 = message_out.replace       ('##Колличество5##' ,str(koll05))
-    return message_out
+    answer                      = save_message                  (message_info,setting_bot,message_name)
+    message_out                 = gets_message                  (message_info,setting_bot,message_name)
+    game_amount,game_currency   = get_balans_farmer             (message_info,status_input,setting_bot,game_id)
+    currency                    = setting_bot.setdefault        ('Валюта','RUB')
+    balans_user                 = get_balans_user               (message_info,currency)
+    koll01                      = int(setting_bot.setdefault    ('Количество первого',5))
+    koll02                      = int(setting_bot.setdefault    ('Количество второго'  ,5))
+    koll03                      = int(setting_bot.setdefault    ('Количество третьего' ,5))
+    koll04                      = int(setting_bot.setdefault    ('Количество проигрышь',5))
+    stavka                      = int(setting_bot.setdefault    ('Начальная ставка',100))
+    koll05                      = 36 - koll01 - koll02 - koll03 - koll04    
+    message_text                = message_out.setdefault        ('Текст','Текст игры не найден') 
+    message_text                = message_text.replace          ('##Номер игры##'  ,str(game_id))        
+    message_text                = message_text.replace          ('%%Баланс игры%%'  ,str(game_amount))        
+    message_text                = message_text.replace          ('%%Ставка  игры%%' ,str(stavka))
+    message_text                = message_text.replace          ('%%Общий баланс%%' ,str(balans_user))
+    message_text                = message_text.replace          ('##Ставка1##'      ,str(stavka))
+    message_text                = message_text.replace          ('##Ставка2##'      ,str(stavka*2))
+    message_text                = message_text.replace          ('##Ставка3##'      ,str(stavka*3))
+    message_text                = message_text.replace          ('##Колличество1##' ,str(koll01))
+    message_text                = message_text.replace          ('##Колличество2##' ,str(koll02))
+    message_text                = message_text.replace          ('##Колличество3##' ,str(koll03))
+    message_text                = message_text.replace          ('##Колличество4##' ,str(koll04))
+    message_text                = message_text.replace          ('##Колличество5##' ,str(koll05))
+    return message_text
 
+def create_list_game_farmer (message_info,status_input,setting_bot):                                                                                             ###    Получаем случайную последовательность
+    koll01                      = int(setting_bot.setdefault    ('Количество первого',5))
+    koll02                      = int(setting_bot.setdefault    ('Количество второго'  ,5))
+    koll03                      = int(setting_bot.setdefault    ('Количество третьего' ,5))
+    koll04                      = int(setting_bot.setdefault    ('Количество проигрышь',5))    
+    import random
+    list_st = []
+    for number in range(koll01):
+        list_st.append('1')
+    for number in range(koll02):
+        list_st.append('2')
+    for number in range(koll03):
+        list_st.append('3')
+    for number in range(koll04):
+        list_st.append('4')
+    max = 36 - koll01 - koll02 - koll03 - koll04
+    for number in range(max):
+        list_st.append('5')    
+    random.shuffle(list_st)
+    new_list = ''
+    for m in list_st:
+        new_list = new_list + m
+    param = 'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN'
+    return new_list,param
 
-def game_farmer (message_info,message_in,refer):                                                                                        ### НАЧАЛЬНОЕ ПРОВЕРКА ДАННЫХ
+def create_new_game_farmer  (message_info,status_input,setting_bot):                                                                                                                 ###    Создаем структуру новый игры и записываем в базу
+    import iz_bot    
+    namebot          = message_info.setdefault('namebot','')
+    user_id          = message_info.setdefault('user_id','')
+    db,cursor        = iz_bot.connect (namebot)
+    list_game,param  = create_list_game_farmer (message_info,status_input,setting_bot)
+    sql              = "INSERT INTO game_farmer (comment,game_id,profile,user_id,amount,status,summ_game,param,currency) VALUES ('{}',0,'{}','{}','{}','{}',0,'{}','RUB')".format ('',list_game,user_id,0,'Замок',param)
+    cursor.execute(sql)
+    db.commit() 
+    game_id          = cursor.lastrowid ## Номер созданной игры
+    db.close
+    return game_id
+
+def status_new_game_farmer  (message_info,status_input,setting_bot,status,game_id):
+    import iz_bot    
+    namebot          = message_info.setdefault('namebot','')
+    user_id          = message_info.setdefault('user_id','')
+    db,cursor        = iz_bot.connect (namebot)
+    sql              = "UPDATE game_farmer SET status = '{}' WHERE `id` = {}".format(status,game_id)
+    cursor.execute(sql)
+    db.commit() 
+    return game_id
+        
+def get_game_farmer         (message_info,status_input,setting_bot,game_id):
     import iz_bot
-    import requests
-    namebot                 = message_info.setdefault   ('namebot','')
-    user_id                 = message_info.setdefault   ('user_id','') 
-    message_id              = message_info.setdefault   ('message_id','') 
-    db,cursor               = iz_bot.connect            (namebot)
-    setting                 = iz_bot.get_setting        (message_info)
-    stavka                  = int(setting.setdefault    ('Начальная ставка',100))
-    token                   = setting.setdefault        ('Токен','')
-    currency                = 'RUB'
-    balans_user             = get_balans_user  (message_info,currency)
-    #print ('[+] Начало работы')
-    if message_in == 'start':                                                                                                           ####   САМЫЙ ПЕРВЫЙ ВХОД ПО КНОПКУ ФЕРМЕР   ####        
-        #from telebot import TeleBot
-        game_id                     = create_new_game_farmer    (message_info)
-        message_out                 = get_message_fermer (message_info,setting,game_id)
-        markup                      = get_menu_game_farmer      (message_info,game_id)
-        namekey                     = set_name_key              (message_info,'Начать игру кнопка')
-        namekey                     = namekey.replace           ('##Ставка##',str(stavka))
-        data_info                   =                           {'markup':markup,'game_id':game_id,'Имя':namekey,'name_m':'game_farmer_new_games_'}
-        #markup                      = menu_down                 (data_info)                        
-        #bot                         = TeleBot(token)        
-        #bot.send_message(user_id,message_out,reply_markup = markup,parse_mode='HTML') 
-        setting_bot                 = {'Токен':'6422168947:AAGy4pzndN1WYgMyFRf_mVXF6gEptDpzLz0'}
-        send_message_main            (message_info,setting_bot,user_id,message_out,markup)
-        #print ('[+] Отправляем свет')
+    namebot      = message_info.setdefault('namebot','')
+    db,cursor    = iz_bot.connect (namebot)
+    sql = "select id,param,profile,status from game_farmer where id = "+str(game_id)+" limit 1;"
+    cursor.execute(sql)
+    data  = cursor.fetchall()
+    for row in data:  
+        id,param,profile,status = row.values() 
+    return param,profile,status
 
-    if message_in.find ("game_farmer_key_") != -1:                                                                                      ####   НАЖАТИЕ КНОПКИ УГАДАЙКИ ####
-        import json
-        word                        = message_in.replace('game_farmer_key_','')
-        status                      = ''        
-        json_string                 = iz_bot.change_back(word.replace('i_',''))
-        data_json                   = json.loads(json_string)
-        game_id                     = data_json.setdefault('g','')
-        number_row                  = data_json.setdefault('r','')        
-        number_line                 = data_json.setdefault('l','')        
-        sql                         = "select id,status from game_farmer where id = {} limit 1;".format (str(game_id))
-        cursor.execute(sql)
-        data                        = cursor.fetchall()
-        id                          = 0
-        for row in data:  
-            id,status = row.values() 
-        if id != 0:    
-            if status == 'Начало игры':
-                from telebot import types
-                from telebot import TeleBot
-                info_data           = {'Имя':'Начало игры','Сохранить':'Да'}
-                data_message        = iz_bot.get_message (message_info,info_data)
-                message_out         = data_message.setdefault ('Текст','Начало игры')
-                markup              = types.InlineKeyboardMarkup(row_width=1)
-                name_key            = set_name_key (message_info,'Начать игру')
-                name_key            = name_key.replace ('##Сумма##',str(stavka))
-                data_info           = {'markup':markup,'game_id':game_id,'Имя':name_key,'name_m':'game_farmer_new_games_'}
-                markup              = menu_down (data_info)                
-                bot                 = TeleBot(token)
-                bot.edit_message_text(chat_id=user_id,text=message_out,message_id = message_id,reply_markup = markup,parse_mode='HTML') 
+def get_end_menu_key        (message_info,status_input,setting_bot,key_list,game_id,status):  
+    import iz_bot     
+    if status == 'Замок': 
+        answer                      = save_message                  (message_info,setting_bot,"Начать игру")
+        message_out                 = gets_message                  (message_info,setting_bot,"Начать игру") 
+        message_text                = message_out.setdefault        ('Текст','Начать игру') 
+        currency                    = setting_bot.setdefault        ('Валюта','RUB') 
+        stavka                      = int(setting_bot.setdefault    ('Начальная ставка',100))        
+        message_text                = message_text.replace          ("##Сумма##",str(stavka))
+        message_text                = message_text.replace          ("##Валюта##",str("рублей"))        
+        key_list['Кнопка 71' ]  = message_text        
+        key_list['Команда 71']  = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'s':'start'}))        
+    if status == 'Вопрос':    
+        balans_game,null  = get_balans_farmer (message_info,status_input,setting_bot,game_id)        
+        #namebot                     = message_info.setdefault       ('namebot','') 
+        answer                      = save_message                  (message_info,setting_bot,"Забрать выигрыш")
+        message_out                 = gets_message                  (message_info,setting_bot,"Забрать выигрыш") 
+        message_text                = message_out.setdefault        ('Текст','Начать игру') 
+        #currency                   = setting_bot.setdefault        ('Валюта','RUB') 
+        #stavka                     = int(setting_bot.setdefault    ('Начальная ставка',100))        
+        message_text                = message_text.replace          ("##Сумма##",str(balans_game))
+        message_text                = message_text.replace          ("##Валюта##",str("рублей"))        
+        key_list['Кнопка 71' ]      = message_text 
+        key_list['Команда 71']      = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'s':'stop'}))       
+    if status == 'Игра':    
+        balans_game,null  = get_balans_farmer (message_info,status_input,setting_bot,game_id)        
+        #namebot                     = message_info.setdefault       ('namebot','') 
+        answer                      = save_message                  (message_info,setting_bot,"Забрать выигрыш")
+        message_out                 = gets_message                  (message_info,setting_bot,"Забрать выигрыш") 
+        message_text                = message_out.setdefault        ('Текст','Начать игру') 
+        #currency                   = setting_bot.setdefault        ('Валюта','RUB') 
+        #stavka                     = int(setting_bot.setdefault    ('Начальная ставка',100))        
+        message_text                = message_text.replace          ("##Сумма##",str(balans_game))
+        message_text                = message_text.replace          ("##Валюта##",str("рублей"))        
+        key_list['Кнопка 71' ]      = message_text 
+        key_list['Команда 71']      = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'s':'stop'}))        
+    if status == 'Конец игры': 
+        answer                      = save_message                  (message_info,setting_bot,"Начать игру")
+        message_out                 = gets_message                  (message_info,setting_bot,"Начать игру") 
+        message_text                = message_out.setdefault        ('Текст','Начать игру') 
+        currency                    = setting_bot.setdefault        ('Валюта','RUB') 
+        stavka                      = int(setting_bot.setdefault    ('Начальная ставка',100))        
+        message_text                = message_text.replace          ("##Сумма##",str(stavka))
+        message_text                = message_text.replace          ("##Валюта##",str("рублей"))        
+        key_list['Кнопка 71' ]  = message_text        
+        key_list['Команда 71']  = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'s':'next'})) 
+    return key_list
 
+def get_balans_farmer       (message_info,status_input,setting_bot,game_id):                                                                                         ###    ТЕКУЩИЙ БАЛАНС ИГРЫ
+    import iz_bot
+    namebot    = message_info.setdefault('namebot','')
+    user_id    = message_info.setdefault('user_id','')
+    db,cursor = iz_bot.connect (namebot)
+    sql = "select id,amount,currency from game_farmer where id = {} limit 1".format (game_id)
+    cursor.execute(sql)
+    results = cursor.fetchall() 
+    amount    = 0
+    currency  = ''
+    for rec in results:
+        id,amount,currency = rec.values() 
+    return amount,currency
+
+
+def get_menu_game_farmer    (message_info,status_input,setting_bot,game_id):                                                                                     ###    МЕНЮ НЕОБХОДИМОЕ ДЛЯ ИГРЫ
+    import iz_bot
+    clear_key               = setting_bot.setdefault('Начальная кнопка','0')
+    interes_key             = setting_bot.setdefault('Кнопка под вопросом','?')
+    fruit01                 = setting_bot.setdefault('Фрукт 1','1') 
+    fruit02                 = setting_bot.setdefault('Фрукт 2','2') 
+    fruit03                 = setting_bot.setdefault('Фрукт 3','3') 
+    Loss                    = setting_bot.setdefault('Проигрыш','4')
+    fruit05                 = setting_bot.setdefault('Отображение кнопки отсутвия данных','7')
+    param,profile,status    = get_game_farmer  (message_info,status_input,setting_bot,game_id)  
+    
+    key_list = {}
+    for number_line in range(6):                                                                                                    ### Идем по всем кнопкам и показываем их содержимое
+        for number_row in range(6):
+            namekey         = int(number_line)*6+int(number_row)                                                                    ### Номер кнопки в массиве
+            value           = param [namekey:namekey+1]                                                                             ### Значение кнопки в массиве 
+            fruit           = profile [namekey:namekey+1]                                                                           ### Информация об отображении кнопки
+            comd10          = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row,'s':'key'}))
             if status == 'Игра':
-                answer = rename_game_farmer (message_info,int(game_id),int(number_line),int(number_row))
-                markup = get_menu_game_farmer (message_info,game_id)
-                if answer == 0:                    
-                    game_amount,game_currency   = get_balans_farmer (message_info,game_id)
-                    balans_user                 = get_balans_user  (message_info,"RUB")
-                    info_data                   = {'Имя':'Забрать выигрыш сумма','Сохранить':'Да'}
-                    data_message                = iz_bot.get_message (message_info,info_data)
-                    message_out                 = data_message.setdefault ('Текст','Забрать выигрыш сумма')
-                    message_out                 = message_out.replace ('%%Баланс игры%%',str(game_amount))
-                    message_out                 = message_out.replace ('%%Ставка  игры%%',str(stavka))
-                    message_out                 = message_out.replace ('%%Общий баланс%%',str(balans_user))
-                    koll01 = int(setting.setdefault('Количество первого',5))
-                    koll02 = int(setting.setdefault('Количество второго',5))
-                    koll03 = int(setting.setdefault('Количество третьего',5))
-                    koll01 = int(setting.setdefault('Количество первого',5))
-                    koll02 = int(setting.setdefault('Количество второго',5))
-                    koll03 = int(setting.setdefault('Количество третьего',5))
-                    koll_v_1,koll_v_2,koll_v_3,koll_v_4,koll_v_5 = get_koll_priz (message_info,game_id)
-                    summ_koll = ((koll01-koll_v_1) + (koll02-koll_v_2*2) + (koll03-koll_v_3)*3)*stavka                    
-                    koll = koll01-koll_v_1 + koll02-koll_v_2 + koll03-koll_v_3
-                    message_out = message_out.replace ('##Колличество##',str(koll))
-                    message_out = message_out.replace ('##Сумма_приза##',str(summ_koll))                    
-                    name_key = set_name_key (message_info,'Забрать выигрыш')
-                    name_key = name_key.replace ('##Сумма##',str(game_amount))
-                    data_info = {'markup':markup,'game_id':game_id,'Имя':name_key,'name_m':'game_farmer_get_price_'}
-                    markup = menu_down (data_info)                
+                if value        == 'N':
+                    menu10      = interes_key 
+                if value        == 'Y':
+                    menu10      = interes_key 
+                    if fruit == '1': menu10 = fruit01
+                    if fruit == '2': menu10 = fruit02
+                    if fruit == '3': menu10 = fruit03
+                    if fruit == '4': menu10 = Loss                    
+                    if fruit == '5': menu10 = fruit05                    
+            if status == 'Замок':
+                menu10 = clear_key    
+            if status == 'Вопрос':
+                menu10 = interes_key 
+            if status == 'Конец игры':
+                    menu10      = interes_key 
+                    if fruit == '1': menu10 = fruit01
+                    if fruit == '2': menu10 = fruit02
+                    if fruit == '3': menu10 = fruit03
+                    if fruit == '4': menu10 = Loss                    
+                    if fruit == '5': menu10 = fruit05  
+            key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu10
+            key_list['Команда '+str(number_line+1)+str(number_row+1)]  = comd10
+    key_list = get_end_menu_key (message_info,status_input,setting_bot,key_list,game_id,status)
+    markup = key_type_message (key_list)            
+    return markup
+    
+def game_farmer_1           (message_info,status_input,setting_bot):                                                                                        ###  Вся информация по игре стекает сюда
+    user_id                 = message_info.setdefault   ('user_id','') 
+    message_in              = message_info.setdefault   ('message_in','') 
+    game_id                 = create_new_game_farmer    (message_info,status_input,setting_bot)
+    message_out             = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Создать игру')
+    markup                  = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+    answer                  = send_message_main         (message_info,setting_bot,user_id,message_out,markup)
 
-                if answer == 1:
-                    info_data = {'Имя':'Начать новую игру','Сохранить':'Да'}
-                    data_message = iz_bot.get_message (message_info,info_data)
-                    game_amount,game_currency  = get_balans_farmer (message_info,game_id)
-                    balans_user = get_balans_user  (message_info,"RUB")
-                    message_out  = data_message.setdefault ('Текст','Начать новую игру')
-                    message_out = message_out.replace ('%%Баланс игры%%',str(game_amount))
-                    message_out = message_out.replace ('%%Ставка  игры%%',str(stavka))
-                    message_out = message_out.replace ('%%Общий баланс%%',str(balans_user))
+def game_farmer_2           (message_info,status_input,setting_bot): 
+    import iz_bot
+    import json
+    callback                = message_info.setdefault            ('callback','') 
+    message_in              = message_info.setdefault   ('message_in','')    
+    word                    = callback.replace                   ('game_farmer_key_','')
+    json_string             = iz_bot.change_back(word.replace    ('i_',''))
+    data_json               = json.loads                         (json_string)
+    game_id                 = data_json.setdefault               ('g','')
+    number_row              = data_json.setdefault               ('r','')        
+    number_line             = data_json.setdefault               ('l','') 
+    key_press               = data_json.setdefault               ('s','') 
+    param,profile,status    = get_game_farmer  (message_info,status_input,setting_bot,game_id)
+    print ('[+] status:',status)
+    
+    
+    
+    if key_press == 'start':
+        user_id             = message_info.setdefault   ('user_id','') 
+        answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Вопрос',game_id)
+        message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Первый экран')
+        markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+        answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+        return ''
+        
+        
+    if key_press == 'next':
+        game_id             = create_new_game_farmer    (message_info,status_input,setting_bot)
+        user_id             = message_info.setdefault   ('user_id','') 
+        answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Вопрос',game_id)
+        message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Первый экран')
+        markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+        answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+        return ''        
+        
+
+    if key_press == 'stop':
+        game_id             = create_new_game_farmer    (message_info,status_input,setting_bot)
+        user_id             = message_info.setdefault   ('user_id','') 
+        answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Вопрос',game_id)
+        message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Первый экран')
+        markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+        answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+        return '' 
+    
+    #if key_press == 'key': #and status == 'Конец игры':
+    #    game_id             = create_new_game_farmer    (message_info,status_input,setting_bot)
+    #    user_id             = message_info.setdefault   ('user_id','') 
+    #    answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Вопрос',game_id)
+    #    message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Первый экран')
+    #    markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+    #    answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+    #    return ''        
+
+    
+    
+    if key_press == 'key' and status == 'Конец игры': 
+        print ('[+] Конец Игры')
+    
+    
+    if key_press == 'key' and status != 'Конец игры':   
+        null,key = rename_game_farmer      (message_info,status_input,setting_bot,game_id,number_line,number_row)        
+        
+        if key == '1':
+            user_id             = message_info.setdefault   ('user_id','')
+            summ                = (int(setting_bot.setdefault    ('Начальная ставка',100)))*1
+            answer              = add_money_game_farmer     (message_info,summ,game_id)            
+            answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Игра',game_id)
+            answer              = get_key_game_farmer       (message_info,status_input,setting_bot,game_id,number_line,number_row)
+            message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Основной экран')
+            markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+            answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+            
+        if key == '2':
+            user_id             = message_info.setdefault   ('user_id','') 
+            summ                = (int(setting_bot.setdefault    ('Начальная ставка',100)))*2
+            answer              = add_money_game_farmer     (message_info,summ,game_id)
+            answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Игра',game_id)
+            answer              = get_key_game_farmer       (message_info,status_input,setting_bot,game_id,number_line,number_row)
+            message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Основной экран')
+            markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+            answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+
+        if key == '3':
+            user_id             = message_info.setdefault   ('user_id','') 
+            summ                = (int(setting_bot.setdefault    ('Начальная ставка',100)))*3
+            answer              = add_money_game_farmer     (message_info,summ,game_id)
+            answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Игра',game_id)
+            answer              = get_key_game_farmer       (message_info,status_input,setting_bot,game_id,number_line,number_row)
+            message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Основной экран')
+            markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+            answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+
+        if key == '4':
+            user_id             = message_info.setdefault   ('user_id','') 
+            summ                = 0
+            answer              = add_money_game_farmer     (message_info,summ,game_id)
+            answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Конец игры',game_id)
+            answer              = get_key_game_farmer       (message_info,status_input,setting_bot,game_id,number_line,number_row)
+            message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Конец игры')
+            markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+            answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+
+        if key == '5':
+            user_id             = message_info.setdefault   ('user_id','')
+            #summ                = 100
+            #answer              = add_money_game_farmer     (message_info,summ,game_id)            
+            answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Игра',game_id)
+            answer              = get_key_game_farmer       (message_info,status_input,setting_bot,game_id,number_line,number_row)
+            message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Основной экран')
+            markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
+            answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
+
+        
+        return ''
 
 
-
-                    setting = iz_bot.get_setting (message_info)
-                    stavka  = int(setting.setdefault ('Начальная ставка',100))
-
-                    #name_key = 'Новая игра. Ставка: '+str(stavka)+ 'рублей'
-                    name_key = set_name_key (message_info,'Новая игра')
-                    name_key = name_key.replace ('##Сумма##',str(stavka))
-
-
-                    data_info = {'markup':markup,'game_id':game_id,'Имя':name_key,'name_m':'game_farmer_get_price_'}
-
-
-
-                    markup = menu_down (data_info)                
-                setting = iz_bot.get_setting (message_info)
-                token    = setting.setdefault ('Токен','')
-                from telebot import TeleBot
-                from telebot import types
-                bot = TeleBot(token)
-                bot.edit_message_text(chat_id=user_id,text=message_out, reply_markup = markup,message_id = message_id,parse_mode='HTML') 
-
-        if message_in.find ("game_farmer_start_game_") != -1:                                                                               ####   КЛИЕН ВЫБРАЛ ИГРАТЬ  #### :  
-            import json
-            word  = message_in.replace('game_farmer_start_game_','')
-            status = ''        
-            json_string  = iz_bot.change_back(word.replace('i_',''))
-            data_json = json.loads(json_string)
-            game_id   = data_json.setdefault('g','')
-            number_row       = data_json.setdefault('r','')        
-            number_line      = data_json.setdefault('l','')   
-            save_status (game_id,'Игра')
-
-            info_data = {'Имя':'Забрать выигрыш сумма','Сохранить':'Да'}
-            data_message = iz_bot.get_message (message_info,info_data)
-
-            game_amount,game_currency  = get_balans_farmer (message_info,game_id)
-            balans_user = get_balans_user  (message_info,"RUB")
-
-            message_out  = data_message.setdefault ('Текст','Начало игры')
-            message_out = message_out.replace ('%%Баланс игры%%',str(game_amount))        
-            message_out = message_out.replace ('%%Ставка  игры%%',str(stavka))
-            message_out = message_out.replace ('%%Общий баланс%%',str(balans_user))
-
-
-            koll01 = int(setting.setdefault('Количество первого',5))
-            koll02 = int(setting.setdefault('Количество второго',5))
-            koll03 = int(setting.setdefault('Количество третьего',5))
-
-            summ_koll = koll01 + koll02*2 + koll03*3
-            koll      = koll01 + koll02 + koll03
-
-            message_out = message_out.replace ('##Колличество##',str(balans_user))
-            message_out = message_out.replace ('##Сумма_приза##',str(koll))
-
-
-
-            markup = get_menu_game_farmer (message_info,game_id)
-
-            name_key = set_name_key (message_info,'Забрать выигрыш')
-            name_key = name_key.replace ('##Сумма##',str(game_amount))
-
-            data_info = {'markup':markup,'game_id':game_id,'Имя':name_key,'name_m':'game_farmer_get_price_'}
-            markup = menu_down (data_info)                
-
-            from telebot import TeleBot
-            bot = TeleBot(token)
-            bot.edit_message_text(chat_id=user_id,text=message_out, reply_markup = markup,message_id = message_id,parse_mode='HTML') 
+ 
 
     if message_in.find ("game_farmer_return_game_") != -1:                                                                              ####   ИГРАЕНТ ПЕРВЫЙ РАЗ ####
         game_id      = create_new_game_farmer (user_id,namebot)
@@ -506,11 +718,7 @@ def game_farmer (message_info,message_in,refer):                                
         bot = TeleBot(token)
         bot.edit_message_text(chat_id=user_id,text=message_out, reply_markup = markup,message_id = message_id,parse_mode='HTML') 
 
-    if message_in.find ("game_farmer_QIWI") != -1:
-        message_out,menu = get_message_global (namebot,user_id,'Счет QIWI') 
-        message_out = message_out.replace('%%user_id%%',str(user_id))   
-        markup = ''
-        answer = iz_telegram.bot_send (user_id,namebot,message_out,markup,0) 
+
 
 def add_money               (message_info,game_id,summ,comment,currency):
     import iz_bot
@@ -528,49 +736,6 @@ def add_money               (message_info,game_id,summ,comment,currency):
     cursor.execute(sql)
     db.commit()  
 
-def create_new_game_farmer  (message_info):                                                                                             ###    Создаем структуру новый игры и записываем в базу
-    namebot    = message_info.setdefault('namebot','')
-    user_id    = message_info.setdefault('user_id','')
-    import iz_bot    
-    db,cursor = iz_bot.connect (namebot)
-    list_game,param  = create_list_game_farmer (message_info)
-    sql = "INSERT INTO game_farmer (comment,game_id,profile,user_id,amount,status,summ_game,param,currency) VALUES ('{}',0,'{}','{}','{}','{}',0,'{}','RUB')".format ('',list_game,user_id,0,'Начало игры',param)
-    cursor.execute(sql)
-    db.commit() 
-    game_id   = cursor.lastrowid ## Номер созданной игры
-    db.close
-    return game_id
-
-def create_list_game_farmer (message_info):                                                                                             ###    Получаем случайную последовательность
-    import random
-    import iz_bot
-    namebot    = message_info.setdefault('namebot','')
-    user_id    = message_info.setdefault('user_id','')
-    setting = iz_bot.get_setting (message_info)
-    koll01 = int(setting.setdefault('Количество первого',5))
-    koll02 = int(setting.setdefault('Количество второго',5))
-    koll03 = int(setting.setdefault('Количество третьего',5))
-    koll04 = int(setting.setdefault('Количество проигрышь',5))
-    list_st = []
-    for number in range(koll01):
-        list_st.append('1')
-    for number in range(koll02):
-        list_st.append('2')
-    for number in range(koll03):
-        list_st.append('3')
-    for number in range(koll04):
-        list_st.append('4')
-    max = 36 - koll01 - koll02 - koll03 - koll04
-    for number in range(max):
-        list_st.append('5')    
-    #list = ['1','1','1','1','1','1','2','2','2','2','2','2','3','3','3','3','3','3','4','4','4','4','4','4','4','4','4','4','4','4','4','4','4','4','4','4']
-    random.shuffle(list_st)
-    new_list = ''
-    for m in list_st:
-        new_list = new_list + m
-    param = 'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN'
-    return new_list,param
-
 def get_balans_user         (message_info,currency):                                                                                    ###    Получение баланса пользователя
     import iz_bot
     namebot     = message_info.setdefault('namebot','')
@@ -585,218 +750,25 @@ def get_balans_user         (message_info,currency):                            
     db.close 
     return amount
 
-def get_balans_farmer       (message_info,game_id):                                                                                     ###    ТЕКУЩИЙ БАЛАНС ИГРЫ
+def get_key_game_farmer      (message_info,status_input,setting_bot,game_id,number_line,number_row):
     import iz_bot
-    namebot    = message_info.setdefault('namebot','')
-    user_id    = message_info.setdefault('user_id','')
-    db,cursor = iz_bot.connect (namebot)
-    sql = "select id,amount,currency from game_farmer where id = {} limit 1".format (game_id)
+    namebot     = message_info.setdefault('namebot','')
+    db,cursor   = iz_bot.connect (namebot)
+    param,profile,status    = get_game_farmer  (message_info,status_input,setting_bot,game_id)
+    namekey     = int(number_line)*6+int(number_row)
+    param       = param[0:namekey]+'Y'+param[namekey+1:]
+    sql = "UPDATE game_farmer SET param = '{}' WHERE id = {}".format (param,game_id)
     cursor.execute(sql)
-    results = cursor.fetchall() 
-    amount    = 0
-    currency  = ''
-    for rec in results:
-        id,amount,currency = rec.values() 
-    return amount,currency
+    db.commit() 
+    return ''
 
-def get_menu_game_farmer    (message_info,game_id):                                                                                     ###    МЕНЮ НЕОБХОДИМОЕ ДЛЯ ИГРЫ
+def rename_game_farmer      (message_info,status_input,setting_bot,game_id,number_line,number_row):
     import iz_bot
     namebot    = message_info.setdefault('namebot','')
-    user_id    = message_info.setdefault('user_id','') 
-    db,cursor = iz_bot.connect (namebot)
-    #from telebot import types
-    #markup = types.InlineKeyboardMarkup(row_width=6)
-    setting_bot  = iz_bot.get_setting (message_info)
-    clear_key   = setting_bot.setdefault('Начальная кнопка','0')
-    interes_key = setting_bot.setdefault('Кнопка под вопросом','?')
-    param = ''
-    value = ''
-    sql = "select id,param,profile,status from game_farmer where id = "+str(game_id)+" limit 1;"
-    cursor.execute(sql)
-    data  = cursor.fetchall()
-    for row in data:  
-        id,param,profile,status = row.values() 
-    print ('[+] Параметры игры',game_id)   
-    print ('[+] Показы:  ',param)
-    print ('[+] Значение:',profile)
-    fruit01 = setting_bot.setdefault('Фрукт 1','1') 
-    fruit02 = setting_bot.setdefault('Фрукт 2','2') 
-    fruit03 = setting_bot.setdefault('Фрукт 3','3') 
-    Loss    = setting_bot.setdefault('Проигрыш','4')
-    fruit05 = setting_bot.setdefault('Отображение кнопки отсутвия данных','7')
-    fruit = 'Нет'
-    print ('[status]',status)
-    if status == 'Конец игры':
-         param = 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
-    if status == 'Выигрыш':
-         param = 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
-    #array_all = []     
-    key_list = {}
-    for number_line in range(6):
-        #array_line = []
-        for number_row in range(6):
-            namekey = int(number_line)*6+int(number_row)
-            value = param   [namekey:namekey+1]
-            fr = profile [namekey:namekey+1]
-            if fr == '1':
-                fruit = fruit01
-            if fr == '2':
-                fruit = fruit02
-            if fr == '3':
-                fruit = fruit03
-            if fr == '4':
-                fruit = Loss
-            if fr == '5':
-                fruit = fruit05                
-            if value == 'N':
-                if number_row == 0:
-                    if status == 'Начало игры':
-                        menu10 = clear_key
-                    if status == 'Игра':
-                        menu10 = interes_key    
-                    comd10 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    #mn10 = types.InlineKeyboardButton(text=menu10,callback_data=comd10)
-                    #array_line.append ([comd10,menu10])
-                    key_list['Кнопка '  +str(number_line+1)+str(number_row+1)] = menu10
-                    key_list['Команда ' +str(number_line+1)+str(number_row+1)] = comd10
-                if number_row == 1:
-                    if status == 'Начало игры':
-                        menu11 = clear_key
-                    if status == 'Игра':
-                        menu11 = interes_key                        
-                    comd11 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    #mn11 = types.InlineKeyboardButton(text=menu11,callback_data=comd11)                    
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu11
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd11
-                if number_row == 2:
-                    if status == 'Начало игры':
-                        menu12 = clear_key
-                    if status == 'Игра':
-                        menu12 = interes_key                        
-                    comd12 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    #mn12 = types.InlineKeyboardButton(text=menu12,callback_data=comd12)                    
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu12 
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd12
-                if number_row == 3:
-                    if status == 'Начало игры':
-                        menu13 = clear_key
-                    if status == 'Игра':
-                        menu13 = interes_key                        
-                    comd13 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    #mn13 = types.InlineKeyboardButton(text=menu13,callback_data=comd13) 
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu13
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd13
-                if number_row == 4:
-                    if status == 'Начало игры':
-                        menu14 = clear_key
-                    if status == 'Игра':
-                        menu14 = interes_key                        
-                    comd14 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    #mn14 = types.InlineKeyboardButton(text=menu14,callback_data=comd14) 
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu14
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd14
-                if number_row == 5:
-                    if status == 'Начало игры':
-                        menu15 = clear_key
-                    if status == 'Игра':
-                        menu15 = interes_key                        
-                    comd15 = "game_farmer_key_"+str(iz_bot.build_jsom({'g':game_id,'l':number_line,'r':number_row}))
-                    #mn15 = types.InlineKeyboardButton(text=menu15,callback_data=comd15)
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu15
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd15
-                    #markup.add(mn10,mn11,mn12,mn13,mn14,mn15)
-                    #markup = '' 
-            if value == 'Y':
-                if number_row == 0:
-                    namekey = str(number_line)+'_'+str(number_row)
-                    menu10 = fruit
-                    comd10 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    #mn10 = types.InlineKeyboardButton(text=menu10,callback_data=comd10)
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu10
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd10
-
-                if number_row == 1:
-                    menu11 = fruit
-                    comd11 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    #mn11 = types.InlineKeyboardButton(text=menu11,callback_data=comd11)
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu11
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd11
-                if number_row == 2:
-                    menu12 = fruit
-                    comd12 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    #mn12 = types.InlineKeyboardButton(text=menu12,callback_data=comd12)
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu12
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd12
-                if number_row == 3:
-                    menu13 = fruit
-                    comd13 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    #mn13 = types.InlineKeyboardButton(text=menu13,callback_data=comd13)
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)] = menu13
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd13
-                if number_row == 4:
-                    menu14 = fruit
-                    comd14 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    #mn14 = types.InlineKeyboardButton(text=menu14,callback_data=comd14)
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu14
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd14
-                if number_row == 5:
-                    menu15 = fruit
-                    comd15 = "game_farmer_not_key_"+str(game_id)+"__"+str(number_line)+"**"+str(number_row)
-                    #mn15 = types.InlineKeyboardButton(text=menu15,callback_data=comd15)
-                    key_list['Кнопка ' +str(number_line+1)+str(number_row+1)]  = menu15
-                    key_list['Команда '+str(number_line+1)+str(number_row+1)] = comd15
-                    #markup.add(mn10,mn11,mn12,mn13,mn14,mn15)   
-    print ('[+] key_list:',key_list)
-    markup = key_type_message (key_list)            
-    db.close              
-    return markup
-
-def rename_game_farmer      (message_info,game_id,number_line,number_row):
-    import iz_bot
-    namebot    = message_info.setdefault('namebot','')
-    user_id    = message_info.setdefault('user_id','') 
-    db,cursor = iz_bot.connect (namebot)
-    setting = iz_bot.get_setting (message_info)
-    stavka  = int(setting.setdefault ('Начальная ставка',100))
+    db,cursor  = iz_bot.connect (namebot)
     namekey = int(number_line)*6+int(number_row)
-    param = ''
-    value = ''
-    sql = "select id,param,profile from game_farmer where id = "+str(game_id)+" limit 1;"
-    id = 0
-    cursor.execute(sql)
-    data  = cursor.fetchall()
-    for row in data:  
-        id,param,profile = row.values() 
-    if id != 0:    
-        namekey = int(number_line)*6+int(number_row)    
-        param = param[0:namekey]+'Y'+param[namekey+1:]
-    else:
-        print ('[+] игра не найдена')
-    sql = "UPDATE game_farmer SET param = '"+param+"' WHERE id = '"+str(game_id)+"'"
-    cursor.execute(sql)
-    db.commit()    
-    print ('    [+] param',param[namekey])
-    print ('    [+] profile',profile[namekey])
-    print ('    [+] namekey',namekey)
-    if profile[namekey] == "1":
-        add_money_game_farmer (message_info,stavka,game_id)
-        return 0
-    if profile[namekey] == "2":
-        add_money_game_farmer (message_info,stavka*2,game_id)
-        return 0
-    if profile[namekey] == "3":
-        add_money_game_farmer (message_info,stavka*3,game_id)
-        return 0
-    if profile[namekey] == "4":
-        sql = "UPDATE game_farmer SET amount = 0 WHERE id = "+str(game_id)+""
-        cursor.execute(sql)
-        db.commit()    
-        save_status (message_info,game_id,'Конец игры')
-        return 1
-    if profile[namekey] == "5":
-        add_money_game_farmer (message_info,0,game_id)
-        return 0
-    db.close    
+    param,profile,status    = get_game_farmer  (message_info,status_input,setting_bot,game_id) 
+    return param[namekey],profile[namekey]
     
 def save_status             (message_info,game_id,status):
     import iz_bot
@@ -891,22 +863,16 @@ def get_message_global      (namebot,user_id,message):                          
 
 def menu_down               (data_info):
     import iz_bot
-    #data_info = {'markup':markup,'game_id':game_id,'Имя':'Название кнопки','name_m':name_m}
-    markup    = data_info.setdefault ('markup')
-    name_m    = data_info.setdefault ('name_m')
-    game_id   = data_info.setdefault ('game_id') 
+    markup      = data_info.setdefault ('markup')
+    name_m      = data_info.setdefault ('name_m')
+    game_id     = data_info.setdefault ('game_id') 
     nomer_row   = data_info.setdefault ('nomer_row',0) 
     nomer_line  = data_info.setdefault ('nomer_line',0) 
     menu_name   = data_info.setdefault ('Имя','Нет названия')     
-    ## game_farmer_get_price_
-    #from telebot import types
-    comd  = name_m+str(iz_bot.build_jsom({'g':game_id,'l':nomer_line,'r':nomer_row}))
-    #mn   = types.InlineKeyboardButton(text=menu_name,callback_data=comd)
-    #markup.add(mn) 
-    ## 271563    
+    comd        = name_m+str(iz_bot.build_jsom({'g':game_id,'l':nomer_line,'r':nomer_row}))
     return markup 
 
-def start_full_menu (user_id,namebot,game_id,answer_move,menu00,comd00,message_out):
+def start_full_menu         (user_id,namebot,game_id,answer_move,menu00,comd00,message_out):
     import iz_telegram
     if 1==1:
         pass
