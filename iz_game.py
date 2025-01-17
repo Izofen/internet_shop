@@ -494,28 +494,19 @@ def game_farmer_2           (message_info,status_input,setting_bot):
     if key_press == 'stop':
         game_id             = create_new_game_farmer    (message_info,status_input,setting_bot)
         user_id             = message_info.setdefault   ('user_id','') 
-        answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Вопрос',game_id)
-        message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Первый экран')
+        answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Замок',game_id)
+        message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Создать игру')
         markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
         answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
         return '' 
-    
-    #if key_press == 'key': #and status == 'Конец игры':
-    #    game_id             = create_new_game_farmer    (message_info,status_input,setting_bot)
-    #    user_id             = message_info.setdefault   ('user_id','') 
-    #    answer              = status_new_game_farmer    (message_info,status_input,setting_bot,'Вопрос',game_id)
-    #    message_out         = get_message_fermer        (message_info,status_input,setting_bot,game_id,'Первый экран')
-    #    markup              = get_menu_game_farmer      (message_info,status_input,setting_bot,game_id)
-    #    answer              = edit_message_main         (message_info,setting_bot,user_id,message_out,markup)
-    #    return ''        
-
-    
-    
+        
     if key_press == 'key' and status == 'Конец игры': 
         print ('[+] Конец Игры')
     
+    if key_press == 'key' and status == 'Замок': 
+        print ('[+] Начало Игры')
     
-    if key_press == 'key' and status != 'Конец игры':   
+    if key_press == 'key' and status != 'Конец игры' and status != 'Замок':   
         null,key = rename_game_farmer      (message_info,status_input,setting_bot,game_id,number_line,number_row)        
         
         if key == '1':
@@ -570,9 +561,6 @@ def game_farmer_2           (message_info,status_input,setting_bot):
 
         
         return ''
-
-
- 
 
     if message_in.find ("game_farmer_return_game_") != -1:                                                                              ####   ИГРАЕНТ ПЕРВЫЙ РАЗ ####
         game_id      = create_new_game_farmer (user_id,namebot)

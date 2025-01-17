@@ -739,11 +739,19 @@ def start_prog (message_info):
             return ('ok')
    
     if message_in == 'Coin Farmer' or message_in == '/Farmer':
+        label_send  = True
+        import iz_game
+        iz_game.game_farmer_1 (message_info,status_input,setting_bot)
+        #result['operation'] = "Coin Farmer"
+        #return ''
+
+    if callback.find ('game_farmer_') != -1:
         label_send = True
         import iz_game
-        iz_game.game_farmer (message_info,"start",'')
-        message_in = ''
-        callback   = ''
+        iz_game.game_farmer_2 (message_info,status_input,setting_bot)
+        #result['operation'] = "Coin Farmer"        
+        
+        
   
     if status == "Ввод имени":
         send_data = {"Text":"Информация записана"}
@@ -791,9 +799,9 @@ def start_prog (message_info):
         date      = data_json.setdefault('d','') 
         now = datetime.datetime.now()
         current_date_string = now.strftime('%d.%m.%y') 
-        print ('    [+] operation:',operation)    
-        print ('    [+] nomer    :',nomer)  
-        print ('    [+] current_date :',current_date_string)                
+        #print ('    [+] operation:',operation)    
+        #print ('    [+] nomer    :',nomer)  
+        #print ('    [+] current_date :',current_date_string)                
         
         
         if operation == 'Назад рацион':  ## Основное
@@ -841,10 +849,10 @@ def start_prog (message_info):
             date = current_date_string 
         
         
-        print ('[+]............[+]')
-        print (a.hour)
-        print (b1.hour)
-        print ('[+]............[+]')
+        #print ('[+]............[+]')
+        #print (a.hour)
+        #print (b1.hour)
+        #print ('[+]............[+]')
         
         
         if current_date_string != date and a.hour > 9:
