@@ -16,7 +16,7 @@ def connect_postgres        (dbname):
     return db,cursor 
 
 
-def list_find_menu  (message_info,status_input,setting_bot):
+def list_find_menu          (message_info,status_input,setting_bot):
     user_id         = message_info['user_id']
     sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
     limit           = 20
@@ -27,7 +27,7 @@ def list_find_menu  (message_info,status_input,setting_bot):
     markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'find')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
     return markup_list 
 
-def change_simvol   (message_out):
+def change_simvol           (message_out):
     message_out = message_out.replace ('<','#')
     message_out = message_out.replace ('>','#')
     #message_out = message_out.replace ('/','.')
@@ -40,7 +40,7 @@ def change_simvol   (message_out):
     #message_out = message_out.replace ('</b>','')
     return message_out
 
-def change_word     (message_text,new):
+def change_word             (message_text,new):
     #message_text  = message_out
     message_text = message_text.replace('%%code%%'      ,str(new['ID']))  
     message_text = message_text.replace('%%title%%'     ,str(new['title']))  
@@ -53,7 +53,7 @@ def change_word     (message_text,new):
     #message_out = message_text; 
     return message_text
 
-def message_slip_tg (message_info,new,setting):
+def message_slip_tg         (message_info,new,setting):
     import iz_bot
     #info_data    = {'Имя':'Главное сообщение телеграмм','Сохранить':'Да'}
     #message_out  = iz_bot.get_message (message_info,info_data)['Текст']
@@ -74,7 +74,7 @@ def message_slip_tg (message_info,new,setting):
         
     return [message_out_01,message_out_02]
 
-def message_send_tg (chat_id,token_avtor,message_out,picture):
+def message_send_tg         (chat_id,token_avtor,message_out,picture):
     import requests
     message_out_01 = message_out[0]
     message_out_02 = message_out[1]
@@ -133,7 +133,7 @@ def message_send_tg (chat_id,token_avtor,message_out,picture):
         print ('')        
     return parsed_string
 
-def send_telegram_message (message_info,status_input,setting_bot,list_answer):
+def send_telegram_message   (message_info,status_input,setting_bot,list_answer):
     import iz_bot
     namebot = message_info.setdefault ('namebot','')
     setting = iz_bot.get_setting_prog ('nnm-club')
@@ -157,7 +157,7 @@ def send_telegram_message (message_info,status_input,setting_bot,list_answer):
         answer      = message_send_tg (user_id,token_avtor,message_out,picture)   
     return answer
 
-def execution_procedure (message_info,status_input,setting_bot,word):
+def execution_procedure     (message_info,status_input,setting_bot,word):
     import iz_bot
     db,cursor       = iz_bot.connect_postgres ()
     sql             = "select id,code,name,text,title02,title03,magnet,picture from torrent where (name like '%{}%' or text like '%{}%' ) and picture <> 'Нет картинки' and pic_type <> 'Файл не найден ' order by id desc limit 10;".format (word,word)
@@ -180,7 +180,7 @@ def execution_procedure_sql (message_info,status_input,setting_bot,sql):
         answer.append ([id,code,name,text,title02,title03,magnet,picture])        
     return answer    
     
-def history_order (message_info,status_input,setting_bot,answer):
+def history_order           (message_info,status_input,setting_bot,answer):
     if answer.setdefault('name','') == 'Поиск торрент':
         namebot     = message_info.setdefault('namebot','')
         user_id     = message_info['user_id']
@@ -198,27 +198,17 @@ def history_order (message_info,status_input,setting_bot,answer):
         cursor.execute(sql)
         db.commit()
 
-
-def get_order_psg (message_info,status_input,setting_bot,answer,id_list):
+def get_order_psg           (message_info,status_input,setting_bot,answer,id_list):
     namebot     = message_info.setdefault('namebot','')
     user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
-        
     sql = "select id,info,name,master,service from order_master where id = {} ;".format (id_list)
     cursor.execute(sql)
     results  = cursor.fetchall()
-    #data_id  = 0
-    #for row in results:
-    #    id,name,info,data_id = row.values()
     cursor.execute(sql)
     db.commit()
     
-    
-    
-    
-    
-
-def update_order_psg (message_info,status_input,setting_bot,answer,id,name,info):
+def update_order_psg        (message_info,status_input,setting_bot,answer,id,name,info):
     namebot     = message_info.setdefault('namebot','')
     user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
@@ -227,7 +217,7 @@ def update_order_psg (message_info,status_input,setting_bot,answer,id,name,info)
     db.commit()
     return id 
 
-def create_order_psg (message_info,status_input,setting_bot,answer):
+def create_order_psg        (message_info,status_input,setting_bot,answer):
     namebot     = message_info.setdefault('namebot','')
     user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
@@ -237,8 +227,11 @@ def create_order_psg (message_info,status_input,setting_bot,answer):
     lastid = result[0]
     db.commit()
     return lastid 
+    
+    
+    
 
-def create_order (message_info,status_input,setting_bot,answer):
+def create_order            (message_info,status_input,setting_bot,answer):
 
     
     if answer.setdefault('name','') == 'Новое сообщение в боте':
@@ -509,7 +502,7 @@ def delete_send_message_user(message_info,status_input,setting_bot,user_id,answe
 
 ##################################################################################################################################################################################################
 
-def save_order_info         (message_info,setting_bot,user_id,nomer_order,colomn,info):
+def save_order_info             (message_info,setting_bot,user_id,nomer_order,colomn,info):
     if nomer_order == 0:
         import time
         unixtime    = int(time.time ())
@@ -529,7 +522,7 @@ def save_order_info         (message_info,setting_bot,user_id,nomer_order,colomn
         db.commit()     
     return nomer_order    
 
-def update_info_main_menu   (message_info,status_input,setting_bot,nomer,info_service):
+def update_info_main_menu       (message_info,status_input,setting_bot,nomer,info_service):
     sql     = "select id,name,info from `order` where id = {} limit 1".format(nomer)                                                                            ###  Обновляем информацию по ордеру
     cursor.execute(sql)
     data    = cursor.fetchall()
@@ -541,7 +534,7 @@ def update_info_main_menu   (message_info,status_input,setting_bot,nomer,info_se
         info_service['id_menu03'] = menu03
     return info_service
 
-def get_setting             (message_info,setting_bot):
+def get_setting                 (message_info,setting_bot):
     namebot = message_info['namebot']
     from iz_bot import connect as connect
     db,cursor = connect (namebot)
@@ -557,7 +550,7 @@ def get_setting             (message_info,setting_bot):
         answer[name] = info
     return answer
 
-def user_get_data           (message_info,setting_bot,user_id):
+def user_get_data               (message_info,setting_bot,user_id):
     namebot = message_info['namebot']
     from iz_bot import connect as connect
     db,cursor = connect (namebot)
@@ -581,12 +574,12 @@ def user_get_data           (message_info,setting_bot,user_id):
             answer[name] = info
     return answer
 
-def complite_message_add_list (message_info,status_input,setting_bot,message_text,informanion,list):                                                            ### Заменяем в тексте ##
+def complite_message_add_list   (message_info,status_input,setting_bot,message_text,informanion,list):                                                            ### Заменяем в тексте ##
     for line in list:
         message_text    = message_text.replace('##'+line+'##',str(informanion.setdefault (line,''))) 
     return message_text
 
-def get_list_change         (message_info,status_input,setting_bot,message):                                                                                    ###  Получение всех меток замены             
+def get_list_change             (message_info,status_input,setting_bot,message):                                                                                    ###  Получение всех меток замены             
     list = []
     body  = message
     nm = 0
@@ -602,12 +595,12 @@ def get_list_change         (message_info,status_input,setting_bot,message):    
             break
     return list
 
-def change_message          (message_info,status_input,setting_bot,message,list_change,element):                                                                ###  Меняем в сообшение значение на параметры             
+def change_message              (message_info,status_input,setting_bot,message,list_change,element):                                                                ###  Меняем в сообшение значение на параметры             
     for line in list_change:
         message = message.replace (line,element.setdefault(line,''))    
     return message
        
-def get_service             (message_info,status_input,setting_bot,data_id):                                                                                    ###  Получение информации о услугах  
+def get_service                 (message_info,status_input,setting_bot,data_id):                                                                                    ###  Получение информации о услугах  
     from iz_bot import connect as connect
     namebot    = message_info.setdefault('namebot','')
     db,cursor = connect (namebot)
@@ -622,14 +615,14 @@ def get_service             (message_info,status_input,setting_bot,data_id):    
         answer[name] = str(info)
     return answer  
         
-def get_time_set            (message_info,status_input,setting_bot,name):                                                                                       ###  Процедура для замера времени
+def get_time_set                (message_info,status_input,setting_bot,name):                                                                                       ###  Процедура для замера времени
     import time
     unixtime = int(time.time ())
     status_input    = user_save_data (message_info,status_input,setting_bot,[[name,unixtime]])
     ##status_input    = user_save_data (message_info,status_input,setting_bot,[["Статус",ask_name['name']]])
     return status_input
         
-def get_time_up             (message_info,status_input,setting_bot,name):                                                                                       ###  Проверка что время прошло достаточно  
+def get_time_up                 (message_info,status_input,setting_bot,name):                                                                                       ###  Проверка что время прошло достаточно  
     import time
     import iz_bot
     unixtime        = int(time.time ())
@@ -638,7 +631,7 @@ def get_time_up             (message_info,status_input,setting_bot,name):       
     answer = unixtime - limit;
     return answer 
       
-def get_message_send        (message_info,status_input,setting_bot,user_id_list,message_id):                                                                    ###  Получаем сообщения для рассылки  
+def get_message_send            (message_info,status_input,setting_bot,user_id_list,message_id):                                                                    ###  Получаем сообщения для рассылки  
     from iz_bot import connect as connect
     namebot    = message_info.setdefault('namebot','')
     db,cursor = connect (namebot)
@@ -656,7 +649,7 @@ def get_message_send        (message_info,status_input,setting_bot,user_id_list,
     answer['picture02']     = picture02
     return answer
 
-def save_log_messaage       (message_info,status_input,setting_bot,user_id,message_id,status,answer):
+def save_log_messaage           (message_info,status_input,setting_bot,user_id,message_id,status,answer):
     import time
     unixtime = int(time.time())
     sql = "INSERT INTO `log_message` (`unixtime`,`user_id`,message_id,label,answer) VALUES (%s,%s,%s,%s,%s)".format ()
@@ -665,7 +658,7 @@ def save_log_messaage       (message_info,status_input,setting_bot,user_id,messa
     lastid = cursor.lastrowid 
     db.commit() 
 
-def test_send_message       (message_info,status_input,setting_bot,user_id,message_id,label):
+def test_send_message           (message_info,status_input,setting_bot,user_id,message_id,label):
     from iz_bot import connect as connect
     namebot    = message_info.setdefault('namebot','')
     db,cursor = connect (namebot)
@@ -679,7 +672,7 @@ def test_send_message       (message_info,status_input,setting_bot,user_id,messa
         answer = False
     return answer    
 
-def change_back             (message_info,status_input,setting_bot,name):                                                                                       ###  Замена символа в предложении
+def change_back                 (message_info,status_input,setting_bot,name):                                                                                       ###  Замена символа в предложении
     from iz_bot import connect as connect
     namebot     = message_info.setdefault('namebot','')
     db,cursor   = connect (namebot)
@@ -698,7 +691,7 @@ def change_back             (message_info,status_input,setting_bot,name):       
         db.commit()  
     return change 
 
-def get_ask_nomer           (message_info,status_input,setting_bot):
+def get_ask_nomer               (message_info,status_input,setting_bot):
     from iz_bot import connect as connect
     user_id   = message_info.setdefault ('user_id','')
     namebot   = message_info.setdefault ('namebot','')
@@ -717,7 +710,7 @@ def get_ask_nomer           (message_info,status_input,setting_bot):
             ask = id
     return ask 
 
-def get_ask_nomer_status    (message_info,status_input,setting_bot,status):
+def get_ask_nomer_status        (message_info,status_input,setting_bot,status):
     namebot     = message_info.setdefault ('namebot','') 
     from iz_bot import connect as connect  
     db,cursor   = connect (namebot)
@@ -737,7 +730,7 @@ def get_ask_nomer_status    (message_info,status_input,setting_bot,status):
             
 ##################################################################################################################################################################################################    
 
-def data_sql                            (message_info,status_input,setting_bot,id_sql,info_data):
+def data_sql                                (message_info,status_input,setting_bot,id_sql,info_data):
     namebot    = message_info.setdefault('namebot','')
     import iz_bot
     db,cursor = iz_bot.connect (namebot)
@@ -762,7 +755,7 @@ def data_sql                            (message_info,status_input,setting_bot,i
             db.commit()
     return info_data        
                     
-def get_sql_data                        (message_info,status_input,setting_bot,id_sql,info_data):  
+def get_sql_data                            (message_info,status_input,setting_bot,id_sql,info_data):  
     import iz_bot
     namebot    = message_info.setdefault('namebot','')
     db,cursor = iz_bot.connect (namebot)
@@ -774,7 +767,7 @@ def get_sql_data                        (message_info,status_input,setting_bot,i
         info_data [name] = info
     return info_data
     
-def get_active_ask                      (message_info,status_input,setting_bot,name):
+def get_active_ask                          (message_info,status_input,setting_bot,name):
     namebot     = message_info.setdefault ('namebot','') 
     from iz_bot import connect as connect 
     db,cursor   = connect (namebot) 
@@ -848,7 +841,7 @@ def get_active_ask                      (message_info,status_input,setting_bot,n
     answer['type5']         = type5 
     return answer 
     
-def clear_peremen_for_start_action      (message_info,status_input,setting_bot,ask_info,type_ask,name_active):                           ###  Обнуляем все переменные перед вводом данных
+def clear_peremen_for_start_action          (message_info,status_input,setting_bot,ask_info,type_ask,name_active):                           ###  Обнуляем все переменные перед вводом данных
     status_input    = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",name_active]])                          ###  Метка называется как название строки    
     status_input    = user_save_data (message_info,status_input,setting_bot,[["active1",""]])
     status_input    = user_save_data (message_info,status_input,setting_bot,[["active2",""]])
@@ -857,19 +850,19 @@ def clear_peremen_for_start_action      (message_info,status_input,setting_bot,a
     status_input    = user_save_data (message_info,status_input,setting_bot,[["active5",""]])
     status_input    = user_save_data (message_info,status_input,setting_bot,[["Номер ордера",""]])
         
-def send_message_action                 (message_info,status_input,setting_bot,ask_info,type_ask,name_active,shablon,message_name,key):
+def send_message_action                     (message_info,status_input,setting_bot,ask_info,type_ask,name_active,shablon,message_name,key):
     user_id         = message_info['user_id']
     message         = setting_bot.setdefault (shablon,ask_info.setdefault(message_name,message_name))                                                       ###  Выводим текст информированный что это первый запрос    
     answer_null     = save_message (message_info,setting_bot,user_id,message)
     message_out     = gets_message (message_info,setting_bot,user_id,message)
     answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],key)
     
-def active_sql_get                      (message_info,status_input,setting_bot,sql,limit,offset,back,ask,name_sql,mark_key):
+def active_sql_get                          (message_info,status_input,setting_bot,sql,limit,offset,back,ask,name_sql,mark_key):
     id_sql          = save_sql          (message_info,status_input,setting_bot,name_sql,sql,limit,offset,back)                                           
     markup_list     = complite_key      (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,mark_key)          
     return markup_list
     
-def action_send_message_continued       (message_info,status_input,setting_bot,ask_info,type_ask,name_active,message_name): 
+def action_send_message_continued           (message_info,status_input,setting_bot,ask_info,type_ask,name_active,message_name): 
     user_id         = message_info['user_id']    
     message         = ask_info[message_name]
     answer_null     = save_message (message_info,setting_bot,user_id,message)
@@ -877,7 +870,7 @@ def action_send_message_continued       (message_info,status_input,setting_bot,a
     markup          = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
     answer_null     = send_message (message_info,setting_bot,user_id,message_out['Текст'],markup) 
 
-def action_edit_message_continued       (message_info,status_input,setting_bot,ask_info,type_ask,name_active,message_name): 
+def action_edit_message_continued           (message_info,status_input,setting_bot,ask_info,type_ask,name_active,message_name): 
     user_id         = message_info['user_id']    
     message_id      = message_info['message_id']
     print ('message_name',message_name)     
@@ -888,7 +881,7 @@ def action_edit_message_continued       (message_info,status_input,setting_bot,a
     markup          = gets_key     (message_info,setting_bot,user_id,message_out['Меню'])
     answer_null     = edit_message (message_info,setting_bot,user_id,message_out['Текст'],markup,message_id)
 
-def active_save_data_base               (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save,active,info):
+def active_save_data_base                   (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save,active,info):
     namebot     = message_info.setdefault ('namebot','')
     import iz_bot
     db,cursor   = iz_bot.connect (namebot)
@@ -897,7 +890,7 @@ def active_save_data_base               (message_info,status_input,setting_bot,a
     cursor.execute(sql)        
     db.commit()
     
-def active_save_data_ask_continued      (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      #### Процедура для запроса данных вопросом
+def active_save_data_ask_continued          (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      #### Процедура для запроса данных вопросом
     user_id                 = message_info.setdefault ('user_id','')
     if nomer_save == 1:                                                                                                                           ### Ввод первого значения
         message_in      = message_info['message_in']
@@ -919,7 +912,7 @@ def active_save_data_ask_continued      (message_info,status_input,setting_bot,a
         label_in        = False
         active_save_data_base (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save,'active3',message_in)
              
-def active_end_data_ask_continued       (message_info,status_input,setting_bot,ask_info,type_ask,name_active):    
+def active_end_data_ask_continued           (message_info,status_input,setting_bot,ask_info,type_ask,name_active):    
     ### Проверяем что нужно выйти из режима ввода данных
     result                  = {}
     if (ask_info['active1'] != '' and status_input.setdefault ('active1','') != '') or (ask_info['active1'] == ''):
@@ -937,7 +930,7 @@ def active_end_data_ask_continued       (message_info,status_input,setting_bot,a
                         clear_peremen_for_start_action (message_info,status_input,setting_bot,ask_info,type_ask,'')
     return result         
    
-def active_save_data_calendar_continued      (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      #### Процедура для запроса данных вопросом
+def active_save_data_calendar_continued     (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      #### Процедура для запроса данных вопросом
     user_id                 = message_info.setdefault ('user_id','')
     if nomer_save == 1:                                                                                                                           ### Ввод первого значения
         action_send_message_continued (message_info,status_input,setting_bot,ask_info,type_ask,name_active,'message12')
@@ -960,7 +953,7 @@ def active_save_data_calendar_continued      (message_info,status_input,setting_
         #label_in        = False
         active_save_data_base (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save,'active3',message_in)   
      
-def active_send_data_calendar_continued      (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save): 
+def active_send_data_calendar_continued     (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save): 
     if nomer_save == 1:
         action_send_message_continued (message_info,status_input,setting_bot,ask_info,type_ask,name_active,'message11')
         from telegram_bot_calendar import DetailedTelegramCalendar, LSTEP   
@@ -1008,7 +1001,7 @@ def active_send_data_calendar_continued      (message_info,status_input,setting_
         print ('[step] :',step)
         answer      = send_message (message_info,setting_bot,user_id,message_text,markup)
 
-def active_save_data_list_continued          (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      #### Процедура для запроса данных вопросом
+def active_save_data_list_continued         (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      #### Процедура для запроса данных вопросом
     user_id                 = message_info.setdefault ('user_id','')
     if nomer_save == 1:                                                                                                                           ### Ввод первого значения
         message_in      = message_info['Выбор']
@@ -1035,7 +1028,7 @@ def active_save_data_list_continued          (message_info,status_input,setting_
         status_input    = user_save_data (message_info,status_input,setting_bot,[["active4",message_in]])
         active_save_data_base (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save,'active4',message_in)
                
-def get_list_sql_task (message_info,status_input,setting_bot,ask_info,jsonparam,data_id):
+def get_list_sql_task                       (message_info,status_input,setting_bot,ask_info,jsonparam,data_id):
     import json
     sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
     ask1            = ask_info[jsonparam]
@@ -1049,7 +1042,7 @@ def get_list_sql_task (message_info,status_input,setting_bot,ask_info,jsonparam,
     markup_list     = active_sql_get (message_info,status_input,setting_bot,sql,limit,offset,back,ask,name_sql,mark_key) 
     return markup_list
         
-def active_send_data_list_continued          (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      ### Процедура для запроса данных списком 
+def active_send_data_list_continued         (message_info,status_input,setting_bot,ask_info,type_ask,name_active,nomer_save):                      ### Процедура для запроса данных списком 
     #label_in                = True
     #user_id                 = message_info.setdefault ('user_id','')
          
@@ -1730,10 +1723,10 @@ def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_
    
 ##################################################################################################################################################################################################    
    
-def print_operator          (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Печать команды оператор в json
+def print_operator              (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Печать команды оператор в json
     pass
     
-def get_name_picture        (message_info,status_input,setting_bot,nomer,move):
+def get_name_picture            (message_info,status_input,setting_bot,nomer,move):
     namebot      = message_info.setdefault ("namebot","")
     name_picture = ''
     
@@ -1795,8 +1788,7 @@ def get_name_picture        (message_info,status_input,setting_bot,nomer,move):
     print ('[name_picture] :',name_picture)        
     return name_picture,id
     
-    
-def complite_key_psg_calendar (message_info,setting_bot,month,years,id_order,lab):  
+def complite_key_psg_calendar   (message_info,setting_bot,month,years,id_order,lab):  
     import json
     key_array = {}
     key_array['Кнопка 11' ] = "ПН"
@@ -1820,7 +1812,6 @@ def complite_key_psg_calendar (message_info,setting_bot,month,years,id_order,lab
             key_mat = str(line+1)+str(row+1)+"_data"
             info_date  = lab[str(key_mat)]["D"]
             info_see   = lab[str(key_mat)]["S"]
-            
             info  = "-"
             label = "N" 
             if info_see == 'A':
@@ -1846,8 +1837,7 @@ def complite_key_psg_calendar (message_info,setting_bot,month,years,id_order,lab
     markup   = key_type_message (key_array)
     return markup    
     
-    
-def key_change (key):
+def key_change                  (key):
     if key == "ЛЕВО": key = "←"
     if key == "ПРАВО": key = "→"
     key = key.replace('January' ,'Январь')
@@ -1863,15 +1853,14 @@ def key_change (key):
     key = key.replace('November'   ,'Ноябрь')
     key = key.replace('December'   ,'Декабрь')
     return key    
-    
-    
-def get_datetime_range(year, month):
+      
+def get_datetime_range          (year, month):
     from calendar import monthrange
     import datetime
     nb_days = monthrange(year, month)[1]
     return [datetime.date(year, month, day) for day in range(1, nb_days+1)]
     
-def complite_calendar (data_g,data_m,day_x):
+def complite_calendar           (data_g,data_m,day_x):
     import datetime
     days     = get_datetime_range(data_g, data_m)
     str_d    = str(data_g)+"-"+str(data_m)
@@ -1899,102 +1888,63 @@ def complite_calendar (data_g,data_m,day_x):
             nomer = nomer + 1    
     return lab   
 
-
-
-def get_name_master_in_id (message_info,status_input,setting_bot,id_list):
+def get_name_master_in_id       (message_info,status_input,setting_bot,id_list):
     namebot     = message_info.setdefault('namebot','')
     #user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
     sql = "select id,name,info from masters where id = {}".format (id_list)
     cursor.execute(sql)
     records = cursor.fetchall()
-    #info_data = {}
-    #for row in records:
-        #id,name,info = row
-    #sql = "UPDATE order_master SET {} = '{}' WHERE id = {}".format(name,info,id)
-    #cursor.execute(sql)
-    #db.commit()
-    #sql         = "INSERT INTO order_master (name,info,user_id,status) VALUES ('','','{}','')  RETURNING id".format (user_id)
-    #cursor.execute(sql)
-    #result = cursor.fetchone()
-    #lastid = result[0]
-    #db.commit()
     return records
-
-
-
-def get_name_service_in_id (message_info,status_input,setting_bot,id_list):
+    
+    
+def get_name_time_in_id       (message_info,status_input,setting_bot,id_list):
     namebot     = message_info.setdefault('namebot','')
-    #user_id     = message_info.setdefault('user_id','')
+    db,cursor   = connect_postgres (namebot)
+    sql = "select id,name,info from time_calendar where id = {}".format (id_list)
+    cursor.execute(sql)
+    records = cursor.fetchall()
+    return records    
+    
+
+def get_name_service_in_id      (message_info,status_input,setting_bot,id_list):
+    namebot     = message_info.setdefault('namebot','')
     db,cursor   = connect_postgres (namebot)
     sql = "select id,name,info from service where id = {}".format (id_list)
     cursor.execute(sql)
     records = cursor.fetchall()
-    #info_data = {}
-    #for row in records:
-        #id,name,info = row
-    #sql = "UPDATE order_master SET {} = '{}' WHERE id = {}".format(name,info,id)
-    #cursor.execute(sql)
-    #db.commit()
-    #sql         = "INSERT INTO order_master (name,info,user_id,status) VALUES ('','','{}','')  RETURNING id".format (user_id)
-    #cursor.execute(sql)
-    #result = cursor.fetchone()
-    #lastid = result[0]
-    #db.commit()
     return records
 
-
-def get_name_adress_in_id (message_info,status_input,setting_bot,id_list):
+def get_name_adress_in_id       (message_info,status_input,setting_bot,id_list):
     namebot     = message_info.setdefault('namebot','')
-    #user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
     sql = "select id,name,info from address where id = {}".format (id_list)
     cursor.execute(sql)
     records = cursor.fetchall()
-    #info_data = {}
-    #for row in records:
-        #id,name,info = row
-    #sql = "UPDATE order_master SET {} = '{}' WHERE id = {}".format(name,info,id)
-    #cursor.execute(sql)
-    #db.commit()
-    #sql         = "INSERT INTO order_master (name,info,user_id,status) VALUES ('','','{}','')  RETURNING id".format (user_id)
-    #cursor.execute(sql)
-    #result = cursor.fetchone()
-    #lastid = result[0]
-    #db.commit()
     return records
-   
-    
-def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back,id_lab):   ### Для кнопок с командой -i                                                           ###  Выполнение команды оператор в json
+       
+def executing_operator          (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back,id_lab):   ### Для кнопок с командой -i                                                           ###  Выполнение команды оператор в json
     answer = {}
     
-    if 1==1:
-        import iz_bot
-        import json
-        callback        = message_info.setdefault   ('callback','')                                                                     ###  Имя нажатой кнопки 
-        json_string     = iz_bot.change_back        (callback.replace('i_',''))
-        data_json       = json.loads                (json_string)
-        label          = data_json.setdefault      ('l','')
-        label_y          = data_json.setdefault      ('y','')
-        label_m          = data_json.setdefault      ('m','')
-        #label_y = int(label_y.replace ('y',''))
-        #label_m = int(label_m.replace ('m',''))
-        #label_m_r = label_m + 1
-        #label_m_l = label_m - 1    
+    
+    import iz_bot
+    import json
+    callback        = message_info.setdefault   ('callback','')                                                                     ###  Имя нажатой кнопки 
+    json_string     = iz_bot.change_back        (callback.replace('i_',''))
+    data_json       = json.loads                (json_string)
+    label           = data_json.setdefault      ('l','')
+    label_y         = data_json.setdefault      ('y','')
+    label_m         = data_json.setdefault      ('m','')
     
     
     if operation == 'time':
-        #name_master = get_name_master_in_id (message_info,status_input,setting_bot,id_list)
-        #name_master_text   = '1111'
-        #for row in name_master:
-        #    id,name_master_text,info = row  
-        #id = update_order_psg (message_info,status_input,setting_bot,answer,id_lab,'master',name_master_text)
-        
-        id = update_order_psg (message_info,status_input,setting_bot,answer,label,'data2','222222')
-        
-        
+        name_master = get_name_time_in_id (message_info,status_input,setting_bot,id_list)
+        name_master_text = ''
+        for row in name_master:
+            id,name_master_text,info = row  
+        data2   = str(name_master_text)
+        id = update_order_psg (message_info,status_input,setting_bot,answer,label,'data2',data2)
         info_order = get_order_psg (message_info,status_input,setting_bot,'',label)
-        
         message_id      = message_info.setdefault('message_id','')
         sql             = "select id,info from service where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
@@ -2004,9 +1954,9 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         id_sql          = save_sql_psg       (message_info,status_input,setting_bot,"Список фильтр",sql,limit,offset,back)                                           
         markup_list     = complite_key_psg_2   (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'filtr',label) 
         user_id         = message_info.setdefault ('user_id','') 
-        message_name        = setting_bot .setdefault ("Показать адрес","Показать адрес")
-        message_out         = gets_message_psg (message_info,setting_bot,message_name)
-        message_text        = message_out.setdefault ("Текст","Пустой текст")
+        message_name    = setting_bot .setdefault ("Показать адрес","Показать адрес")
+        message_out     = gets_message_psg (message_info,setting_bot,message_name)
+        message_text    = message_out.setdefault ("Текст","Пустой текст")
         for row in info_order:
             id,info,name,master,service = row
         info_service = {}
@@ -2025,11 +1975,11 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
     
     if operation == 'mastr':
         name_master = get_name_master_in_id (message_info,status_input,setting_bot,id_list)
-        name_master_text   = '1111'
+        #name_master_text   = '1111'
         for row in name_master:
             id,name_master_text,info = row  
-        id = update_order_psg (message_info,status_input,setting_bot,answer,id_lab,'master',name_master_text)
-        info_order = get_order_psg (message_info,status_input,setting_bot,'',label)
+        id          = update_order_psg (message_info,status_input,setting_bot,answer,id_lab,'master',name_master_text)
+        info_order  = get_order_psg (message_info,status_input,setting_bot,'',label)
         message_id      = message_info.setdefault('message_id','')
         sql             = "select id,info from service where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
@@ -2090,7 +2040,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
     
     if operation == 'filtr':
         if id_list == 8:
-            message_id             = message_info.setdefault('message_id','')
+            message_id      = message_info.setdefault('message_id','')
             sql             = "select id,info from service where ##s1## limit ##s2## offset ##s3##"
             limit           = 10
             offset          = 0
@@ -2105,7 +2055,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)
             
         if id_list == 9:
-            message_id             = message_info.setdefault('message_id','')
+            message_id      = message_info.setdefault('message_id','')
             sql             = "select id,name from masters where ##s1## limit ##s2## offset ##s3##"
             limit           = 10
             offset          = 0
@@ -2121,20 +2071,24 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             
             
         if id_list == 10:
-            message_id      = message_info.setdefault('message_id','')
-            user_id         = message_info.setdefault ('user_id','') 
+            message_id      = message_info.setdefault   ('message_id','')
+            user_id         = message_info.setdefault   ('user_id','') 
             message_name    = 'Список дат'
-            message_out     = gets_message_psg (message_info,setting_bot,message_name)
-            message_text    = message_out.setdefault ('Текст','')
+            message_out     = gets_message_psg          (message_info,setting_bot,message_name)
+            message_text    = message_out.setdefault    ('Текст','')
             from datetime import date
-            current_date = date.today()
-            year_current  = current_date.year
-            month_curren  = current_date.month
-            day_curren    = current_date.day
-            lab             = complite_calendar (year_current,month_curren,day_curren)
+            current_date    = date.today()
+            year_current    = current_date.year
+            month_curren    = current_date.month
+            day_curren      = current_date.day
+            lab             = complite_calendar         (year_current,month_curren,day_curren)
             markup_list     = complite_key_psg_calendar (message_info,setting_bot,month_curren,year_current,label,lab)   
-            #answer  = send_message (message_info,setting_bot,user_id,message_out,markup) 
-            answer  = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)            
+            answer          = edit_message              (message_info,setting_bot,user_id,message_text,markup_list,message_id)            
+            
+            
+            
+            
+            
     
     if operation == 'date':
         sql             = "select id,name from time_calendar where ##s1## limit ##s2## offset ##s3##"
@@ -2151,26 +2105,25 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         answer          = send_message      (message_info,setting_bot,user_id,message_text,markup_list)          
         
     if operation == 'calc':
-        
         import iz_bot                                                                                                                   ###  Основные функции программы
         import json
-        callback        = message_info.setdefault   ('callback','')                                                                     ###  Имя нажатой кнопки 
-        json_string     = iz_bot.change_back        (callback.replace('i_',''))
-        data_json       = json.loads                (json_string)
-        label          = data_json.setdefault      ('l','')
-        label_y          = data_json.setdefault      ('y','')
-        label_m          = data_json.setdefault      ('m','')
-        label_lb          = data_json.setdefault      ('lb','')
-        label_y = int(label_y.replace ('y',''))
-        label_m = int(label_m.replace ('m',''))
-        label_m_r = label_m + 1
-        label_m_l = label_m - 1
+        callback            = message_info.setdefault   ('callback','')                                                                     ###  Имя нажатой кнопки 
+        json_string         = iz_bot.change_back        (callback.replace('i_',''))
+        data_json           = json.loads                (json_string)
+        label               = data_json.setdefault      ('l','')
+        label_y             = data_json.setdefault      ('y','')
+        label_m             = data_json.setdefault      ('m','')
+        label_d             = data_json.setdefault      ('d','')
+        label_lb            = data_json.setdefault      ('lb','')
+        label_y             = int(label_y.replace ('y',''))
+        label_m             = int(label_m.replace ('m',''))
+       
+        label_m_r           = label_m + 1
+        label_m_l           = label_m - 1
         
         if label == "A":
-            
-            id = update_order_psg (message_info,status_input,setting_bot,answer,label_lb,'data1','1111')
-            
-            
+            save_data = ""+str(label_y)+":"+str(label_m)+":"+str(label_d)
+            id = update_order_psg (message_info,status_input,setting_bot,answer,label_lb,'data1',save_data)
             message_id      = message_info.setdefault('message_id','')
             sql             = "select id,name from time_calendar where ##s1## limit ##s2## offset ##s3##"
             limit           = 10
@@ -2181,9 +2134,9 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             markup_list     = complite_key_psg_2        (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'time',label_lb) 
             user_id         = message_info.setdefault   ('user_id','') 
             message_name    = 'Список времени'
-            message_out     = gets_message_psg (message_info,setting_bot,message_name)
-            message_text    = message_out.setdefault ('Текст','')
-            answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)          
+            message_out     = gets_message_psg          (message_info,setting_bot,message_name)
+            message_text    = message_out.setdefault    ('Текст','')
+            answer          = edit_message              (message_info,setting_bot,user_id,message_text,markup_list,message_id)          
         
         if label == "right":
             user_id         = message_info.setdefault ('user_id','') 
@@ -2202,14 +2155,12 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             lab             = complite_calendar (label_y,label_m_r,label_d)            
             markup_list     = complite_key_psg_calendar (message_info,setting_bot,label_m_r,label_y,"1",lab)   
             answer  = edit_message      (message_info,setting_bot,user_id,message_text,markup_list) 
-   
             
         if label == "left":
             user_id         = message_info.setdefault ('user_id','') 
             message_name    = 'Список дат'
             message_out     = gets_message_psg (message_info,setting_bot,message_name)
             message_text    = message_out.setdefault ('Текст','')
-            
             from datetime import date
             current_date = date.today()
             year_current  = current_date.year
@@ -2223,7 +2174,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
                 label_d = day_curren
             lab             = complite_calendar (label_y,label_m_l,label_d)
             markup_list     = complite_key_psg_calendar (message_info,setting_bot,label_m_l,label_y,"1",lab)   
-            answer  = send_message      (message_info,setting_bot,user_id,message_text,markup_list) 
+            answer          = send_message      (message_info,setting_bot,user_id,message_text,markup_list) 
 
 
 
@@ -2316,10 +2267,10 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         info_answer = active_save_data_main (message_info,status_input,setting_bot,'Услуга','Сбор данных') 
         return ''
 
-    if operation.find ('time') != -1:     
-        message_info ['Выбор'] = str(id_list)
-        info_answer = active_save_data_main (message_info,status_input,setting_bot,'Услуга','Сбор данных') 
-        return ''
+    #if operation.find ('time') != -1:     
+    #    message_info ['Выбор'] = str(id_list)
+    #    info_answer = active_save_data_main (message_info,status_input,setting_bot,'Услуга','Сбор данных') 
+    #    return ''
         
     if operation == 'bots': 
         if id_list == 1:
@@ -2454,7 +2405,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
 
     return ''
  
-def executing_program_json  (message_info,status_input,setting_bot):                                                                                            ###  Разбор команды оператор в json
+def executing_program_json      (message_info,status_input,setting_bot):                                                                                            ###  Разбор команды оператор в json
     import iz_bot                                                                                                                   ###  Основные функции программы
     import json
     callback        = message_info.setdefault   ('callback','')                                                                     ###  Имя нажатой кнопки 
@@ -2468,7 +2419,7 @@ def executing_program_json  (message_info,status_input,setting_bot):            
     print_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Печатаем команды полученные  в json
     executing_operator  (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back,id_lab)                                    ###  Выполняем команды полученные в json
 
-def testing_time            (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                                                   ###  Проверка поподания в определенный дэопазон времени    
+def testing_time                (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                                                   ###  Проверка поподания в определенный дэопазон времени    
     import datetime
     import iz_bot
     now         = datetime.datetime.now()
@@ -2477,7 +2428,7 @@ def testing_time            (message_info,status_input,setting_bot,hour_start,mi
     now_date    = datetime.datetime.now()
     current_date_string = now.strftime('%d.%m.%y %H:%M:%S')
    
-def build_jsom (dict):    #### {"o":"next","sql":id_sql}
+def build_jsom                  (dict):    #### {"o":"next","sql":id_sql}
     json_message = str(dict)
     json_message = json_message.replace ("'",'"')
     json_message = json_message.replace ('"','#')
@@ -2487,8 +2438,7 @@ def build_jsom (dict):    #### {"o":"next","sql":id_sql}
     json_message = json_message.replace (": ",':')
     return (json_message) 
 
-
-def complite_key_psg_2            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka,lab):                                                                  ###  Формируем кнопокe из списока  по переданным нам параметрам
+def complite_key_psg_2          (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka,lab):                                                                  ###  Формируем кнопокe из списока  по переданным нам параметрам
     import json
     namebot         = message_info.setdefault('namebot','')
     db,cursor       = connect_postgres (namebot)    
@@ -2514,9 +2464,6 @@ def complite_key_psg_2            (message_info,setting_bot,id_sql,sql,ask,limit
         key_array.append ([[name_key,command],['',''],['','']]) 
     markup   = key_type_message (key_array)
     return markup
-
-
-
 
 def complite_key_psg            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka,lab):                                                                  ###  Формируем кнопокe из списока  по переданным нам параметрам
     import json
@@ -2549,7 +2496,7 @@ def complite_key_psg            (message_info,setting_bot,id_sql,sql,ask,limit,o
     markup   = key_type_message (key_array)
     return markup  
 
-def save_sql_psg                                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
+def save_sql_psg                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
     namebot    = message_info.setdefault('namebot','')
     #from iz_bot import connect_postgres as connect_postgres
     db,cursor    = connect_postgres (namebot)
@@ -2849,7 +2796,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
     if callback.find ('i_') != -1 and callback.find ('game_farmer') == -1 :                                                                                                  ###  Кнопка которая передала в json информацию
         executing_program_json (message_info,status_input,setting_bot)
     
-    
     if callback == 'О нас':
         import requests
         message_out = "Test video"
@@ -2869,7 +2815,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         resp = requests.post(url, params, files=files)
         answer = resp.json()   
         print (    '[Ответ Отправки] :',answer)          
-        
         
     if callback == 'Записаться':
         last_id = create_order_psg (message_info,status_input,setting_bot,answer)
@@ -2892,7 +2837,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         markup_list         = complite_key_psg   (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'adress',last_id) 
         answer              = edit_message       (message_info,setting_bot,user_id,message_text,markup_list,message_id) 
     
-    
     if callback == 'Лево':  
         name_picture = "W:\\Send_Message\\a123bot_00581.jpg"
         import json
@@ -2910,7 +2854,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         #token = setting_bot['Токен']
         resp = requests.post(url, params,files = files)                
         print (resp.json())
-        
     
     if callback == 'Право':                                                                                                  ###  Пример работы команды кнопки
         method = "editMessageMedia"
@@ -2931,8 +2874,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         
         resp = requests.post(url, params,files = files)                
         print (resp.json())
-    
-    
     
     if callback == 'save_message':                                                                                                  ###  Пример работы команды кнопки
         pass
@@ -3099,7 +3040,7 @@ def analis                  (message_info,status_input,setting_bot,answer):
 def save_out_message        (message_info,status_input,setting_bot):
     pass
      
-def get_setting_psg         (message_info):
+def get_setting_psg             (message_info):
     namebot = message_info['namebot']
     db,cursor = connect_postgres (namebot)
     answer = {}
@@ -3111,7 +3052,7 @@ def get_setting_psg         (message_info):
         answer[name] = info
     return answer   
      
-def gets_key_psg            (message_info,setting_bot,menu_name):   #### Получить меню из базы
+def gets_key_psg                (message_info,setting_bot,menu_name):   #### Получить меню из базы
     namebot = message_info.setdefault('namebot','')
     db,cursor = connect_postgres (namebot)
     sql     = "select id,name,menu,key11,key12,key13,key21,key22,key23,key31,key32,key33,key41,key42,key43,change11,change12,change13,change21,change22,change23,change31,change32,change33,change41,change42,change43,command11,command12,command13,command21,command22,command23,command31,command32,command33,command41,command42,command43 from menu where id = {}".format (menu_name)
@@ -3179,7 +3120,7 @@ def gets_key_psg            (message_info,setting_bot,menu_name):   #### Пол�
         
     return markup   
     
-def user_get_data_psg       (message_info,setting_bot,user_id):
+def user_get_data_psg           (message_info,setting_bot,user_id):
     namebot     = message_info['namebot']
     db,cursor   = connect_postgres (namebot)
     answer = {}
@@ -3192,7 +3133,7 @@ def user_get_data_psg       (message_info,setting_bot,user_id):
     return answer   
     
    #message_info,status_input,setting_bot,save_data
-def user_save_data_psg       (message_info,status_input,setting_bot,save_data):
+def user_save_data_psg          (message_info,status_input,setting_bot,save_data):
     namebot     = message_info['namebot']
     user_id     = message_info['user_id']
     db,cursor   = connect_postgres (namebot)
@@ -3222,7 +3163,7 @@ def user_save_data_psg       (message_info,status_input,setting_bot,save_data):
             db.close()  
     return status_input     
        
-def executing_autostart     (message_info,status_input,setting_bot,answer):
+def executing_autostart         (message_info,status_input,setting_bot,answer):
     namebot     = message_info['namebot']
     message_in  = message_info['message_in']
     user_id     = message_info['user_id']
