@@ -2321,7 +2321,6 @@ def executing_operator        (message_info,status_input,setting_bot,operation,i
         message_name    = setting_bot .setdefault ("Вопрос анкеты","Вопрос анкеты")
         message_out     = gets_message_psg        (message_info,setting_bot,message_name)
         message_text    = message_out.setdefault  ("Текст","Пустой текст")
-        
         db,cursor       = connect_postgres        (namebot)
         sql = "select id,name,ask,answer1,answer2,answer3,answer4 from  anketa where 1=1;".format()
         cursor.execute(sql)
@@ -2329,7 +2328,20 @@ def executing_operator        (message_info,status_input,setting_bot,operation,i
         for rec in data:
             id,name,ask,answer1,answer2,answer3,answer4 = rec
             print ('[+] Анкета: ',id,name,ask,answer1,answer2,answer3,answer4)
-        markup_list     = {}   
+        #markup_list     = {}   
+        
+        key = {}
+        key['Кнопка 11'] = "Ответ 1"
+        key['Кнопка 21'] = "Ответ 2"
+        key['Кнопка 31'] = "Ответ 3"
+        key['Кнопка 41'] = "Ответ 4"
+        
+        key['Команда 11'] = "Ответ 1"
+        key['Команда 21'] = "Ответ 2"
+        key['Команда 31'] = "Ответ 3"
+        key['Команда 41'] = "Ответ 4"
+        
+        markup_list = key_type_message (key)
         
         element = {}
         element['ask'] = str(ask)
@@ -2337,10 +2349,8 @@ def executing_operator        (message_info,status_input,setting_bot,operation,i
         element['answer2'] = str(answer2)
         element['answer3'] = str(answer3)
         element['answer4'] = str(answer4)
-        
         list_change     = get_list_change (message_info,status_input,setting_bot,message_text)    
         message_text    = change_message (message_info,status_input,setting_bot,message_text,list_change,element)    
-        
         answer          = edit_message            (message_info,setting_bot,user_id,message_text,markup_list,message_id) 
         
     if operation == 'anketa': 
