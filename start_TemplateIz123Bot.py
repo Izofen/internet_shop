@@ -10,212 +10,213 @@
 
 
 def connect_postgres        (dbname):  
-import psycopg2
-db = psycopg2.connect(dbname = dbname, user='postgres', password='podkjf4', host='localhost')
-cursor = db.cursor()       
-return db,cursor 
+    import psycopg2
+    db = psycopg2.connect(dbname = dbname, user='postgres', password='podkjf4', host='localhost')
+    cursor = db.cursor()       
+    return db,cursor 
 
 
 def list_find_menu  (message_info,status_input,setting_bot):
-user_id         = message_info['user_id']
-sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
-limit           = 20
-offset          = 0
-back            = ''
-ask             = "name = 'Поиск'"
-id_sql          = save_sql     (message_info,status_input,setting_bot,"Список поиска",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
-markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'find')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
-return markup_list 
+    user_id         = message_info['user_id']
+    sql             = "select id,`info` from `service` where ##s1## limit ##s2## offset ##s3##"
+    limit           = 20
+    offset          = 0
+    back            = ''
+    ask             = "name = 'Поиск'"
+    id_sql          = save_sql     (message_info,status_input,setting_bot,"Список поиска",sql,limit,offset,back)                                           ###  Мы делаем запись в базе, теперь получив номер выбора, можем расчитать изменения
+    markup_list     = complite_key (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'find')                                                      ###  id_sql - Код SQL запроса, по этому коду будем получать данные, метка - оператор в json параметре, ask - отбор выборки 1=1
+    return markup_list 
 
 def change_simvol   (message_out):
-message_out = message_out.replace ('<','#')
-message_out = message_out.replace ('>','#')
-#message_out = message_out.replace ('/','.')
-message_out = message_out.replace ('#b#','<b>')
-message_out = message_out.replace ('#/b#','</b>')
-message_out = message_out.replace ('#.b#','</b>')
-message_out = message_out.replace ('#code#','<code>')
-message_out = message_out.replace ('#/code#','</code>')
-#message_out = message_out.replace ('<b>','')
-#message_out = message_out.replace ('</b>','')
-return message_out
+    message_out = message_out.replace ('<','#')
+    message_out = message_out.replace ('>','#')
+    #message_out = message_out.replace ('/','.')
+    message_out = message_out.replace ('#b#','<b>')
+    message_out = message_out.replace ('#/b#','</b>')
+    message_out = message_out.replace ('#.b#','</b>')
+    message_out = message_out.replace ('#code#','<code>')
+    message_out = message_out.replace ('#/code#','</code>')
+    #message_out = message_out.replace ('<b>','')
+    #message_out = message_out.replace ('</b>','')
+    return message_out
 
 def change_word     (message_text,new):
-#message_text  = message_out
-message_text = message_text.replace('%%code%%'      ,str(new['ID']))  
-message_text = message_text.replace('%%title%%'     ,str(new['title']))  
-message_text = message_text.replace('%%url%%'       ,str(new['url']))
-message_text = message_text.replace('%%title02%%'   ,str(new['title02']))
-message_text = message_text.replace('%%title03%%'   ,str(new['title03']))
-message_text = message_text.replace('%%magnet%%'    ,str(new['magnet']))
-message_text = message_text.replace('%%main%%'      ,str(new['text']))
-message_text = message_text.replace('%%rek%%'       ,str('https://t.me/nnm_a123_bot'))
-#message_out = message_text; 
-return message_text
+    #message_text  = message_out
+    message_text = message_text.replace('%%code%%'      ,str(new['ID']))  
+    message_text = message_text.replace('%%title%%'     ,str(new['title']))  
+    message_text = message_text.replace('%%url%%'       ,str(new['url']))
+    message_text = message_text.replace('%%title02%%'   ,str(new['title02']))
+    message_text = message_text.replace('%%title03%%'   ,str(new['title03']))
+    message_text = message_text.replace('%%magnet%%'    ,str(new['magnet']))
+    message_text = message_text.replace('%%main%%'      ,str(new['text']))
+    message_text = message_text.replace('%%rek%%'       ,str('https://t.me/nnm_a123_bot'))
+    #message_out = message_text; 
+    return message_text
 
 def message_slip_tg (message_info,new,setting):
-import iz_bot
-#info_data    = {'Имя':'Главное сообщение телеграмм','Сохранить':'Да'}
-#message_out  = iz_bot.get_message (message_info,info_data)['Текст']
-message_out = setting['message01']
-message_out = change_word (message_out,new)
-dl = len (message_out)
-if dl > 800:
-    message_out_01 = setting['message02']
-    message_out_01 = change_word (message_out_01,new)        
-    message_out_02 = setting['message03']
-    message_out_02 = change_word (message_out_02,new)        
-else:    
-    message_out_01 = message_out
-    message_out_02 = ''
-    
-message_out_01 = change_simvol (message_out_01)
-message_out_02 = change_simvol (message_out_02)
-    
-return [message_out_01,message_out_02]
+    import iz_bot
+    #info_data    = {'Имя':'Главное сообщение телеграмм','Сохранить':'Да'}
+    #message_out  = iz_bot.get_message (message_info,info_data)['Текст']
+    message_out = setting['message01']
+    message_out = change_word (message_out,new)
+    dl = len (message_out)
+    if dl > 800:
+        message_out_01 = setting['message02']
+        message_out_01 = change_word (message_out_01,new)        
+        message_out_02 = setting['message03']
+        message_out_02 = change_word (message_out_02,new)        
+    else:    
+        message_out_01 = message_out
+        message_out_02 = ''
+        
+    message_out_01 = change_simvol (message_out_01)
+    message_out_02 = change_simvol (message_out_02)
+        
+    return [message_out_01,message_out_02]
 
 def message_send_tg (chat_id,token_avtor,message_out,picture):
-import requests
-message_out_01 = message_out[0]
-message_out_02 = message_out[1]
-params = {}
-method = "sendPhoto"
-params['chat_id'] = int(chat_id) ##-1001644105615
-params['caption'] = str(message_out_01)
-params['parse_mode'] = 'HTML'
-parsed_string = ''
-print ('[+] picture:',picture)
-if picture != '':
-    file_path = 'W:/Picture/'+picture
-    try:
-        file_opened = open(file_path, 'rb')
-    except:    
-        file_path = 'W:/Picture_9/'+picture
-        file_opened = open(file_path, 'rb')
-    files = {'photo': file_opened}
-    token_tg = token_avtor #'6422168947:AAGy4pzndN1WYgMyFRf_mVXF6gEptDpzLz0'
-    url='https://api.telegram.org/bot{0}/{1}'.format(token_tg, method)   
-    response = requests.post(url, params, files=files)
-    parsed_string = response.json() 
-else:
-    method = "sendMessage"
-    params['text'] = str(message_out_01)
-    token_tg = token_avtor
-    url  = 'https://api.telegram.org/bot{0}/{1}'.format(token_tg, method)
-    resp = requests.post(url, params) 
-    answer = resp.json()
-    print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
-    print ( answer)
-    print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
-    print ('')  
-#parsed_print   ('Отправка сообщения в группу',parsed_string)
-print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
-print ( parsed_string)
-print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
-print ('')       
-if message_out_02 != '':
-    method = "sendMessage"
+    import requests
+    message_out_01 = message_out[0]
+    message_out_02 = message_out[1]
     params = {}
-    params['chat_id'] = int(chat_id)                  
-    params['text'] = str(message_out_02)
+    method = "sendPhoto"
+    params['chat_id'] = int(chat_id) ##-1001644105615
+    params['caption'] = str(message_out_01)
     params['parse_mode'] = 'HTML'
-    url  = 'https://api.telegram.org/bot{0}/{1}'.format(token_tg, method)
-    try:
+    parsed_string = ''
+    print ('[+] picture:',picture)
+    if picture != '':
+        file_path = 'W:/Picture/'+picture
+        try:
+            file_opened = open(file_path, 'rb')
+        except:    
+            file_path = 'W:/Picture_9/'+picture
+            file_opened = open(file_path, 'rb')
+        files = {'photo': file_opened}
+        token_tg = token_avtor #'6422168947:AAGy4pzndN1WYgMyFRf_mVXF6gEptDpzLz0'
+        url='https://api.telegram.org/bot{0}/{1}'.format(token_tg, method)   
+        response = requests.post(url, params, files=files)
+        parsed_string = response.json() 
+    else:
+        method = "sendMessage"
+        params['text'] = str(message_out_01)
+        token_tg = token_avtor
+        url  = 'https://api.telegram.org/bot{0}/{1}'.format(token_tg, method)
         resp = requests.post(url, params) 
-    except:    
-        print ('[+] Ожидание перед повторным отправлением телеграмм каталоги 10 сек.')
-        time.sleep (10)
-        resp = requests.post(url, params) 
-    answer = resp.json()
+        answer = resp.json()
+        print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
+        print ( answer)
+        print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
+        print ('')  
+    #parsed_print   ('Отправка сообщения в группу',parsed_string)
     print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
-    print ( answer)
+    print ( parsed_string)
     print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
-    print ('')        
-return parsed_string
+    print ('')       
+    if message_out_02 != '':
+        method = "sendMessage"
+        params = {}
+        params['chat_id'] = int(chat_id)                  
+        params['text'] = str(message_out_02)
+        params['parse_mode'] = 'HTML'
+        url  = 'https://api.telegram.org/bot{0}/{1}'.format(token_tg, method)
+        try:
+            resp = requests.post(url, params) 
+        except:    
+            print ('[+] Ожидание перед повторным отправлением телеграмм каталоги 10 сек.')
+            time.sleep (10)
+            resp = requests.post(url, params) 
+        answer = resp.json()
+        print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
+        print ( answer)
+        print ('[+]👧------------------------------------------------------------ [Ответ Отправки] -------------------------------------------------------👧[+]') 
+        print ('')        
+    return parsed_string
 
 def send_telegram_message (message_info,status_input,setting_bot,list_answer):
-import iz_bot
-namebot = message_info.setdefault ('namebot','')
-setting = iz_bot.get_setting_prog ('nnm-club')
-user_id = message_info['user_id']
-for rec in list_answer: 
-    id,code,name,text,title02,title03,magnet,picture  =  rec
-    new = {}
-    new['ID']               = code
-    new['url']              = ''
-    new['title']            = name.strip()
-    new['text']             = text.strip()
-    new['picture_url']      = ''    
-    new['picture']          = picture.strip()
-    new['title_page']       = ''
-    new['magnet']           = magnet.strip()
-    new['title02']          = title02.strip()
-    new['title03']          = title03.strip()
-    message_info = {'namebot':namebot}
-    token_avtor = setting_bot.setdefault ('Токен','')
-    message_out = message_slip_tg (message_info,new,setting) 
-    answer      = message_send_tg (user_id,token_avtor,message_out,picture)   
-return answer
+    import iz_bot
+    namebot = message_info.setdefault ('namebot','')
+    setting = iz_bot.get_setting_prog ('nnm-club')
+    user_id = message_info['user_id']
+    for rec in list_answer: 
+        id,code,name,text,title02,title03,magnet,picture  =  rec
+        new = {}
+        new['ID']               = code
+        new['url']              = ''
+        new['title']            = name.strip()
+        new['text']             = text.strip()
+        new['picture_url']      = ''    
+        new['picture']          = picture.strip()
+        new['title_page']       = ''
+        new['magnet']           = magnet.strip()
+        new['title02']          = title02.strip()
+        new['title03']          = title03.strip()
+        message_info = {'namebot':namebot}
+        token_avtor = setting_bot.setdefault ('Токен','')
+        message_out = message_slip_tg (message_info,new,setting) 
+        answer      = message_send_tg (user_id,token_avtor,message_out,picture)   
+    return answer
 
 def execution_procedure (message_info,status_input,setting_bot,word):
-import iz_bot
-db,cursor       = iz_bot.connect_postgres ()
-sql             = "select id,code,name,text,title02,title03,magnet,picture from torrent where (name like '%{}%' or text like '%{}%' ) and picture <> 'Нет картинки' and pic_type <> 'Файл не найден ' order by id desc limit 10;".format (word,word)
-cursor.execute(sql)
-data            = cursor.fetchall()
-answer          = []
-for rec in data:
-    id,code,name,text,title02,title03,magnet,picture = rec
-    answer.append ([id,code,name,text,title02,title03,magnet,picture])        
-return answer
-
-def execution_procedure_sql (message_info,status_input,setting_bot,sql):
-import iz_bot
-db,cursor       = iz_bot.connect_postgres ()
-cursor.execute(sql)
-data            = cursor.fetchall()
-answer          = []
-for rec in data:
-    id,code,name,text,title02,title03,magnet,picture = rec
-    answer.append ([id,code,name,text,title02,title03,magnet,picture])        
-return answer    
-
-def history_order (message_info,status_input,setting_bot,answer):
-if answer.setdefault('name','') == 'Поиск торрент':
-    namebot     = message_info.setdefault('namebot','')
-    user_id     = message_info['user_id']
-    ask_info    = get_active_ask (message_info,status_input,setting_bot,'Новое сообщение в боте')
-    active1     = answer.setdefault('active1','')
-    active2     = answer.setdefault('active2','')
-    active3     = answer.setdefault('active3','')
-    active4     = answer.setdefault('active4','')
-    active5     = answer.setdefault('active5','')
-    from iz_bot import connect as connect
-    db,cursor   = connect (namebot)
-    import time
-    unixtime    = int(time.time ())
-    sql         = "INSERT INTO history (`name`,`user_id`,`active1`,`active2`,`active3`,`active4`,`active5`,unixtime) VALUES ('{}','{}','{}','{}','{}','{}','{}',{})".format (answer['name'],user_id,active1,active2,active3,active4,active5,unixtime)
+    import iz_bot
+    db,cursor       = iz_bot.connect_postgres ()
+    sql             = "select id,code,name,text,title02,title03,magnet,picture from torrent where (name like '%{}%' or text like '%{}%' ) and picture <> 'Нет картинки' and pic_type <> 'Файл не найден ' order by id desc limit 10;".format (word,word)
     cursor.execute(sql)
-    db.commit()
+    data            = cursor.fetchall()
+    answer          = []
+    for rec in data:
+        id,code,name,text,title02,title03,magnet,picture = rec
+        answer.append ([id,code,name,text,title02,title03,magnet,picture])        
+    return answer
+    
+def execution_procedure_sql (message_info,status_input,setting_bot,sql):
+    import iz_bot
+    db,cursor       = iz_bot.connect_postgres ()
+    cursor.execute(sql)
+    data            = cursor.fetchall()
+    answer          = []
+    for rec in data:
+        id,code,name,text,title02,title03,magnet,picture = rec
+        answer.append ([id,code,name,text,title02,title03,magnet,picture])        
+    return answer    
+    
+def history_order (message_info,status_input,setting_bot,answer):
+    if answer.setdefault('name','') == 'Поиск торрент':
+        namebot     = message_info.setdefault('namebot','')
+        user_id     = message_info['user_id']
+        ask_info    = get_active_ask (message_info,status_input,setting_bot,'Новое сообщение в боте')
+        active1     = answer.setdefault('active1','')
+        active2     = answer.setdefault('active2','')
+        active3     = answer.setdefault('active3','')
+        active4     = answer.setdefault('active4','')
+        active5     = answer.setdefault('active5','')
+        from iz_bot import connect as connect
+        db,cursor   = connect (namebot)
+        import time
+        unixtime    = int(time.time ())
+        sql         = "INSERT INTO history (`name`,`user_id`,`active1`,`active2`,`active3`,`active4`,`active5`,unixtime) VALUES ('{}','{}','{}','{}','{}','{}','{}',{})".format (answer['name'],user_id,active1,active2,active3,active4,active5,unixtime)
+        cursor.execute(sql)
+        db.commit()
 
 
 def get_order_psg (message_info,status_input,setting_bot,answer,id_list):
-namebot     = message_info.setdefault('namebot','')
-user_id     = message_info.setdefault('user_id','')
-db,cursor   = connect_postgres (namebot)
+    namebot     = message_info.setdefault('namebot','')
+    user_id     = message_info.setdefault('user_id','')
+    db,cursor   = connect_postgres (namebot)
+        
+    sql = "select id,info,name,master,service from order_master where id = {} ;".format (id_list)
+    cursor.execute(sql)
+    results  = cursor.fetchall()
+    #data_id  = 0
+    #for row in results:
+    #    id,name,info,data_id = row.values()
+    cursor.execute(sql)
+    db.commit()
     
-sql = "select id,info,name,master,service from order_master where id = {} ;".format (id_list)
-cursor.execute(sql)
-results  = cursor.fetchall()
-#data_id  = 0
-#for row in results:
-#    id,name,info,data_id = row.values()
-cursor.execute(sql)
-db.commit()
-return results 
-
-
-
+    
+    
+    
+    
 
 def update_order_psg (message_info,status_input,setting_bot,answer,id,name,info):
     namebot     = message_info.setdefault('namebot','')
