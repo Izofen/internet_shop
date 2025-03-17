@@ -2344,6 +2344,8 @@ def executing_operator        (message_info,status_input,setting_bot,operation,i
         markup_list = key_type_message (key)
         
         
+        
+        
         element = {}
         element['ask'] = str(ask)
         element['answer1'] = str(answer1)
