@@ -598,7 +598,7 @@ def get_list_change         (message_info,status_input,setting_bot,message):    
 
 def change_message          (message_info,status_input,setting_bot,message,list_change,element):                                                                ###  Меняем в сообшение значение на параметры             
     for line in list_change:
-        message = message.replace (line,element.setdefault(line,''))    
+        message = message.replace ("##"+str(line)+"##",element.setdefault(line,''))    
     return message
        
 def get_service             (message_info,status_input,setting_bot,data_id):                                                                                    ###  Получение информации о услугах  
@@ -2328,24 +2328,16 @@ def executing_operator        (message_info,status_input,setting_bot,operation,i
         for rec in data:
             id,name,ask,answer1,answer2,answer3,answer4 = rec
             print ('[+] Анкета: ',id,name,ask,answer1,answer2,answer3,answer4)
-        #markup_list     = {}   
-        
         key = {}
         key['Кнопка 11'] = "Ответ 1"
         key['Кнопка 21'] = "Ответ 2"
         key['Кнопка 31'] = "Ответ 3"
         key['Кнопка 41'] = "Ответ 4"
-        
         key['Команда 11'] = "Ответ 1"
         key['Команда 21'] = "Ответ 2"
         key['Команда 31'] = "Ответ 3"
         key['Команда 41'] = "Ответ 4"
-        
         markup_list = key_type_message (key)
-        
-        
-        
-        
         element = {}
         element['ask'] = str(ask)
         element['answer1'] = str(answer1)
