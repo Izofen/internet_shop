@@ -9,12 +9,11 @@
 ### Узко специализированные программы ###
 
 
-def connect_postgres        (dbname):  
+def connect_postgres        (namebot):  
     import psycopg2
-    db = psycopg2.connect(dbname = dbname, user='postgres', password='podkjf4', host='localhost')
+    db = psycopg2.connect(dbname = namebot, user='postgres', password='podkjf4', host='localhost')
     cursor = db.cursor()       
     return db,cursor 
-
 
 def list_find_menu  (message_info,status_input,setting_bot):
     user_id         = message_info['user_id']
@@ -198,7 +197,6 @@ def history_order (message_info,status_input,setting_bot,answer):
         cursor.execute(sql)
         db.commit()
 
-
 def get_order_psg (message_info,status_input,setting_bot,answer,id_list):
     namebot     = message_info.setdefault('namebot','')
     user_id     = message_info.setdefault('user_id','')
@@ -213,9 +211,6 @@ def get_order_psg (message_info,status_input,setting_bot,answer,id_list):
     cursor.execute(sql)
     db.commit()
     return results 
-
-
-
 
 def update_order_psg (message_info,status_input,setting_bot,answer,id,name,info):
     namebot     = message_info.setdefault('namebot','')
@@ -1729,10 +1724,10 @@ def get_message_tovar       (message_info,status_input,setting_bot,id_list,info_
    
 ##################################################################################################################################################################################################    
    
-def print_operator          (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Печать команды оператор в json
+def print_operator            (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back):                                                           ###  Печать команды оператор в json
     pass
     
-def get_name_picture        (message_info,status_input,setting_bot,nomer,move):
+def get_name_picture          (message_info,status_input,setting_bot,nomer,move):
     namebot      = message_info.setdefault ("namebot","")
     name_picture = ''
     
@@ -1794,7 +1789,6 @@ def get_name_picture        (message_info,status_input,setting_bot,nomer,move):
     print ('[name_picture] :',name_picture)        
     return name_picture,id
     
-    
 def complite_key_psg_calendar (message_info,setting_bot,month,years,id_order,lab):  
     import json
     key_array = {}
@@ -1845,7 +1839,6 @@ def complite_key_psg_calendar (message_info,setting_bot,month,years,id_order,lab
     markup   = key_type_message (key_array)
     return markup    
     
-    
 def key_change (key):
     if key == "ЛЕВО": key = "←"
     if key == "ПРАВО": key = "→"
@@ -1862,15 +1855,14 @@ def key_change (key):
     key = key.replace('November'   ,'Ноябрь')
     key = key.replace('December'   ,'Декабрь')
     return key    
-    
-    
-def get_datetime_range(year, month):
+        
+def get_datetime_range        (year, month):
     from calendar import monthrange
     import datetime
     nb_days = monthrange(year, month)[1]
     return [datetime.date(year, month, day) for day in range(1, nb_days+1)]
     
-def complite_calendar (data_g,data_m,day_x):
+def complite_calendar         (data_g,data_m,day_x):
     import datetime
     days     = get_datetime_range(data_g, data_m)
     str_d    = str(data_g)+"-"+str(data_m)
@@ -1898,9 +1890,7 @@ def complite_calendar (data_g,data_m,day_x):
             nomer = nomer + 1    
     return lab   
 
-
-
-def get_name_master_in_id (message_info,status_input,setting_bot,id_list):
+def get_name_master_in_id     (message_info,status_input,setting_bot,id_list):
     namebot     = message_info.setdefault('namebot','')
     #user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
@@ -1920,9 +1910,7 @@ def get_name_master_in_id (message_info,status_input,setting_bot,id_list):
     #db.commit()
     return records
 
-
-
-def get_name_service_in_id (message_info,status_input,setting_bot,id_list):
+def get_name_service_in_id    (message_info,status_input,setting_bot,id_list):
     namebot     = message_info.setdefault('namebot','')
     #user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
@@ -1942,8 +1930,7 @@ def get_name_service_in_id (message_info,status_input,setting_bot,id_list):
     #db.commit()
     return records
 
-
-def get_name_adress_in_id (message_info,status_input,setting_bot,id_list):
+def get_name_adress_in_id     (message_info,status_input,setting_bot,id_list):
     namebot     = message_info.setdefault('namebot','')
     #user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
@@ -1962,9 +1949,8 @@ def get_name_adress_in_id (message_info,status_input,setting_bot,id_list):
     #lastid = result[0]
     #db.commit()
     return records
-   
-    
-def executing_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back,id_lab):   ### Для кнопок с командой -i                                                           ###  Выполнение команды оператор в json
+       
+def executing_operator        (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back,id_lab):   ### Для кнопок с командой -i                                                           ###  Выполнение команды оператор в json
     answer = {}
     
     if 1==1:
@@ -1975,12 +1961,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         data_json       = json.loads                (json_string)
         label          = data_json.setdefault      ('l','')
         label_y          = data_json.setdefault      ('y','')
-        label_m          = data_json.setdefault      ('m','')
-        #label_y = int(label_y.replace ('y',''))
-        #label_m = int(label_m.replace ('m',''))
-        #label_m_r = label_m + 1
-        #label_m_l = label_m - 1    
-    
+        label_m          = data_json.setdefault      ('m','')   
     
     if operation == 'time':
         #name_master = get_name_master_in_id (message_info,status_input,setting_bot,id_list)
@@ -2018,10 +1999,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             message_text = message_text.replace ('##'+change+'##',get_data)        
         answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)      
         
-        
-        
-    
-    
     if operation == 'mastr':
         name_master = get_name_master_in_id (message_info,status_input,setting_bot,id_list)
         name_master_text   = '1111'
@@ -2053,8 +2030,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             message_text = message_text.replace ('##'+change+'##',get_data)        
         answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)      
     
-    
-    
     if operation == 'serv':
         name_servise = get_name_service_in_id (message_info,status_input,setting_bot,id_list)
         name_servise_text   = '1111'
@@ -2085,7 +2060,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             get_data = info_service.setdefault (change,"4444")
             message_text = message_text.replace ('##'+change+'##',get_data)        
         answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)        
-    
     
     if operation == 'filtr':
         if id_list == 8:
@@ -2224,11 +2198,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             markup_list     = complite_key_psg_calendar (message_info,setting_bot,label_m_l,label_y,"1",lab)   
             answer  = send_message      (message_info,setting_bot,user_id,message_text,markup_list) 
 
-
-
-
-
-
     if operation == 'adress':
         name_adress = get_name_adress_in_id (message_info,status_input,setting_bot,id_list)
         name_adres_text   = ''
@@ -2252,7 +2221,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         for change in list_change:
             message_text = message_text.replace ('##'+change+'##',info_service.setdefault (change,""))        
         answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)
-   
     
     if operation == 'picture':
         if id_list == 7:
@@ -2341,44 +2309,39 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
     if operation == 'find':
         send_user_message_v1    (message_info,status_input,setting_bot,"Список последних обновлений по данной категории")
         status_input        = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]])
-        #sql                 = "select id,code,name,text,title02,title03,magnet,picture from torrent where title02 = 'Win Игры' and picture <> 'Нет картинки' and pic_type <> 'Файл не найден ' order by id desc limit 10;".format ()
-        #print ('[id_list]',id_list)
         info_ask_torrent    = get_service       (message_info,status_input,setting_bot,id_list)
-        #print ('[info_ask_torrent] : ',info_ask_torrent)
         sql = info_ask_torrent['SQL']
         list_answer         = execution_procedure_sql (message_info,status_input,setting_bot,sql)
         send_telegram_message (message_info,status_input,setting_bot,list_answer)
         
-        
     if operation == 'ask': 
-        namebot         = message_info.setdefault('namebot','')
+        namebot         = message_info.setdefault ('namebot','')
         user_id         = message_info.setdefault ('user_id','') 
-        message_id      = message_info.setdefault('message_id','')
-        #sql             = "select id,ask from anketa where ##s1## limit ##s2## offset ##s3##"
-        #limit           = 10
-        #offset          = 0
-        #back            = ''
-        #ask             = "1=1"
-        #id_sql          = save_sql_psg       (message_info,status_input,setting_bot,"Список фильтр",sql,limit,offset,back)                                           
-        #markup_list     = complite_key_psg_2   (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'ask',label) 
-        message_name        = setting_bot .setdefault ("Вопрос анкеты","Вопрос анкеты")
-        message_out         = gets_message_psg (message_info,setting_bot,message_name)
-        message_text        = message_out.setdefault ("Текст","Пустой текст")
-        #for row in info_order:
-        #    id,info,name,master,service = row
-        #info_service = {}
-        #info_service ['Адрес']  = name
-        #info_service ['Услуга'] = service
-        #info_service ['Мастер'] = master
-        #list_change         = get_list_change         (message_info,status_input,setting_bot,message_text)
-        #for change in list_change:
-        #    get_data = info_service.setdefault (change,"4444")
-        #    message_text = message_text.replace ('##'+change+'##',get_data)  
+        message_id      = message_info.setdefault ('message_id','')
+        message_name    = setting_bot .setdefault ("Вопрос анкеты","Вопрос анкеты")
+        message_out     = gets_message_psg        (message_info,setting_bot,message_name)
+        message_text    = message_out.setdefault  ("Текст","Пустой текст")
+        
+        db,cursor       = connect_postgres        (namebot)
+        sql = "select id,name,ask,answer1,answer2,answer3,answer4 from  anketa where 1=1;".format()
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        for rec in data:
+            id,name,ask,answer1,answer2,answer3,answer4 = rec
+            print ('[+] Анкета: ',id,name,ask,answer1,answer2,answer3,answer4)
         markup_list     = {}   
-        answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id) 
         
+        element = {}
+        element['ask'] = str(ask)
+        element['answer1'] = str(answer1)
+        element['answer2'] = str(answer2)
+        element['answer3'] = str(answer3)
+        element['answer4'] = str(answer4)
         
+        list_change     = get_list_change (message_info,status_input,setting_bot,message_text)    
+        message_text    = change_message (message_info,status_input,setting_bot,message_text,list_change,element)    
         
+        answer          = edit_message            (message_info,setting_bot,user_id,message_text,markup_list,message_id) 
         
     if operation == 'anketa': 
         namebot         = message_info.setdefault('namebot','')
@@ -2394,32 +2357,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
         message_name        = setting_bot .setdefault ("Список вопросов","Список вопросов")
         message_out         = gets_message_psg (message_info,setting_bot,message_name)
         message_text        = message_out.setdefault ("Текст","Пустой текст")
-        #for row in info_order:
-        #    id,info,name,master,service = row
-        #info_service = {}
-        #info_service ['Адрес']  = name
-        #info_service ['Услуга'] = service
-        #info_service ['Мастер'] = master
-        #list_change         = get_list_change         (message_info,status_input,setting_bot,message_text)
-        #for change in list_change:
-        #    get_data = info_service.setdefault (change,"4444")
-        #    message_text = message_text.replace ('##'+change+'##',get_data)        
         answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
        
     if operation == 'catat':                                                                                                                                    ###  Нажата кнопка в списке
         ### id_list - id товара в списке
@@ -2466,7 +2404,7 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
     if operation == 'menu': 
         pass
 
-    if operation == 'key':                                                  ### Пришла команда изменения цвета
+    if operation == 'key':                                                                                                                                      ### Пришла команда изменения цвета
         from iz_bot import connect as connect  
         namebot             = message_info.setdefault('namebot','')
         db,cursor           = connect (namebot)         
@@ -2490,7 +2428,6 @@ def executing_operator      (message_info,status_input,setting_bot,operation,id_
             message_out,markup   = get_message_setting    (message_info,status_input,setting_bot,info_service)                                                  ### Вывод сообщения у которого заполнены все переменные
             answer               = edit_message           (message_info,setting_bot,user_id,message_out,markup,message_id)
 
-
     return ''
  
 def executing_program_json  (message_info,status_input,setting_bot):                                                                                            ###  Разбор команды оператор в json
@@ -2507,7 +2444,7 @@ def executing_program_json  (message_info,status_input,setting_bot):            
     print_operator      (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back)                                    ###  Печатаем команды полученные  в json
     executing_operator  (message_info,status_input,setting_bot,operation,id_list,id_sql,id_back,id_lab)                                    ###  Выполняем команды полученные в json
 
-def testing_time            (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                                                   ###  Проверка поподания в определенный дэопазон времени    
+def testing_time            (message_info,status_input,setting_bot,hour_start,minute_start,hour_finishe,minute_finishe):                                        ###  Проверка поподания в определенный дэопазон времени    
     import datetime
     import iz_bot
     now         = datetime.datetime.now()
@@ -2516,7 +2453,7 @@ def testing_time            (message_info,status_input,setting_bot,hour_start,mi
     now_date    = datetime.datetime.now()
     current_date_string = now.strftime('%d.%m.%y %H:%M:%S')
    
-def build_jsom (dict):    #### {"o":"next","sql":id_sql}
+def build_jsom (dict):       #### {"o":"next","sql":id_sql}
     json_message = str(dict)
     json_message = json_message.replace ("'",'"')
     json_message = json_message.replace ('"','#')
@@ -2526,8 +2463,7 @@ def build_jsom (dict):    #### {"o":"next","sql":id_sql}
     json_message = json_message.replace (": ",':')
     return (json_message) 
 
-
-def complite_key_psg_2            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka,lab):                                                                  ###  Формируем кнопокe из списока  по переданным нам параметрам
+def complite_key_psg_2      (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka,lab):                                                              ###  Формируем кнопокe из списока  по переданным нам параметрам
     import json
     namebot         = message_info.setdefault('namebot','')
     db,cursor       = connect_postgres (namebot)    
@@ -2554,10 +2490,7 @@ def complite_key_psg_2            (message_info,setting_bot,id_sql,sql,ask,limit
     markup   = key_type_message (key_array)
     return markup
 
-
-
-
-def complite_key_psg            (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka,lab):                                                                  ###  Формируем кнопокe из списока  по переданным нам параметрам
+def complite_key_psg        (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,metka,lab):                                                              ###  Формируем кнопокe из списока  по переданным нам параметрам
     import json
     namebot         = message_info.setdefault('namebot','')
     db,cursor       = connect_postgres (namebot)    
@@ -2588,7 +2521,7 @@ def complite_key_psg            (message_info,setting_bot,id_sql,sql,ask,limit,o
     markup   = key_type_message (key_array)
     return markup  
 
-def save_sql_psg                                (message_info,status_input,setting_bot,name,sql,limit,offset,back):
+def save_sql_psg            (message_info,status_input,setting_bot,name,sql,limit,offset,back):
     namebot    = message_info.setdefault('namebot','')
     #from iz_bot import connect_postgres as connect_postgres
     db,cursor    = connect_postgres (namebot)
@@ -2803,13 +2736,6 @@ def executing_message       (message_info,status_input,setting_bot,answer):
     
     if callback   == 'Лицензии': 
         namebot      = message_info.setdefault ("namebot","") 
-        #db,cursor    = connect_postgres (namebot)
-        #sql = "select id,name from picture where 1=1 order by id".format()
-        #cursor.execute(sql)
-        #data = cursor.fetchall()
-        #for rec in data:
-        #    id,name = rec
-        #    name_picture    =  name
         name_picture,id_picture = get_name_picture (message_info,status_input,setting_bot,0,'right')
         import requests        
         params = {}
@@ -2881,7 +2807,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
     user_id     =   message_info.setdefault ("user_id","")
     message_id  =   message_info.setdefault ("message_id","")
     
-    
     if callback   == 'Анкета':
         message_id      = message_info.setdefault('message_id','')
         user_id         = message_info.setdefault ('user_id','') 
@@ -2894,22 +2819,8 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         markup_list     = complite_key_psg_2   (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'anketa',0) 
         message_name        = setting_bot .setdefault ("Показать адрес","Список Анкет")
         message_out         = gets_message_psg (message_info,setting_bot,message_name)
-        message_text        = message_out.setdefault ("Текст","Пустой текст")
-        #for row in info_order:
-        #    id,info,name,master,service = row
-        #info_service = {}
-        #info_service ['Адрес']  = name
-        #info_service ['Услуга'] = service
-        #info_service ['Мастер'] = master
-        #list_change         = get_list_change         (message_info,status_input,setting_bot,message_text)
-        #for change in list_change:
-        #    get_data = info_service.setdefault (change,"4444")
-        #    message_text = message_text.replace ('##'+change+'##',get_data)        
+        message_text        = message_out.setdefault ("Текст","Пустой текст")      
         answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id) 
-        
-        
-        
-    
     
     if callback   == 'Оставить отзыв':
         save_data  = [['Статус','Ввод предложения']]
@@ -2917,7 +2828,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
 
     if callback.find ('i_') != -1 and callback.find ('game_farmer') == -1 :                                                                                                  ###  Кнопка которая передала в json информацию
         executing_program_json (message_info,status_input,setting_bot)
-    
     
     if callback == 'О нас':
         import requests
@@ -2938,7 +2848,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         resp = requests.post(url, params, files=files)
         answer = resp.json()   
         print (    '[Ответ Отправки] :',answer)          
-        
         
     if callback == 'Записаться':
         last_id = create_order_psg (message_info,status_input,setting_bot,answer)
@@ -2961,7 +2870,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         markup_list         = complite_key_psg   (message_info,setting_bot,id_sql,sql,ask,limit,offset,back,'adress',last_id) 
         answer              = edit_message       (message_info,setting_bot,user_id,message_text,markup_list,message_id) 
     
-    
     if callback == 'Лево':  
         name_picture = "W:\\Send_Message\\a123bot_00581.jpg"
         import json
@@ -2980,7 +2888,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         resp = requests.post(url, params,files = files)                
         print (resp.json())
         
-    
     if callback == 'Право':                                                                                                  ###  Пример работы команды кнопки
         method = "editMessageMedia"
         import requests
@@ -3000,8 +2907,6 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         
         resp = requests.post(url, params,files = files)                
         print (resp.json())
-    
-    
     
     if callback == 'save_message':                                                                                                  ###  Пример работы команды кнопки
         pass
