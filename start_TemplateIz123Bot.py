@@ -202,11 +202,13 @@ def get_order_psg           (message_info,status_input,setting_bot,answer,id_lis
     namebot     = message_info.setdefault('namebot','')
     user_id     = message_info.setdefault('user_id','')
     db,cursor   = connect_postgres (namebot)
-    sql = "select id,info,name,master,service from order_master where id = {} ;".format (id_list)
+    sql = "select id,info,name,master,service,data1,data2 from order_master where id = {} ;".format (id_list)
+    print ('[sql]:',sql)
     cursor.execute(sql)
     results  = cursor.fetchall()
     cursor.execute(sql)
     db.commit()
+    return results 
     
 def update_order_psg        (message_info,status_input,setting_bot,answer,id,name,info):
     namebot     = message_info.setdefault('namebot','')
@@ -597,7 +599,7 @@ def get_list_change             (message_info,status_input,setting_bot,message):
 
 def change_message              (message_info,status_input,setting_bot,message,list_change,element):                                                                ###  Меняем в сообшение значение на параметры             
     for line in list_change:
-        message = message.replace (line,element.setdefault(line,''))    
+        message = message.replace ("##"+line+"##",element.setdefault(line,''))    
     return message
        
 def get_service                 (message_info,status_input,setting_bot,data_id):                                                                                    ###  Получение информации о услугах  
@@ -1898,10 +1900,10 @@ def get_name_master_in_id       (message_info,status_input,setting_bot,id_list):
     return records
     
     
-def get_name_time_in_id       (message_info,status_input,setting_bot,id_list):
+def get_name_time_in_id         (message_info,status_input,setting_bot,id_list):
     namebot     = message_info.setdefault('namebot','')
     db,cursor   = connect_postgres (namebot)
-    sql = "select id,name,info from time_calendar where id = {}".format (id_list)
+    sql = "select id,name,name from time_calendar where id = {}".format (id_list)
     cursor.execute(sql)
     records = cursor.fetchall()
     return records    
@@ -1944,7 +1946,7 @@ def executing_operator          (message_info,status_input,setting_bot,operation
             id,name_master_text,info = row  
         data2   = str(name_master_text)
         id = update_order_psg (message_info,status_input,setting_bot,answer,label,'data2',data2)
-        info_order = get_order_psg (message_info,status_input,setting_bot,'',label)
+        info_order      = get_order_psg (message_info,status_input,setting_bot,'',label)
         message_id      = message_info.setdefault('message_id','')
         sql             = "select id,info from service where ##s1## limit ##s2## offset ##s3##"
         limit           = 10
@@ -1958,15 +1960,20 @@ def executing_operator          (message_info,status_input,setting_bot,operation
         message_out     = gets_message_psg (message_info,setting_bot,message_name)
         message_text    = message_out.setdefault ("Текст","Пустой текст")
         for row in info_order:
-            id,info,name,master,service = row
-        info_service = {}
-        info_service ['Адрес']  = name
-        info_service ['Услуга'] = service
-        info_service ['Мастер'] = master
+            id,info,name,master,service,data1,data2 = row
+        element = {}
+        element ['Адрес']  = name
+        element ['Услуга'] = service
+        element ['Мастер'] = master
+        element ['Время']  = str(data1)+':'+str(data2)
         list_change         = get_list_change         (message_info,status_input,setting_bot,message_text)
-        for change in list_change:
-            get_data = info_service.setdefault (change,"4444")
-            message_text = message_text.replace ('##'+change+'##',get_data)        
+        #for change in list_change:
+        #    get_data = info_service.setdefault (change,"4444")
+        #    message_text = message_text.replace ('##'+change+'##',get_data)        
+        message_text    = change_message (message_info,status_input,setting_bot,message_text,list_change,element) 
+        
+        
+        
         answer          = edit_message      (message_info,setting_bot,user_id,message_text,markup_list,message_id)      
         
         
@@ -1993,7 +2000,7 @@ def executing_operator          (message_info,status_input,setting_bot,operation
         message_out         = gets_message_psg (message_info,setting_bot,message_name)
         message_text        = message_out.setdefault ("Текст","Пустой текст")
         for row in info_order:
-            id,info,name,master,service = row
+            id,info,name,master,service,data1,data2 = row
         info_service = {}
         info_service ['Адрес']  = name
         info_service ['Услуга'] = service
@@ -2026,7 +2033,7 @@ def executing_operator          (message_info,status_input,setting_bot,operation
         message_out         = gets_message_psg (message_info,setting_bot,message_name)
         message_text        = message_out.setdefault ("Текст","Пустой текст")
         for row in info_order:
-            id,info,name,master,service = row
+            id,info,name,master,service,data1,data2 = row
         info_service = {}
         info_service ['Адрес']  = name
         info_service ['Услуга'] = service
@@ -2658,34 +2665,66 @@ def save_message_user       (message_info,status_input,setting_bot):
     lastid = cursor.lastrowid
     return lastid 
     
+    
+def save_ask_user (message_info,status_input,setting_bot):
+    print ('[+]----------------------------[+]')
+    message_in      = message_info.setdefault ("message_in","")   
+    namebot         = message_info.setdefault ("namebot","") 
+    save_data           = [['Статус','']]
+    status_input        = user_save_data_psg  (message_info,status_input,setting_bot,save_data)    
+    user_id             = message_info.setdefault ("user_id","")   
+    message_name        = "Вопрос пользователя"
+    message_out         = gets_message_psg (message_info,setting_bot,message_name)
+    message_text        = message_out['Текст']
+    print ('[+] message_text:',message_text)
+    answer_null         = send_message (message_info,setting_bot,user_id,message_text,{})
+    db,cursor           = connect_postgres (namebot)
+    sql                 = "INSERT INTO ask (user_id,name,info,answer) VALUES ('{}','Оставить отзыв','{}','')".format (user_id,message_in)
+    cursor.execute(sql)
+    db.commit()  
+    list_admin = get_list_admin_psg          (message_info,status_input,setting_bot)
+    for line in list_admin:
+        id,send_user_id = line
+        message_text = 'Вопрос пользователя :\n' + str(message_in)
+        answer_null      = send_message (message_info,setting_bot,send_user_id,message_text,{})    
+    
+def save_survey_user (message_info,status_input,setting_bot):
+    message_in      = message_info.setdefault ("message_in","")   
+    namebot         = message_info.setdefault ("namebot","") 
+    save_data        = [['Статус','']]
+    status_input     = user_save_data_psg       (message_info,status_input,setting_bot,save_data)    
+    user_id          = message_info.setdefault ("user_id","")   
+    message_name     = "Предложение пользователя"
+    message_out      = gets_message_psg (message_info,setting_bot,message_name)
+    answer_null      = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
+    db,cursor        = connect_postgres (namebot)
+    sql              = "INSERT INTO survey (user_id,name,info,answer) VALUES ('{}','Оставить отзыв','{}','')".format (user_id,message_in)
+    cursor.execute(sql)
+    db.commit()  
+    list_admin = get_list_admin_psg          (message_info,status_input,setting_bot)
+    for line in list_admin:
+        id,send_user_id = line
+        message_text = 'Рекомендации :\n' + str(message_in)
+        answer_null      = send_message (message_info,setting_bot,send_user_id,message_text,{})
+
+
+    
+    
+    
 def executing_status        (message_info,status_input,setting_bot,answer):
+
+    print ('[++++]',status_input)
+
+
     if status_input.setdefault('Статус','') == 'Ввод города':                                                                       ###  Пример работы статусного сообщения
         pass
-    message_in      = message_info.setdefault ("message_in","")   
-    namebot         = message_info.setdefault ("namebot","")   
-    if status_input.setdefault('Статус','') == 'Ввод предложения':     
-        save_data   = [['Статус','']]
-        user_save_data_psg       (message_info,status_input,setting_bot,save_data)    
-        #send_user_message_v1    (message_info,status_input,setting_bot,"Данные записаны")
-        user_id      = message_info.setdefault ("user_id","")   
-        message_name     = "Данные записаны"
-        message_out      = gets_message_psg (message_info,setting_bot,message_name)
-        answer_null      = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})
-        db,cursor    = connect_postgres (namebot)
-        sql         = "INSERT INTO survey (user_id,name,info,answer) VALUES ('{}','Оставить отзыв','{}','')".format (user_id,message_in)
-        cursor.execute(sql)
-        db.commit()  
-        
-        list_admin = get_list_admin_psg          (message_info,status_input,setting_bot)
-        print ('[list_admin]',list_admin)
-        
-        for line in list_admin:
-            id,send_user_id = line
-            print ('[+]',id,send_user_id)
-            message_text = 'Рекомендации :' + str(message_in)
-            answer_null      = send_message (message_info,setting_bot,send_user_id,message_text,{})
-        
-        
+  
+    if status_input.setdefault('Статус','') == 'Задать вопрос пользователю':     
+        print ('[-][-][-][-][-][-][-][-][-][-][-][-][-][-][-][-][-][-][-][-]')
+        save_ask_user (message_info,status_input,setting_bot,)
+    
+    if status_input.setdefault('Статус','') == 'Ввод предложения':
+        save_survey_user (message_info,status_input,setting_bot)    
         
     answer = {}
     return answer 
@@ -2739,7 +2778,11 @@ def executing_message       (message_info,status_input,setting_bot,answer):
         resp = requests.post(url, params, files=files)
         answer = resp.json()   
         
-        
+    if callback   == 'Задать вопрос':
+        save_data   = [['Статус','Задать вопрос пользователю']]
+        user_save_data_psg       (message_info,status_input,setting_bot,save_data)  
+    
+    
         
     if message_in   == 'Вопрос':
         send_user_message_v1    (message_info,status_input,setting_bot,"Помошь по боту")
@@ -2797,24 +2840,25 @@ def executing_program       (message_info,status_input,setting_bot,answer):
         executing_program_json (message_info,status_input,setting_bot)
     
     if callback == 'О нас':
-        import requests
-        message_out = "Test video"
-        token = setting_bot['Токен']
-        method = "sendVideo"
-        name_video = 'W:\\Picture_site\\IMG_3950.MOV'
-        params = {}
-        params['chat_id'] = user_id
-        params['caption'] = str(message_out)
-        params['parse_mode'] = 'HTML'
-        params['show_caption_above_media'] = True
-        params['reply_markup'] = {}
-        file_path = name_video
-        file_opened = open(file_path, 'rb')
-        files = {'video': file_opened}
-        url='https://api.telegram.org/bot{0}/{1}'.format(token, method)            
-        resp = requests.post(url, params, files=files)
-        answer = resp.json()   
-        print (    '[Ответ Отправки] :',answer)          
+        pass
+        #import requests
+        #message_out = "Test video"
+        #token = setting_bot['Токен']
+        #method = "sendVideo"
+        #name_video = 'W:\\Picture_site\\IMG_3950.MOV'
+        #params = {}
+        #params['chat_id'] = user_id
+        #params['caption'] = str(message_out)
+        #params['parse_mode'] = 'HTML'
+        #params['show_caption_above_media'] = True
+        #params['reply_markup'] = {}
+        #file_path = name_video
+        #file_opened = open(file_path, 'rb')
+        #files = {'video': file_opened}
+        #url='https://api.telegram.org/bot{0}/{1}'.format(token, method)            
+        #resp = requests.post(url, params, files=files)
+        #answer = resp.json()   
+        #print (    '[Ответ Отправки] :',answer)          
         
     if callback == 'Записаться':
         last_id = create_order_psg (message_info,status_input,setting_bot,answer)
@@ -3147,9 +3191,6 @@ def user_save_data_psg          (message_info,status_input,setting_bot,save_data
         results = cursor.fetchall()   
         for row in results:
             id,name,info = row
-            
-        #print ('[+]',sql,id)    
-            
         if id == 0:
             sql         = "INSERT INTO user_setting (user_id,info,name,status) VALUES (%s,%s,%s,'')".format ()
             sql_save    = (user_id,line[1],line[0])
@@ -3167,28 +3208,36 @@ def executing_autostart         (message_info,status_input,setting_bot,answer):
     namebot     = message_info['namebot']
     message_in  = message_info['message_in']
     user_id     = message_info['user_id']
-    db,cursor = connect_postgres (namebot)
-    answer = {}
-    sql = "select id,name,info from message where name = '{}' and status = 'Автоматически'".format (message_in)
+    message_id  = message_info['message_id']
+    db,cursor   = connect_postgres (namebot)
+    answer      = {}
+    sql         = "select id,name,info from message where name = '{}' and status = 'Автоматически'".format (message_in)
     cursor.execute(sql)
     results = cursor.fetchall()    
     for row in results:
         id,name,info = row
         message_name     = name
         message_out      = gets_message_psg (message_info,setting_bot,message_name)
-        answer_null      = send_message (message_info,setting_bot,user_id,message_out['Текст'],{})        
-    callback =   message_info.setdefault ("callback","")
-    sql = "select id,name,info,menu from command where name = '{}' and status = 'Автоматически'".format (callback)
-    #print ('[sql] :',sql)
+        message_out_text = message_out['Текст']
+        answer_null      = send_message     (message_info,setting_bot,user_id,message_out_text,{})        
+    callback =   message_info.setdefault    ("callback","")
+    sql = "select id,name,info,menu,change_message from command where name = '{}' and status = 'Автоматически'".format (callback)
     cursor.execute(sql)
     results = cursor.fetchall()    
     for row in results:
-        id,name,info,menu = row
-        message_name     = name
-        message_text     = info 
-        #message_out      = gets_message_psg (message_info,setting_bot,message_name)
-        markup           = gets_key_psg (message_info,setting_bot,menu)
-        answer_null      = send_message (message_info,setting_bot,user_id,message_text,markup)    
+        id,name,info,menu,change_message    = row
+        message_name                        = name
+        message_text                        = info 
+        markup                              = gets_key_psg (message_info,setting_bot,menu)
+        
+        print ('[change_message]',change_message)
+        change_message = change_message.strip()
+        
+        if change_message == 'Нет':
+            answer_null                     = send_message (message_info,setting_bot,user_id,message_text,markup)    
+        if change_message == 'Да':   
+        
+            answer_null                     = edit_message (message_info,setting_bot,user_id,message_text,markup,message_id)    
     return answer 
       
 ##################################################################################################################################################################################################
@@ -3203,10 +3252,6 @@ def start_prog (message_info,parsed_string):                                    
     #status_input                    = user_get_data         (message_info,setting_bot,message_info['user_id'])                                                  ###  Получение из базы информацию по пользователю. Настройки и статусы. 
     #message_in                      = message_info.setdefault ("message_in","")
     #answer = {}
-    #if message_in == '⛔ Отмена':
-    #    send_user_message_v1      (message_info,status_input,setting_bot,'Отмена ввода слова')
-    #    status_input              = user_save_data (message_info,status_input,setting_bot,[["Сбор данных",""]]) 
-    #    return ''
     #callback        = message_info.setdefault ("callback","")
     #answer                         = testing_time          (message_info,status_input,setting_bot,14,15,9,15)                                                  ###  Проверка выполнения программы в указаннно деапазоне времени                                                           
     #print_status                                            (message_info,status_input,setting_bot)                                                             ###  Отображаем инфрмацию о настройках и статусах пользователя на экран 
@@ -3214,32 +3259,24 @@ def start_prog (message_info,parsed_string):                                    
     #testing_double                                         (message_info,status_input,setting_bot)                                                             ###  Проверка на повторно нажатые клавиши
     #answer                         = executing_run         (message_info,status_input,setting_bot,{})                                                          ###  Выполнение команды из базы данных
     result                          = executing_start       (message_info,status_input,setting_bot,{})                                                          ###  Выполнение команды /start
-    
     #result                          = automat_message       (message_info,status_input,setting_bot,{})
     #result                           = automat_command       (message_info,status_input,setting_bot,{})
-    
-    
     #result                          = testing_blocking      (message_info,status_input,setting_bot)  
     ###  Проверка заполнения данных
     #if answer.setdefault ('Ответ','') == '':
-        
-        
     answer      =  executing_autostart     (message_info,status_input,setting_bot,{})    
-        
-    if 1==1:
-        #save_info_refer                         (message_info,status_input,setting_bot)                                                                        ###  Записываем информацию по полученной реферальной ссылке 
-        #save_info_user                          (message_info,status_input,setting_bot)                                                                        ###  Обновляем информацию по текущему пользователю 
-        #lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                        ###  Записываем входяшие сообшение для протоколирования
-        #result       = executing_command          (message_info,status_input,setting_bot)                                                                 ###  Выполняем команды присланные боту
-        answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем на действие статуса бота. Например ввод данных
-        print ('message_info :',message_info)
-        result      = executing_message          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в базе данных
-        result      = executing_program          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в этом файле
-        #executing_free_messsage                  (message_info,status_input,setting_bot,answer)                                                                ###  Слова введенные вне команд   
-        #analis                                   (message_info,status_input,setting_bot,answer)                                                                ###  Выполнение кода если нет действия на сообщения
-        #save_out_message                         (message_info,status_input,setting_bot)                                                                        ###  Протоколирование исходящего сообщения
-        #statictic                                (message_info,status_input,setting_bot)
-        #backUp                                   (message_info,status_input,setting_bot)   
+    #save_info_refer                         (message_info,status_input,setting_bot)                                                                        ###  Записываем информацию по полученной реферальной ссылке 
+    #save_info_user                          (message_info,status_input,setting_bot)                                                                        ###  Обновляем информацию по текущему пользователю 
+    #lastid_log  = save_message_user         (message_info,status_input,setting_bot)                                                                        ###  Записываем входяшие сообшение для протоколирования
+    #result       = executing_command          (message_info,status_input,setting_bot)                                                                 ###  Выполняем команды присланные боту
+    answer      = executing_status          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем на действие статуса бота. Например ввод данных
+    result      = executing_message          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в базе данных
+    result      = executing_program          (message_info,status_input,setting_bot,answer)                                                                 ###  Выполняем код прописанный в этом файле
+    #executing_free_messsage                  (message_info,status_input,setting_bot,answer)                                                                ###  Слова введенные вне команд   
+    #analis                                   (message_info,status_input,setting_bot,answer)                                                                ###  Выполнение кода если нет действия на сообщения
+    #save_out_message                         (message_info,status_input,setting_bot)                                                                        ###  Протоколирование исходящего сообщения
+    #statictic                                (message_info,status_input,setting_bot)
+    #backUp                                   (message_info,status_input,setting_bot)   
 
 ##################################################################################################################################################################################################
 
